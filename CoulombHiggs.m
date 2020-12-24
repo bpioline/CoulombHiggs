@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 3.0                 
+ *  CoulombHiggs.m 3.1                 
  *                                                          
- *  Copyright J. Manschot, B. Pioline and A. Sen, Sep 2015
+ *  Copyright J. Manschot, B. Pioline and A. Sen, Jan 2016
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -38,8 +38,12 @@
  * - Fixed bug in HuaFormula
  * - Introduced JKIndex, etc
  *
+ * Release notes for 3.1:
+ * - Introduced elliptic genus computation 
+ * - beware, the intersection points on torus have not been implemented yet - see JeffreyKirwan8
+ *
  *********************************************************************)
-Print["CoulombHiggs 3.0 - A package for evaluating quiver invariants using the Coulomb branch, Higgs branch and Jeffrey-Kirwan residue formulae."];
+Print["CoulombHiggs 3.1 - A package for evaluating quiver invariants using the Coulomb branch, Higgs branch and Jeffrey-Kirwan residue formulae."];
 
 
 BeginPackage["CoulombHiggs`"]
@@ -48,11 +52,11 @@ BeginPackage["CoulombHiggs`"]
 
 y::usage = "Angular momentum fugacity, conjugate to sum of Dolbeault degrees";
 
+z::usage = "Angular momentum chemical potential, y=Exp[I Pi z]";
+
 t::usage = "fugacity, conjugate to difference of Dolbeault degrees";
 
 x::usage = "fugacity, conjugate to rank in Hua formula";
-
-z::usage = "Angular momentum chemical potential, y=Exp[I Pi z]";
 
 u::usage = "u[i,s]: s-th Cartan variable for i-th gauge group";
 
@@ -77,6 +81,14 @@ Higgsg::usage = "Higgsg[gam_,y_] denotes the (unevaluated) Abelian stack invaria
 Coulombg::usage = "Coulombg[Li_,y_] denotes the Coulomb index of n centers with charges Li";
 
 CoulombH::usage = "CoulombH[Li_,Nvec_,y_] denotes the H-factor appearing in the formula for OmT[alpha_i] in terms of the single center degeneracies OmS[alpha_i,y]";
+
+tau::usage = "modulus of the elliptic curve";
+
+q::usage = "q=Exp[2 Pi I tau]";
+
+Theta::usage = "Theta[z_] represents the Jacobi Theta series Theta_1[z,tau]";
+
+Eta::usage = "Eta represents the Dedekind eta function eta[tau]";
 
 (** environment variables variables **)
 
@@ -103,6 +115,8 @@ $QuiverOmSbasis::usage = "Default=1, set to 0 to relax the assumption that OmS=1
 $QuiverMutationMult::usage = "Default=1, set to M>1 for generalized quiver mutations";
 
 $QuiverOpt::usage = "Default=1, set to 0 for old unoptimized evaluation";
+
+kmax::usage = "Maximal power in the q-expansion of the elliptic genus, set to k=1 initially";
  
 (** Coulomb index computations **)
 
@@ -210,11 +224,15 @@ gRat::usage= "gRat[ChargeMatrix,Nvec] constructs the integrand in the residue fo
 
 gTrig::usage= "gTrig[ChargeMatrix,Nvec] constructs the integrand in the residue formula for the chi_y genus in trigonometric representation";
 
+gElliptic::usage= "gElliptic[ChargeMatrix,Nvec] constructs the integrand in the residue formula for the elliptic genus";
+
 gEulerPartial::usage="gEulerPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces gEuler[ChargeMatrix,Nvec]";
+
+gRatPartial::usage= "gRatPartial[ChargeMatrix_,Nvec_,ListPerm_] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in rational representation, corresponding to the partitions Listperm at each node; ; the sum over all permutations reproduces gRat[ChargeMatrix,Nvec]";
 
 gTrigPartial::usage="gTrigPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in trigonometric representation, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces gTrig[ChargeMatrix,Nvec]";
 
-gRatPartial::usage= "gRatPartial[ChargeMatrix_,Nvec_,ListPerm_] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in rational representation, corresponding to the partitions Listperm at each node; ; the sum over all permutations reproduces gRat[ChargeMatrix,Nvec]";
+gEllipticPartial::usage="gEllipticPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the elliptic genus, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces gTrig[ChargeMatrix,Nvec]";
 
 JKResidueRat::usage= "JKResidueRat[Flags_,f_] extracts the sum of the residues of f (in rational representation) at the specified Flags, weighted with sign; the first entry in Flags is the intersection point, the second is a list of r-plets of charges for each flag";  
 
@@ -226,16 +244,23 @@ JKIndexRefinedFromStableFlags::usage ="JKIndexRefinedFromStableFlags[ChargeMatri
 
 JKIndexTrigFromStableFlags::usage ="JKIndexTrigFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in trigonometric representation) from the specified list of all stable flags";
 
-JKIndexEulerSplitFromStableFlags::usage ="JKIndexEulerFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the Euler index from the specified list of all partial stable flags";
+JKIndexEllipticFromStableFlags::usage ="JKIndexEllipticFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the elliptic genus from the specified list of all stable flags";
 
-JKIndexRefinedSplitFromStableFlags::usage ="JKIndexRefinedFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in rational representation) from the specified list of all partial stable flags";
+JKIndexEulerSplitFromStableFlags::usage ="JKIndexEulerSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the Euler index from the specified list of all partial stable flags";
 
-JKIndexTrigSplitFromStableFlags::usage ="JKIndexTrigFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in trigonometric representation) from the specified list of all partial stable flags";
+JKIndexRefinedSplitFromStableFlags::usage ="JKIndexRefinedSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in rational representation) from the specified list of all partial stable flags";
+
+JKIndexTrigSplitFromStableFlags::usage ="JKIndexTrigSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in trigonometric representation) from the specified list of all partial stable flags";
+
+JKIndexEllipticSplitFromStableFlags::usage ="JKIndexEllipticSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the elliptic genus  from the specified list of all partial stable flags";
 
 FindSingularities::usage = "FindSingularities[ChargeMatrix_] constructs the list of singular hyperplanes for the specified charge matrix";
 
 FindStableFlags::usage = "FindStableFlags[ListSings_,Nvec_,Etavec_] constructs the list of stable flags with stability parameter Etavec from the specified list of singular hyperplanes";
 
+ExpandTheta::usage = "ExpandTheta[f_] replaces Theta[z] and Eta by its Fourier expansion up to order q^kmax, using both q and tau variables";
+
+qSeries::usage = "qSeries[f_] computes the Fourier expansion of f[q,tau] up to order q^kmax";
 
 
 (** Utilities **)
@@ -376,11 +401,6 @@ ChargeMatrixFromQuiver::usage = "ChargeMatrixFromQuiver[Mat_,RMat_,Nvec_] constr
 
 Begin["`Private`"]
 
-
-(* ::Section:: *)
-(*Recursive formulae for the n-center Coulomb index *)
-
-
 $QuiverPerturb1=50;
 $QuiverPerturb2=50*50*1000; 
 $QuiverPrecision=0;
@@ -393,6 +413,12 @@ $QuiverRecursion=1;
 $QuiverOmSbasis=1;
 $QuiverMutationMult=1;
 $QuiverOpt=1;
+kmax=0;
+
+
+(* ::Section:: *)
+(*Recursive formulae for the n-center Coulomb index *)
+
 
 (* compute incidence matrix and FI terms for collapsed configuration *)
 MatRedC[Mat_,Cvec_,li_]:=Module[{li2=Select[li,Length[#]>0&]},
@@ -1263,6 +1289,13 @@ perm=FindCycle[AdjacencyGraph[Table[If[Mat[[i,j]]>0,1,0],{i,Length[Mat]},{j,Leng
 Table[{Table[perm[[i,j,1]],{j,Length[perm[[i]]]}],Plus@@Table[RMat[[perm[[i,j,1]],perm[[i,j,2]]]],{j,Length[perm[[i]]]}]},{i,Length[perm]}]
 ];
 
+ChargeMatrixFromQuiver[Mat_,RMat_,Nvec_]:=Select[Flatten[
+Table[If[Mat[[i,j]]>0,Flatten[{LegCharge[Nvec,{i,ii},{j,jj}],RMat[[i,j]],Mat[[i,j]]}],{}],{i,Length[Mat]},{j,Length[Mat]},{ii,Nvec[[i]]},{jj,Nvec[[j]]}],3],Length[#]>0&];
+
+ExpandTheta[f_]:=(f/.Theta[x_]:>-I q^(1/8)(Exp[I Pi x]-Exp[-I Pi x])Product[(1-q^k)(1- Exp[2Pi I (x+k tau)])(1-Exp[-2Pi I (x-k tau)]),{k,1,kmax}]/.Eta->q^(1/24)Product[1-q^k,{k,1,kmax}]);
+
+qSeries[f_]:=Series[Simplify[f/.{tau->Log[q]/(2Pi I)}],{q,0,kmax}];
+
 
 
 (* ::Section:: *)
@@ -1314,31 +1347,6 @@ StackInvariant[Mat_,Cvec_,Nvec_,y_]:=Module[{m,ListAllPermutations,pa,Cvec0},
     {a,1,Length[pa[[i]]]},{b,a,Length[pa[[i]]]},{k,m},{l,m}])/
     Product[QFact[pa[[i,j,k]],y] ,{j,1,Length[pa[[i]]]},{k,m}],0],{i,Length[pa]}]
 ];
-
-(* StackInvariantGen2[Mat_,Cvec_,Nvec_,y_]:=Module[{m,ListAllPermutations,pa,Cvec0,Eu},
-  m=Length[Nvec];
-  If[Max[Nvec]<0,Print["StackInvariantGen: The dimension vector must be positive !"]];
-  If[Plus@@Nvec==0,Return[0]];
-  (* If[Plus@@Nvec==1,Return[1]]; *)
-  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
-  pa=Flatten[Map[Permutations,ListAllPartitions[Nvec]],1];
-  If[$QuiverVerbose,
-    If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
-        Print["StackInvariantGen: Length of DSZ matrix, FI and dimension vectors do not match !"]];
-    If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
-		Print["StackInvariantGen: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
-    ];   
-  Print["StackInvariantGen: summing ", Length[pa]," ordered partitions"];
-  ];
-    Eu=EulerForm[Mat];
-(y-1/y) (-y)^(-Sum[Eu[[k,l]] Nvec[[k]] Nvec[[l]],{k,m},{l,m}])
-	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec0[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,{b,Length[pa[[i]]]-1}],
-      (-1)^(Length[pa[[i]]]-1)
-       y^(2  Sum[ Eu[[l,k]] pa[[i,a,k]]pa[[i,b,l]],
-    {a,1,Length[pa[[i]]]},{b,a,Length[pa[[i]]]},{k,m},{l,m}])/
-    Product[(1-y^(2 l)),{j,1,Length[pa[[i]]]},{k,m},{l,1,pa[[i,j,k]]}],0],{i,Length[pa]}]
-];
-*)
 
 
 AbelianStackInvariant[Mat_,Cvec_,y_]:=Module[{m,ListAllPermutations,pa,ListPerm,Cvec0},
@@ -1586,19 +1594,31 @@ Listu=Pick[ListuAll,FrozenMask];
 Listut=Listu/.{u[i_,j_]:>ut[i,j]};
 ];
 
-gEulerPartial[ChargeMatrix_,Nvec_,ListPerm_]:=z^Length[FrozenCartan] Product[ Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)/
-Product[(u[i,ii]-u[i,ListPerm[[i,ii]]]+z),{ii,Length[ListPerm[[i]]]}],{i,Length[ListPerm]}]Product[(-((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/.FrozenRuleEuler;
-
-gTrigPartial[ChargeMatrix_,Nvec_,ListPerm_]:=(2Pi I)^(Plus@@Nvec-Length[FrozenCartan])Product[(-(Exp[I Pi z]-Exp[-I Pi z])/2/I)^Length[ListPerm[[i]]]Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)Product[2I/(Exp[Pi I (u[i,ii]-u[i,ListPerm[[i,ii]]]-z)]-Exp[-Pi I (u[i,ii]-u[i,ListPerm[[i,ii]]]-z)]),{ii,Length[ListPerm[[i]]]}],{i,Length[Nvec]}]Product[(-((Exp[Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))]-Exp[-Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))])/((Exp[Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]-Exp[-Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]))))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(Exp[Pi I z]-Exp[-Pi I z])^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleEuler;
-
-gRatPartial[ChargeMatrix_,Nvec_,ListPerm_]:=Product[ (1-y^2)^Length[ListPerm[[i]]] Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)/
-Product[u[i,ii]-y^2 u[i,ListPerm[[i,ii]]],{ii,Length[ListPerm[[i]]]}],{i,Length[ListPerm]}]Product[(-(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(-1+ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(1-ChargeMatrix[[i,-2]]/2))/(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(-ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(y-1/y)^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleRat; 
-
 gEuler[ChargeMatrix_,Nvec_]:= z^(Length[FrozenCartan]-Plus@@Nvec)/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,-(u[i,ii]-u[i,jj])/ (u[i,ii]-u[i,jj]-z )],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/.FrozenRuleEuler;
 
 gRat[ChargeMatrix_,Nvec_]:=1/Product[Nvec[[i]]!,{i,Length[Nvec]}]/Product[u[i,ii],{i,Length[Nvec]},{ii,Nvec[[i]]}]Product[If[ii==jj,1,(-y(u[i,ii]-u[i,jj])/(u[i,ii]-y^2 u[i,jj]))],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(-1+ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(1-ChargeMatrix[[i,-2]]/2))/(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(-ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(y-1/y)^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleRat; 
 
 gTrig[ChargeMatrix_,Nvec_]:= (2Pi I)^(Plus@@Nvec-Length[FrozenCartan])/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,(-(Exp[Pi I (u[i,ii]-u[i,jj])]-Exp[-Pi I (u[i,ii]-u[i,jj])])/(Exp[Pi I (u[i,ii]-u[i,jj]-z )]-Exp[-Pi I (u[i,ii]-u[i,jj]-z)]))],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-((Exp[Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))]-Exp[-Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))])/((Exp[Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]-Exp[-Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]))))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(Exp[Pi I z]-Exp[-Pi I z])^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleEuler;
+
+gElliptic[ChargeMatrix_,Nvec_]:= Module[{},(2Pi Eta^3/Theta[z])^(Plus@@Nvec-Length[FrozenCartan])/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,-Theta[u[i,ii]-u[i,jj]]/Theta[u[i,ii]-u[i,jj]-z]
+],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[
+(- Theta[Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)]/Theta[Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2])^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/.FrozenRuleEuler];
+
+gEulerPartial[ChargeMatrix_,Nvec_,ListPerm_]:=z^Length[FrozenCartan] Product[ Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)/
+Product[(u[i,ii]-u[i,ListPerm[[i,ii]]]+z),{ii,Length[ListPerm[[i]]]}],{i,Length[ListPerm]}]Product[(-((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/.FrozenRuleEuler;
+
+gRatPartial[ChargeMatrix_,Nvec_,ListPerm_]:=Product[ (1-y^2)^Length[ListPerm[[i]]] Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)/
+Product[u[i,ii]-y^2 u[i,ListPerm[[i,ii]]],{ii,Length[ListPerm[[i]]]}],{i,Length[ListPerm]}]Product[(-(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(-1+ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(1-ChargeMatrix[[i,-2]]/2))/(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(-ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(y-1/y)^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleRat; 
+
+gTrigPartial[ChargeMatrix_,Nvec_,ListPerm_]:=Module[{},(2Pi I)^(Plus@@Nvec-Length[FrozenCartan])Product[(-(Exp[I Pi z]-Exp[-I Pi z])/2/I)^Length[ListPerm[[i]]]Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)Product[2I/(Exp[Pi I (u[i,ii]-u[i,ListPerm[[i,ii]]]-z)]-Exp[-Pi I (u[i,ii]-u[i,ListPerm[[i,ii]]]-z)]),{ii,Length[ListPerm[[i]]]}],{i,Length[Nvec]}]Product[(-((Exp[Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))]-Exp[-Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))])/((Exp[Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]-Exp[-Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]))))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(Exp[Pi I z]-Exp[-Pi I z])^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleEuler];
+
+gEllipticPartial[ChargeMatrix_,Nvec_,ListPerm_]:=Module[{},(2Pi Eta^3/Theta[z])^(Plus@@Nvec-Length[FrozenCartan])
+   Product[(-Theta[z]/2)^Length[ListPerm[[i]]]
+   Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)
+   Product[2/Theta[ u[i,ii]-u[i,ListPerm[[i,ii]]]-z] ,{ii,Length[ListPerm[[i]]]}],{i,Length[Nvec]}]  Product[
+(-Theta[Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)]/Theta[Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2])^ChargeMatrix[[i,-1]]
+     ,{i,Length[ChargeMatrix]}]/.FrozenRuleEuler];
+
 
 JKResidueRat[StableFlag_,gRat_]:=Module[{Inter,QT,QTi,Ksign,QTu,QTut,repu,gt,i,j},
 Table[
@@ -1645,6 +1665,13 @@ Table[
 JKResidueTrig[ListStableFlags[[jj]],gTrig[ChargeMatrix,Nvec]],{jj,Length[ListStableFlags]}]
 ];
 
+JKIndexEllipticFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{jj},
+PrintTemporary["Evaluating JK residue at singularity ",Dynamic[jj]];
+Table[
+Print["from ",gElliptic[ChargeMatrix,Nvec]];
+JKResidueTrig[ListStableFlags[[jj]],ExpandTheta[gElliptic[ChargeMatrix,Nvec]]],{jj,Length[ListStableFlags]}]
+];
+
 JKIndexEulerSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{perm,mul,k,jj},
 PrintTemporary["Evaluating JK residue for partition ",Dynamic[k]," at singularity ",Dynamic[jj]];
 Table[
@@ -1675,6 +1702,16 @@ Table[
 mul JKResidueTrig[ListStableFlags[[k,jj]],gTrigPartial[ChargeMatrix,Nvec,perm]],{jj,Length[ListStableFlags[[k]]]}]
 ,{k,Length[ListAllPerms]}]];
 
+JKIndexEllipticSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{perm,mul,k,jj},
+PrintTemporary["Evaluating JK residue for partition ",Dynamic[k]," at singularity ",Dynamic[jj]];
+Table[
+perm=ListAllPerms[[k,1]];
+mul=ListAllPerms[[k,2]];
+Table[
+Print["from ",gEllipticPartial[ChargeMatrix,Nvec,perm]];
+mul JKResidueTrig[ListStableFlags[[k,jj]],ExpandTheta[gEllipticPartial[ChargeMatrix,Nvec,perm]]],{jj,Length[ListStableFlags[[k]]]}]
+,{k,Length[ListAllPerms]}]];
+
 PartialChargeMatrix[ChargeMatrix_,Nvec_,perm_]:= Select[Flatten[{ChargeMatrix,Flatten[Table[If[(jj==perm[[i,ii]])&&ii!=jj,Flatten[{LegCharge[Nvec,{i,ii},{i,jj}],-2,1}],{}],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}],2]},1],Length[#]>0&];
 
 CompleteChargeMatrix[ChargeMatrix_,Nvec_]:= Select[Flatten[{ChargeMatrix,Flatten[Table[Flatten[{LegCharge[Nvec,{i,ii},{i,jj}],-2,1}],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,ii+1,Nvec[[i]]}],2]},1],Length[#]>0&];
@@ -1684,7 +1721,7 @@ LegCharge[Nvec_,{i_,ii_},{j_,jj_}]:=Module[{k,kk},Flatten[Table[If[{k,kk}=={i,ii
 TrimChargeTable[Sing_]:=Map[Pick[#,Flatten[{FrozenMask,False,False}]]&,Sing];
 (* two flags are equivalent if Q2.Inverse[Q1] is lower triangular *)
 
-FindIntersection[Sing_]:=Module[{QT,Rvec,i,d,so0,so1},
+FindIntersectionOld[Sing_]:=Module[{QT,Rvec,i,d,so0,so1},
 QT=TrimChargeTable[Sing];
 d=Abs[Det[QT]];
 Rvec=Table[Sing[[i,-2]],{i,Length[Sing]}];
@@ -1698,6 +1735,23 @@ so0=Solve[QT.Listu+Rvec/2==0,Listu];
 (* homogeneous solution mod Det *)
 so1=Select[Flatten[Table[If[Mod[QT.Listu,d]==ConstantArray[0,Length[Listu]],Listu,{}],##]&@@Table[{Listu[[i]],0,d-1},{i,Length[Listu]}],Length[Listu]-1],Length[#]>0&];
 Table[(Listu/.so0[[1]]) z+so1[[i]]/d,{i,Length[so1]}]]
+(* to be changed for elliptic genus ! *)
+]];
+
+FindIntersection[Sing_]:=Module[{QT,Rvec,i,d,so0,so1},
+  QT=TrimChargeTable[Sing];
+  d=Abs[Det[QT]];
+  Rvec=Table[Sing[[i,-2]],{i,Length[Sing]}];
+  If[d==0,(*Print["Degenerate intersection"];*)
+   {},
+  If[d==1,
+  (Listu/.Solve[QT.Listu+Rvec/2==0,Listu])z
+  ,Print["Two hyperplanes intersect more than once !"];
+ (* inhomogenous solution *)
+  so0=Solve[QT.Listu+Rvec/2==0,Listu];
+ (* homogeneous solution mod Det *)
+so1=Select[Flatten[Table[If[Mod[QT.Listu,d]==ConstantArray[0,Length[Listu]],Listu,{}],##]&@@Table[{Listu[[i]],0,d-1},{i,Length[Listu]}],Length[Listu]-1],Length[#]>0&];
+Flatten[Table[(Listu/.so0[[1]]) z+(so1[[i]]+tau so1[[j]])/d,{i,Length[so1]},{j,Length[so1]}],1]]
 ]];
 
 FlagToHyperplanes[Sing_]:=Module[{QT,QT2,Rvec,i},
@@ -1737,18 +1791,6 @@ Union[Flatten[Table[ListInterrplets[[Li[[i]],2]],{i,Length[Li]}],1]]
 ];
 
 SameFlagQ[Q1_,Q2_]:=Module[{i,j,Q3},Q3=Q2.Inverse[Q1];Union[Flatten[Table[Q3[[i,j]],{i,1,Length[Q3]-1},{j,i+1,Length[Q3]}]]]]=={0};
-
-FindSingularities[ChargeMatrix_]:=Module[{Listrplets,ListInterrplets,ListInter,ListInterDistinct,ListSings},
-(* list of all r-plets of hyperplanes *)
-Listrplets=Subsets[ChargeMatrix,{Length[ChargeMatrix[[1]]]-2-Length[FrozenCartan]}];
-ListInterrplets=Select[Table[{FindIntersection[Listrplets[[l]]],Listrplets[[l]]},{l,Length[Listrplets]}],Length[#[[1]]]>0&];
-  (* retain only intersection points *)
-ListInter=First[Transpose[ListInterrplets]];
-ListInterDistinct=DeleteDuplicates[Flatten[ListInter,1]];
-(* list all distinct intersections along with hyperplanes meeting at that point *)
-ListSings=Table[{ListInterDistinct[[i]],CollectHyperplanes[ListInter,ListInterrplets,ListInterDistinct[[i]]]},{i,Length[ListInterDistinct]}]
-(*PrintTemporary[Length[ListSings]," distinct intersections"];*)
-];
 
 FindSingularities[ChargeMatrix_]:=Module[{Listrplets,ListInterrplets,ListInterDistinct,ListSings},
 (* list of all r-plets of hyperplanes *)
@@ -1800,7 +1842,7 @@ If[Det[KTab]==0,0,
 Sign[Det[KTab]],0]]
 ];
 
-JKIndexSplit[ChargeMatrix_,Nvec_,Etavec_]:=Module[{ListSings,ListStableFlags,ListAllIntersections,IndEuler,IndHirzebruch,ListRelevantSings,RelevantStableFlags},
+JKIndexSplit[ChargeMatrix_,Nvec_,Etavec_]:=Module[{ListSings,ListStableFlags,ListAllIntersections,IndEuler,IndHirzebruch,IndElliptic,ListRelevantSings,RelevantStableFlags},
 If[Length[Etavec]!=Plus@@Nvec,Print["The length of the dimension and stability vectors do not match !"];
 ];
 If[Length[Transpose[ChargeMatrix]]!=(Plus@@Nvec)+2,Print["The width of the charge matrix should equal the rank plus 2 !"];
@@ -1848,11 +1890,20 @@ RelevantStableFlags[[k,i,2,j,2]] ListAllPerms[[k,2]],TestProjectiveIntersection[
 {k,Length[RelevantStableFlags]},{i,Length[RelevantStableFlags[[k]]]},{j,Length[RelevantStableFlags[[k,i,2]]]}],2]//MatrixForm];
 IndHirzebruch=JKIndexRefinedSplitFromStableFlags[ChargeMatrix,Nvec,RelevantStableFlags];
 Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
+(**** for testing ****)
+Print["The same in trigonometric variables"];
+IndHirzebruch=JKIndexTrigSplitFromStableFlags[ChargeMatrix,Nvec,RelevantStableFlags];
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
 Print["Now including all stable flags: "];
-JKIndexRefinedSplitFromStableFlags[ChargeMatrix,Nvec,ListAllStableFlags]
+IndHirzebruch=JKIndexRefinedSplitFromStableFlags[ChargeMatrix,Nvec,ListAllStableFlags];
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
+Print["Now computing the elliptic genus including all stable flags:"];
+IndElliptic=JKIndexEllipticSplitFromStableFlags[ChargeMatrix,Nvec,ListAllStableFlags];
+Print[Simplify[qSeries[Plus@@Flatten[IndElliptic]]]];
+IndHirzebruch
 ];
 
-JKIndex[ChargeMatrix_,Nvec_,Etavec_]:=Module[{ListSings,ListStableFlags,ListAllIntersections,IndEuler,IndHirzebruch,ListRelevantSings,RelevantStableFlags},
+JKIndex[ChargeMatrix_,Nvec_,Etavec_]:=Module[{ListSings,ListStableFlags,ListAllIntersections,IndEuler,IndHirzebruch,IndElliptic,ListRelevantSings,RelevantStableFlags},
 If[Length[Etavec]!=Plus@@Nvec,Print["The length of the dimension and stability vectors do not match !"];
 ];
 If[Length[Transpose[ChargeMatrix]]!=(Plus@@Nvec)+2,Print["The width of the charge matrix should equal the rank plus 2 !"];
@@ -1886,12 +1937,19 @@ RelevantStableFlags[[i,2,j,2]] ,
 TestProjectiveIntersection[ListSings,RelevantStableFlags[[i,1]]]
 },{i,Length[RelevantStableFlags]},{j,Length[RelevantStableFlags[[i,2]]]}],1]//MatrixForm];
 IndHirzebruch=JKIndexRefinedFromStableFlags[ChargeMatrix,Nvec,RelevantStableFlags];
-Print[Simplify[Plus@@Flatten[IndHirzebruch]]]Print["Now including all stable flags: "];
-JKIndexRefinedFromStableFlags[ChargeMatrix,Nvec,ListStableFlags]
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
+(**** for testing ****)
+Print["The same in trigonometric variables"];
+IndHirzebruch=JKIndexTrigFromStableFlags[ChargeMatrix,Nvec,RelevantStableFlags];
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
+Print["Now including all stable flags: "];
+IndHirzebruch=JKIndexRefinedFromStableFlags[ChargeMatrix,Nvec,ListStableFlags];
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
+Print["Now computing the elliptic genus from all stable flags: "];
+IndElliptic=JKIndexEllipticFromStableFlags[ChargeMatrix,Nvec,ListStableFlags];
+Print[Simplify[qSeries[Plus@@Flatten[IndElliptic]]]];
+IndHirzebruch
 ];
-
-ChargeMatrixFromQuiver[Mat_,RMat_,Nvec_]:=Select[Flatten[
-Table[If[Mat[[i,j]]>0,Flatten[{LegCharge[Nvec,{i,ii},{j,jj}],RMat[[i,j]],Mat[[i,j]]}],{}],{i,Length[Mat]},{j,Length[Mat]},{ii,Nvec[[i]]},{jj,Nvec[[j]]}],3],Length[#]>0&];
 
 
 
