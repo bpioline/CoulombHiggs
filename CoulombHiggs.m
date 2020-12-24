@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 2.0                 
+ *  CoulombHiggs.m 2.2                 
  *                                                          
- *  Copyright J. Manschot, B. Pioline and A. Sen, Sep 2013
+ *  Copyright J. Manschot, B. Pioline and A. Sen, Sep 2014
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -24,8 +24,17 @@
  *   cyclic Abelian quiver with arrows Mat[i,i+1]=Avec[i]
  * - GrassmannianPoincare[k,n,y] gives the Poincare polynomial of the Grassmannian G(k,n)
  *
+ * Release notes for 2.1: 
+ * - Optimized CoulombF, CoulombG; old procedure can be recovered by setting $QuiverOpt=False.
+ * - Relaxed condition that FI parameters sum up to zero
+ *
+ * Release notes for 2.2:
+ * - Introduced StackInvariantGen, relaxing antisymmetry of DSZ matrix 
+ * - Introduced EulerForm, SubVectors
+ * - Introduced StackInvariantFast, computing StackInvariantGen using Reineke's fast algorithm
+ *
  *********************************************************************)
-Print["CoulombHiggs v 2.0 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae."];
+Print["CoulombHiggs v 2.2 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae."];
 
 
 BeginPackage["CoulombHiggs`"]
@@ -79,6 +88,8 @@ $QuiverRecursion::usage = "Default=1, set to 0 to use the old recursion scheme f
 $QuiverOmSbasis::usage = "Default=1, set to 0 to relax the assumption that OmS=1 for basis vectors, OmS=0 for multiples thereof";
 
 $QuiverMutationMult::usage = "Default=1, set to M>1 for generalized quiver mutations";
+
+$QuiverOpt::usage = "Default=1, set to 0 for old unoptimized evaluation";
  
 (** Coulomb index computations **)
 
@@ -87,6 +98,12 @@ CoulombF::usage = "CoulombF[Mat_, Cvec_] returns the index of collinear solution
 CoulombG::usage = "CoulombG[Mat_] returns the index of scaling collinear solutions with DSZ products Mat and trivial ordering. The total angular momentum Sum[Mat[i,j],j>i] must vanish";
 
 CoulombIndex::usage = "CoulombIndex[Mat_,PMat_,Cvec_,y_] returns the Coulomb index for n centers with DSZ products Mat, perturbed to PMat to lift accidental degeneracies, FI terms Cvec, angular momentum fugacity y";
+
+CoulombFOpt::usage = "CoulombFOpt[Mat_, Cvec_] returns the index of collinear solutions with DSZ products Mat, FI terms Cvec and trivial ordering.";
+
+CoulombGOpt::usage = "CoulombGOpt[Mat_] returns the index of scaling collinear solutions with DSZ products Mat and trivial ordering. The total angular momentum Sum[Mat[i,j],j>i] must vanish";
+
+CoulombIndexOpt::usage = "CoulombIndexOpt[Mat_,PMat_,Cvec_,y_] returns the Coulomb index for n centers with DSZ products Mat, perturbed to PMat to lift accidental degeneracies, FI terms Cvec, angular momentum fugacity y";
 
 CoulombIndexNum::usage = "CoulombIndexNum[Mat_,PMat_,Cvec_,y_] returns the Coulomb index for n centers with DSZ products Mat, perturbed to PMat to lift accidental degeneracies,  FI terms Cvec, angular momentum fugacity y, computed numerically. Not for more than 6 centers.";
 
@@ -103,8 +120,6 @@ EvalCoulombIndexNum::usage="EvalCoulombIndex[Mat_,PMat_,Cvec_,f_] evaluates the 
 (** Coulomb branch formula **)
 
 CoulombBranchFormula::usage = "CoulombBranchFormula[Mat_,Cvec_,Nvec_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the single center degeneracies OmS[alpha_i,t] using the Coulomb branch formula, computing all CoulombH factors recursively using the minimal modification hypothesis. Also provides list of CoulombH factors if $QuiverDisplayCoulombH is set to True";
-
-CoulombBranchFormulaNew::usage = "CoulombBranchFormulaNew[Mat_,Cvec_,Nvec_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the single center degeneracies OmS[alpha_i,t] using the new Coulomb branch formula, computing all CoulombH factors recursively using the minimal modification hypothesis. Also provides list of CoulombH factors if $QuiverDisplayCoulombH is set to True";
 
 CoulombBranchFormulaFromH::usage = "CoulombBranchFormulaFromH[Mat_,Cvec_,Nvec_,R_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the single center degeneracies OmS[alpha_i,y] using the Coulomb branch formula, using CoulombH factors provided in replacement rule R";
 
@@ -124,21 +139,25 @@ HiggsBranchFormula::usage = "HiggsBranchFormula[Mat_,Cvec_,Nvec_] computes the P
 
 StackInvariant::usage = "StackInvariant[Mat_,Cvec_,Nvec_,y_] gives the stack invariant of a quiver with DSZ matrix Mat, dimension vector Nvec and FI parameters Cvec computed using Reineke's formula";
 
+StackInvariantGen::usage = "StackInvariantGen[Mat_,Cvec_,Nvec_,y_] gives the stack invariant of a quiver with exchange matrix Mat, dimension vector Nvec and FI parameters Cvec computed using Reineke's formula";
+
+StackInvariantFast::usage = "StackInvariantFast[Mat_,Cvec_,Nvec_,y_] gives the stack invariant of a quiver with exchange matrix Mat, dimension vector Nvec and FI parameters Cvec computed using Reineke's fast algorithm";
+
 AbelianStackInvariant::usage = "AbelianStackInvariant[Mat_,Cvec_,y_] gives the Abelian stack invariant of a quiver with DSZ matrix Mat and FI parameters Cvec computed using Reineke's formula";
 
-QFact::usage = "QFact[Nvec_,y_] represents the unevaluated q-deformed Factorial";
+QFact::usage = "QFact[n_,y_] represents the unevaluated q-deformed Factorial";
 
 QDeformedFactorial::usage = "QDeformedFactorial[n_,y_] gives the q-deformed factorial";
 
 EvalQFact::usage = "EvalQFact[f_] replaces QFact[n_,y_] with QDeformedFactorial[n,y] everywhere in f";
 
+EulerForm::usage = "EulerForm[Mat] gives the Euler form constructed from the DSZ matrix Mat";
+
 (* mutations *)
 
-MutateRight::usage = "MutateRight[{Mat_,Cvec_,Nvec_},k_] mutates the quiver with respect to node k";
+MutateRight::usage = "MutateRight[Mat_,Cvec_,Nvec_,klist_] mutates the quiver with respect to nodes in klist";
 
-MutateLeft::usage = "MutateLeft[{Mat_,Cvec_,Nvec_},k_] mutates the quiver with respect to node k";
-
-MutateList::usage = "MutateList[{Mat_,Cvec_,Nvec_},klist_] mutates the quiver with respect to nodes in klist";
+MutateLeft::usage = "MutateLeft[Mat_,Cvec_,Nvec_,klist_] mutates the quiver with respect to nodes in klist";
 
 OmSToOmS2::usage = "OmSToOmS2[f_] replaces OmS[gam,...] by OmS2[gam,...] everywhere in f";
 
@@ -204,15 +223,20 @@ OmbToHiggsG::usage = "OmbToHiggsG[f_] expresses any Omb[gam,y] in f in terms of 
 
 EvalHiggsg::usage = "EvalHiggsg[Mat_,Cvec_,f_] evaluates any Higgsg[Li,y] appearing in f using Reineke's formula for Abelian quivers";
 
-EvalHiggsG::usage = "EvalgHiggsG[Mat_,Cvec_,f_] evaluates any HiggsG[gam,y] appearing in f using Reineke's formula";
+EvalHiggsG::usage = "EvalHiggsG[Mat_,Cvec_,f_] evaluates any HiggsG[gam,y] appearing in f using Reineke's formula";
+
+EvalHiggsGGen::usage = "EvalHiggsG[Mat_,Cvec_,f_] evaluates any HiggsG[gam,y] appearing in f using Reineke's formula";
 
 CoulombHSubQuivers::usage = "CoulombHSubQuivers[Mat_,PMat_,Nvec_,y_] computes all CoulombH factors for dimension vector strictly less than Nvec";
 
 RandomCvec::usage = "RandomCvec[gam_] generates a random set of FI parameters between -1 and 1";
 
 UnitStepWarn::usage = "UnitStepWarn[x_] gives 1 for x>0, 0 for x<0, and produces a warning for x=0";
+UnitStepWarn::zero = "UnitStep with vanishing argument, evaluates to 1/2";
 
 AttractorFI::usage = "AttractorFI[Mat_] gives the list of net number of arrows at each node";
+
+FIFromZ::usage = "FIFromZ[Nvec_,Zvec_] computes the FI parameters from dimension vector Nvec and central charge vector Zvec";
 
 QuiverPlot::usage = "QuiverPlot[Mat_] displays the quiver with DSZ matrix Mat";
 
@@ -221,6 +245,10 @@ HirzebruchR::usage = "HirzebruchR[J_,v_] is the function R_v(J) entering in the 
 GrassmannianPoincare::usage = "GrassmannianPoincare[k_,n_,y_] gives the Poincar\[EAcute] polynomial of the Grassmannian G(k,n)";
 
 CyclicQuiverOmS::usage = "CyclicQuiverOmS[Vec_,t_] gives the single-centered degeneracy associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+
+EulerForm::usage = "EulerForm[Mat_] gives the Ringel-Tits form";
+
+SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors strictly less than Nvec";
 
 
 
@@ -231,8 +259,8 @@ Begin["`Private`"]
 (*Recursive formulae for the n-center Coulomb index *)
 
 
-$QuiverPerturb1=1000;
-$QuiverPerturb2=10^10; 
+$QuiverPerturb1=50;
+$QuiverPerturb2=50*50*1000; 
 $QuiverPrecision=0;
 $QuiverNoLoop=False;
 $QuiverTestLoop=True;
@@ -242,6 +270,7 @@ $QuiverDisplayCoulombH=False;
 $QuiverRecursion=1;
 $QuiverOmSbasis=1;
 $QuiverMutationMult=1;
+$QuiverOpt=1;
 
 (* compute incidence matrix and FI terms for collapsed configuration *)
 MatRedC[Mat_,Cvec_,li_]:=Module[{li2=Select[li,Length[#]>0&]},
@@ -444,7 +473,170 @@ m==2,1 (* this allows to get type 1, m=4 or type 2, k=2 contributions *) ,
 m==1,1 (* this case should never arise *)
 ]];
 
+(* optimized routines *)
+MatRedOpt[Mat_,k_]:=Module[{m=Length[Mat],Matdef=Take[Mat,{1,k},{1,k}],i=1},
+Do[Matdef[[i,k]]=Sum[Mat[[i,j]],{j,k,m}];
+    Matdef[[k,i]]=- Matdef[[i,k]];,{i,k-1}];
+Matdef];
 
+MatRedOpt2[Mat_,k_]:=Module[{m=Length[Mat],Matdef=Take[Mat,{1,k+1},{1,k+1}],i=1},
+Do[Matdef[[i,k]]=Sum[Mat[[i,j]],{j,k,m-1}];
+    Matdef[[i,k+1]]=Mat[[i,m]];
+    Matdef[[k,i]]=- Matdef[[i,k]];
+    Matdef[[k+1,i]]=- Matdef[[i,k+1]];,{i,k-1}];
+      Matdef[[k,k+1]]=Sum[Mat[[i,m]],{i,k,m-1}];
+      Matdef[[k+1,k]]=-Matdef[[k,k+1]];
+Matdef];
+
+MatmuOpt[Mat_,mu_]:=Module[{m,Matdef},
+m=Length[Mat];
+If[m<=1,Print["MatmuOpt: rank <=1"]];
+Matdef=Mat;
+Do[Matdef[[i,m]]=mu Matdef[[i,m]];Matdef[[m,i]]=mu Matdef[[m,i]];,{i,m}];
+Matdef[[m-3,m-1]]=Mat[[m-3,m-1]]+(1-mu) Sum[Mat[[k,Length[Mat]]],{k,Length[Mat]-1}];
+Matdef[[m-1,m-3]]=-Matdef[[m-3,m-1]];
+Matdef];
+
+MNewFOpt[Mat_, k_] :=Module[{la},
+If[Length[Mat]<=1,Print["MNewFOpt: rank <=1"]];
+If[Length[k]>0,Print["MNewFOpt: rank k > 0"]];
+la=(-Sum[
+                       Sum[Mat[[s, j]], {j, s + 1, Length[Mat]-1}], {s, k + 1,
+                           Length[Mat] - 2}]/
+                 Sum[Mat[[s, Length[Mat]]], {s, k + 1, Length[Mat] -1}]);
+    Flatten[{Table[Flatten[{Take[Mat, {i, i}, {1, k}],
+    Sum[Mat[[i, j]], {j, k + 1, Length[Mat] - 1}]+
+    Mat[[i, Length[Mat]]] la }], {i, 1, k}],
+    {Flatten[{Table[-Sum[Mat[[i, j]], {j, k + 1, Length[Mat] - 1}]
+                      - Mat[[i, Length[Mat]]] la, {i,1,k}], 0}]}}, 1]];
+
+MNewGOpt[Mat_, k_] :=Module[{la},
+If[Length[Mat]<=1,Print["MNewGOpt: rank <=1"]];
+If[Length[k]>0,Print["MNewGOpt: rank k > 0"]];
+la=(-Sum[
+                       Sum[Mat[[s, j]], {j, s + 1, Length[Mat]-1}], {s, k + 1,
+                           Length[Mat] - 2}]/
+                 Sum[Mat[[s, Length[Mat]]], {s, k + 1,
+    Length[Mat] -1}]);
+    Flatten[{Table[Flatten[{Take[Mat, {i, i}, {k+1, Length[Mat]-1}],
+    la  Mat[[i, Length[Mat]]]}], {i, k+1, Length[Mat]-1}],
+   {Flatten[{Table[-(la Mat[[i, Length[Mat]]]), {i,k+1, Length[Mat]-1}], 0}]}}, 1]];
+
+CoulombIndexOpt[Mat_,PMat_,Cvec_,y_]:=Module[{m,ListPerm,i,j,k,RMat,RCvec},
+	m=Length[Cvec];
+	If[$QuiverVerbose,
+		If[Max[Flatten[PMat-Mat]]>1/2,Print["CoulombIndex: PMat is not close to Mat !"]];
+        If[Abs[Plus@@Cvec]>$QuiverPrecision,Print["CoulombIndex: CVec does not sum to zero !"]];
+	];
+	ListPerm=Permutations[Range[m]];
+    Do[ If[Abs[Sum[Cvec[[ListPerm[[j,i]]]],{i,k}]]<=$QuiverPrecision, 
+           If[Abs[Sum[Mat[[ListPerm[[j,i1]],ListPerm[[j,i2]]]],
+                {i1,k},{i2,k+1,m}]]>$QuiverPrecision,
+               Print["CoulombIndex: FI sit on wall of marginal stability"];Break[]];
+          ],{k,1,IntegerPart[m/2]},{j,Length[ListPerm]}
+    ];
+	(* RMat is a further eps_ 2 perturbation *)
+	RMat=Table[Random[Integer,{1,100000}],{i,m},{j,m}];	RMat=1/100000/$QuiverPerturb2 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,m},{j,m}];
+	RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
+	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
+	(y-1/y)^(1-m) (-1)^(Sum[$QuiverMultiplier Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)	   Sum[y^($QuiverMultiplier Sum[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
+		CoulombFOpt[Table[PMat[[ListPerm[[k,i]],ListPerm[[k,j]]]]+
+					   RMat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
+                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
+       {k,Length[ListPerm]}]
+];
+
+(* induction rule for F, improved *)
+CoulombFOpt[Mat_,Cvec_]:=
+        Module[{m=Length[Mat]},
+  If[m>1,
+    If[Mat[[m-1,m]] Cvec[[m]]<0,  If[Mat[[m-1,m]]>0,1,-1]
+    CoulombFOpt[Take[Mat, {1, m-1}, {1, m-1}], Flatten[{Take[Cvec, {1,m-2}],
+            Cvec[[m-1]]+ Cvec[[m]]}]],0]
+        +If[$QuiverNoLoop,0,
+        Sum[
+        If[-Sum[Sum[Mat[[i,j]],{j, i+1,m}], {i,k+1,m-1}] 
+            Sum[Sum[Mat[[i,j]],{j, i+1,m-1}], {i,k+1,m-2}] >0,
+          If[Sum[Mat[[i,m]], {i,k+1,m-1}]>0,
+          CoulombFOpt[MNewFOpt[Mat,k], CNewF[Cvec,k]] CoulombGOpt[MNewGOpt[Mat,k]],
+          -CoulombFOpt[MNewFOpt[Mat,k], CNewF[Cvec,k]] CoulombGOpt[MNewGOpt[Mat,k]]
+          ],
+        If[-Sum[Sum[Mat[[i,j]],{j, i+1,m}], {i,k+1,m-1}] 
+            Sum[Sum[Mat[[i,j]],{j, i+1,m-1}], {i,k+1,m-2}]==0,
+          If[$QuiverVerbose, Message[UnitStepWarn::zero]]
+          If[Sum[Mat[[i,m]], {i,k+1,m-1}]>0,
+          1/2 CoulombFOpt[MNewFOpt[Mat,k], CNewF[Cvec,k]] CoulombGOpt[MNewGOpt[Mat,k]],
+          -1/2 CoulombFOpt[MNewFOpt[Mat,k], CNewF[Cvec,k]] CoulombGOpt[MNewGOpt[Mat,k]]
+          ]
+        ,0]], 
+        {k, 0, m-3}]],
+ If[m==1,1,0]
+]];
+
+(* induction rule for G *)
+CoulombGOpt[Mat_]:=Module[{m=Length[Mat],g=0.,mu1,mu2,i=1,j=1,k=1},
+If[m==3,If[Mat[[1,2]]Mat[[2,3]]>0,If[Mat[[1,2]]>0,g=1,g=-1],g=0],If[m==2,g=1,
+If[m==1, g=1,
+If[ m>3,
+mu1=-Mat[[m-2,m-1]]/(Mat[[m-2,m]]+Mat[[m-1,m]]);
+mu2=(Sum[Mat[[i,j]],{i,2,m-2},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])/Mat[[1,m]];
+g=(* value at mu=0 *)Plus@@{
+   If[Mat[[m-1,m]]Sum[Mat[[i,m]],{i,m-1}]<0,
+     If[Mat[[m-1,m]]>0,
+       CoulombGOpt[Take[MatmuOpt[Mat,0],{1,m-1},{1,m-1}]],
+      -CoulombGOpt[Take[MatmuOpt[Mat,0],{1,m-1},{1,m-1}]]],   
+   If[Mat[[m-1,m]]Sum[Mat[[i,m]],{i,m-1}]<0,
+     If[$QuiverVerbose, Message[UnitStepWarn::zero]]
+     If[Mat[[m-1,m]]==0,
+       1/2 CoulombGOpt[Take[MatmuOpt[Mat,0],{1,m-1},{1,m-1}]],
+      -1/2 CoulombGOpt[Take[MatmuOpt[Mat,0],{1,m-1},{1,m-1}]]],
+   0]]
+,(* type 1 contribution: (m-2,m-1,m) form scaling subset *)
+ If[(Mat[[m-2,m-1]]+Mat[[m-1,m]]+Mat[[m-2,m]])Mat[[m-2,m-1]]<0,
+   If[Mat[[m-2,m]]+Mat[[m-1,m]]>0,
+    CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu1],m-2]] CoulombGOpt[Take[MatmuOpt[Mat,mu1],{m-2,m},{m-2,m}]],
+   -CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu1],m-2]] CoulombGOpt[Take[MatmuOpt[Mat,mu1],{m-2,m},{m-2,m}]]]
+   ,
+  If[(Mat[[m-2,m-1]]+Mat[[m-1,m]]+Mat[[m-2,m]])Mat[[m-2,m-1]]==0,
+   If[$QuiverVerbose, Message[UnitStepWarn::zero]]
+   If[Mat[[m-2,m]]+Mat[[m-1,m]]>0,
+    1/2 CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu1],m-2]] CoulombGOpt[Take[MatmuOpt[Mat,mu1],{m-2,m},{m-2,m}]],
+   -1/2 CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu1],m-2]] CoulombGOpt[Take[MatmuOpt[Mat,mu1],{m-2,m},{m-2,m}]]]
+   ,
+  0]],
+(* type 2 contribution, k=2: (2,...m-3) form scaling subset *)
+If[m>4, 
+     If[Sum[Mat[[i,j]],{i,2,m-1},{j,i+1,m}]
+        (Sum[Mat[[i,j]],{i,2,m-2},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])<0,If[Mat[[1,m]]>0,-CoulombGOpt[Take[MatmuOpt[Mat,mu2],{2,m},{2,m}]],CoulombGOpt[Take[MatmuOpt[Mat,mu2],{2,m},{2,m}]]],0] 
+    ,0],(* type 2 contributions, k>2 *)	Sum[Module[{mu3=(Sum[Mat[[i,j]],{i,k,m-1},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])/Sum[Mat[[i,m]],{i,k-1}]},
+	If[(Sum[Mat[[i,j]],{i,k,m-1},{j,i+1,m}])
+		(Sum[Mat[[i,j]],{i,k,m-2},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])<0,
+     If[Sum[Mat[[i,m]],{i,k-1}]>0,
+      -CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu3],k]] CoulombGOpt[Take[MatmuOpt[Mat,mu3],{k,m},{k,m}]] , 
+      CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu3],k]] CoulombGOpt[Take[MatmuOpt[Mat,mu3],{k,m},{k,m}]] ]
+    ,
+	If[(Sum[Mat[[i,j]],{i,k,m-1},{j,i+1,m}])
+		(Sum[Mat[[i,j]],{i,k,m-2},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])==0,
+     If[$QuiverVerbose, Message[UnitStepWarn::zero]]
+     If[Sum[Mat[[i,m]],{i,k-1}]>0,
+      -1/2 CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu3],k]] CoulombGOpt[Take[MatmuOpt[Mat,mu3],{k,m},{k,m}]] , 
+      1/2 CoulombGOpt[MatRedOpt[MatmuOpt[Mat,mu3],k]] CoulombGOpt[Take[MatmuOpt[Mat,mu3],{k,m},{k,m}]] ]
+    ,0]]],{k,3,m-3}],
+(* type 3 contributions *)	
+ Sum[Module[{mu4=(Sum[Mat[[i,j]],{i,k,m-1},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])/Sum[Mat[[i,m]],{i,m-1}]},
+    If[(Sum[Mat[[i,j]],{i,k,m-2},{j,i+1,m-1}])
+     (Sum[Mat[[i,j]],{i,k,m-2},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])<0,
+    If[Sum[Mat[[i,m]],{i,m-1}]>0,
+      -CoulombGOpt[MatRedOpt2[MatmuOpt[Mat,mu4],k]]CoulombGOpt[Take[MatmuOpt[Mat,mu4],{k,m-1},{k,m-1}]], 
+      CoulombGOpt[MatRedOpt2[MatmuOpt[Mat,mu4],k]] CoulombGOpt[Take[MatmuOpt[Mat,mu4],{k,m-1},{k,m-1}]]]
+    ,
+    If[(Sum[Mat[[i,j]],{i,k,m-2},{j,i+1,m-1}])
+     (Sum[Mat[[i,j]],{i,k,m-2},{j,i+1,m-1}]+Sum[Mat[[i,m]],{i,m-1}])==0,
+     If[$QuiverVerbose, Message[UnitStepWarn::zero]]
+    If[Sum[Mat[[i,m]],{i,m-1}]>0,
+      -1/2 CoulombGOpt[MatRedOpt2[MatmuOpt[Mat,mu4],k]]CoulombGOpt[Take[MatmuOpt[Mat,mu4],{k,m-1},{k,m-1}]], 
+      1/2 CoulombGOpt[MatRedOpt2[MatmuOpt[Mat,mu4],k]] CoulombGOpt[Take[MatmuOpt[Mat,mu4],{k,m-1},{k,m-1}]]]
+    ,0]]],{k,2,m-3}]},g=0;]]];g]]
 
 
 (* ::Section:: *)
@@ -573,18 +765,23 @@ EvalCoulombIndexNum[Mat_,PMat_,Cvec_,f_]:=f/.{Coulombg[Li_,y_]:>CoulombIndexNum[
 (*Coulomb branch formula for quiver invariants*)
 
 
-CoulombBranchFormula[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,soMinimalModif,soH},
+CoulombBranchFormula[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,soMinimalModif,soH,Cvec0},
   If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
       Print["CoulombBranchFormula: Length of DSZ matrices, FI and dimension vectors do not match !"]];
   If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
 		Print["CoulombBranchFormula: DSZ matrix is not antisymmetric !"]];
-  If[Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision,
-		Print["CoulombBranchFormula: FI terms do not sum up to zero !"]];
+  If[Max[Nvec]<0,Print["CoulombBranchFormula: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  If[Plus@@Nvec==1,Return[1]];
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+  If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,       
+		Print["CoulombBranchFormula: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+  ];  
   RMat=Table[Random[Integer,{1,1000}],{i,Length[Mat]},{j,Length[Mat]}];
   RMat=1/1000/$QuiverPerturb1 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,Length[Mat]},{j,Length[Mat]}];
-  Print["CoulombBranchFormula: Constructing Poincar\[EAcute] polynomial..."]; 
+  If[$QuiverVerbose,Print["CoulombBranchFormula: Constructing Poincar\[EAcute] polynomial..."]]; 
   QPoinca=SimplifyOmSmultbasis[
-	QuiverPoincarePolynomialExpand[Mat,Mat+RMat,Cvec,Nvec,QuiverPoincarePolynomial[Nvec,y]]];
+	QuiverPoincarePolynomialExpand[Mat,Mat+RMat,Cvec0,Nvec,QuiverPoincarePolynomial[Nvec,y]]];
   If[$QuiverNoLoop,
     If[$QuiverDisplayCoulombH,
        {SwapFugacity[SimplifyOmSbasis[QPoinca/.{CoulombH[x__]:>0}]],{}},
@@ -600,7 +797,7 @@ CoulombBranchFormula[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,soMi
         soMinimalModif=Simplify[SolveCoulombH[ListH,ListCoef,soH],
              $QuiverMultiplier\[Element]Integers]]
      ];
-     Print["CoulombBranchFormula: Substituting CoulombH factors..."]; 
+     If[$QuiverVerbose,Print["CoulombBranchFormula: Substituting CoulombH factors..."]]; 
      If[$QuiverDisplayCoulombH,
        {SwapFugacity[SimplifyOmSbasis[QPoinca/.soMinimalModif/.soH]],
 Union[Flatten[{soH,soMinimalModif}]]/.y$->y},
@@ -614,23 +811,28 @@ CoulombBranchFormula[Mat_,Cvec_,Nvec_,y_]:=Module[{},
   CoulombBranchFormula[Mat,Cvec,Nvec]
 ];
 
-CoulombBranchFormulaFromH[Mat_,Cvec_,Nvec_,soH_]:=Module[{RMat,QPoinca},
+CoulombBranchFormulaFromH[Mat_,Cvec_,Nvec_,soH_]:=Module[{RMat,QPoinca,Cvec0=Cvec},
   If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
       Print["CoulombBranchFormulaFromH: Length of DSZ matrices, FI and dimension vectors do not match !"]];
   If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
 		Print["CoulombBranchFormulaFromH: DSZ matrix is not antisymmetric !"]];
-  If[Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision,
-		Print["CoulombBranchFormulaFromH: FI terms do not sum up to zero !"]];
+  If[Max[Nvec]<0,Print["CoulombBranchFormulaFromH: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  If[Plus@@Nvec==1,Return[1]];
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+  If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,      
+		Print["CoulombBranchFormulaFromH: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+  ];
   RMat=Table[Random[Integer,{1,1000}],{i,Length[Mat]},{j,Length[Mat]}];
   RMat=1/1000/$QuiverPerturb1 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,Length[Mat]},{j,Length[Mat]}];
   Print["CoulombBranchFormulaFromH: Constructing Poincar\[EAcute] polynomial..."]; 
   QPoinca=SimplifyOmSmultbasis[
-	QuiverPoincarePolynomialExpand[Mat,Mat+RMat,Cvec,Nvec,QuiverPoincarePolynomial[Nvec,y]]];
+	QuiverPoincarePolynomialExpand[Mat,Mat+RMat,Cvec0,Nvec,QuiverPoincarePolynomial[Nvec,y]]];
   If[$QuiverNoLoop,
        SwapFugacity[SimplifyOmSbasis[QPoinca/.{CoulombH[x__]:>0}]]       
   , (*else *)  
      Module[{},
-       Print["CoulombBranchFormulaFromH: Substituting your CoulombH factors..."]; 
+       If[$QuiverVerbose,Print["CoulombBranchFormulaFromH: Substituting your CoulombH factors..."]]; 
        SwapFugacity[SimplifyOmSbasis[QPoinca/.soH]]
      ]
   ]
@@ -642,7 +844,7 @@ CoulombBranchFormulaFromH[Mat_,Cvec_,Nvec_,soH_,y_]:=Module[{},
 ];
 
 
-CoulombBranchFormulaNew[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,soMinimalModif,soH},
+(* CoulombBranchFormulaNew[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,soMinimalModif,soH},
   If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
       Print["CoulombBranchFormula: Length of DSZ matrices, FI and dimension vectors do not match !"]];
   If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
@@ -652,7 +854,7 @@ CoulombBranchFormulaNew[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,s
   $QuiverRecursion=1;
   RMat=Table[Random[Integer,{1,1000}],{i,Length[Mat]},{j,Length[Mat]}];
   RMat=1/1000/$QuiverPerturb1 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,Length[Mat]},{j,Length[Mat]}];
-  Print["CoulombBranchFormula: Constructing Poincar\[EAcute] polynomial..."]; 
+  If[$QuiverVerbose,Print["CoulombBranchFormula: Constructing Poincar\[EAcute] polynomial..."]]; 
   QPoinca=SimplifyOmSmultbasis[
 	QuiverPoincarePolynomialExpand[Mat,Mat+RMat,Cvec,Nvec,QuiverPoincarePolynomial[Nvec,y]]];
   If[$QuiverNoLoop,
@@ -670,7 +872,7 @@ CoulombBranchFormulaNew[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,s
         soMinimalModif=Simplify[SolveCoulombH[ListH,ListCoef,soH],
              $QuiverMultiplier\[Element]Integers]]
      ];
-     Print["CoulombBranchFormula: Substituting CoulombH factors..."]; 
+     If[$QuiverVerbose,Print["CoulombBranchFormula: Substituting CoulombH factors..."]]; 
      If[$QuiverDisplayCoulombH,
        {SwapFugacity[SimplifyOmSbasis[QPoinca/.soMinimalModif/.soH]],
         Union[Flatten[{soH,soMinimalModif}]]/.y$->y},
@@ -678,6 +880,7 @@ CoulombBranchFormulaNew[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,ListH,ListCoef,s
      ]
   ]
 ];
+*)
 
 
 (* step by step *)
@@ -691,12 +894,19 @@ QuiverPoincarePolynomial[gam_,y_]:=DivisorSum[GCD@@gam,
 	MoebiusMu[#]/# (y-1/y)/(y^#-y^(-#)) QuiverPoincarePolynomialRat[gam/#,y^#]&];
 
 (* evaluate Coulombg using induction rule *)
-EvalCoulombIndex[Mat_,PMat_,Cvec_,f_]:=f/.{Coulombg[Li_,y_]:>CoulombIndex[
+EvalCoulombIndex[Mat_,PMat_,Cvec_,f_]:=f/.{Coulombg[Li_,y_]:>
+  If[$QuiverOpt==1,CoulombIndexOpt[
 	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
 	Table[Sum[Li[[i,k]]Li[[j,l]]PMat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
-	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]};
+	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y],
+CoulombIndex[
+	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
+      {i,Length[Li]},{j,Length[Li]}],
+	Table[Sum[Li[[i,k]]Li[[j,l]]PMat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
+      {i,Length[Li]},{j,Length[Li]}],
+	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]]};
 
 QuiverPoincarePolynomialExpand[Mat_,PMat_,Cvec_,Nvec_,QPoinca_]:=OmSNoLoopToZero[Mat,
     CoulombHNoLoopToZero[PMat,
@@ -736,7 +946,7 @@ CoulombHSubQuiversFixedLevel[Mat_,PMat_,Li_,m_,y_]:=Module[{LiLevel,ListCoulombH
 		ListCoulombHLevel=CoulombHSubQuiversFixedLevel[Mat,PMat,Li,m-1,y];
 		soH=ListCoulombHLevel;
 		Do[
-         Print["Evaluating CoulombH factors for dimension vector ",LiLevel[[i]]];
+         If[$QuiverVerbose,Print["Evaluating CoulombH factors for dimension vector ",LiLevel[[i]]]];
         QPoinca=SimplifyOmSmultbasis[QuiverPoincarePolynomialExpand[Mat,PMat,
                 RandomCvec[LiLevel[[i]]],LiLevel[[i]],QuiverPoincarePolynomial[LiLevel[[i]],y]]];
 	     {ListH,ListCoef}=ListCoulombH[LiLevel[[i]],QPoinca];
@@ -921,6 +1131,10 @@ GrassmannianPoincare[k_,n_,y_]:=(-y)^(-k(n-k)) QFact[n,y]/QFact[k,y]/QFact[n-k,y
 
 AttractorFI[Mat_]:=Table[Sum[Mat[[i,j]],{j,Length[Mat]}],{i,Length[Mat]}];
 
+FIFromZ[Nvec_,Zvec_]:=Module[{phi,Cvec},phi=Arg[Plus@@(Nvec Zvec)];
+Cvec=Map[Rationalize[#,1/$QuiverPerturb1]&,Im[Exp[-I phi] Zvec]];
+ Cvec -(Plus@@(Nvec Cvec))/(Plus@@Nvec)];
+
 QuiverPlot[Mat_]:=GraphPlot[Table[Max[Mat[[i,j]],0],{i,Length[Mat]},{j,Length[Mat]}],
       DirectedEdges->True,MultiedgeStyle->True,VertexLabeling->True];
 
@@ -931,14 +1145,19 @@ QuiverPlot[Mat_]:=GraphPlot[Table[Max[Mat[[i,j]],0],{i,Length[Mat]},{j,Length[Ma
 (*Reineke's formula for stack invariants*)
 
 
-HiggsBranchFormula[Mat_,Cvec_,Nvec_]:=Module[{},
+HiggsBranchFormula[Mat_,Cvec_,Nvec_]:=Module[{Cvec0},
   If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
       Print["HiggsBranchFormula: Length of DSZ matrices, FI and dimension vectors do not match !"]];
   If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
 		Print["HiggsBranchFormula: DSZ matrix is not antisymmetric !"]];
-  If[Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision,
-		Print["HiggsBranchFormula: FI terms do not sum up to zero !"]];
- EvalQFact[EvalHiggsG[Mat,Cvec,OmbToHiggsG[OmToOmb[Om[Nvec,y]]]]]
+  If[Max[Nvec]<0,Print["HiggsBranchFormula: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  If[Plus@@Nvec==1,Return[1]];
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+  If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
+		Print["HiggsBranchFormula: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+  ];   
+ EvalQFact[EvalHiggsG[Mat,Cvec0,OmbToHiggsG[OmToOmb[Om[Nvec,y]]]]]
 ];
 
 HiggsBranchFormula[Mat_,Cvec_,Nvec_,y_]:=Module[{},
@@ -946,39 +1165,75 @@ HiggsBranchFormula[Mat_,Cvec_,Nvec_,y_]:=Module[{},
   HiggsBranchFormula[Mat,Cvec,Nvec]
 ];
 
-StackInvariant[Mat_,Cvec_,Nvec_,y_]:=Module[{m,ListAllPermutations,pa},
+StackInvariant[Mat_,Cvec_,Nvec_,y_]:=Module[{m,ListAllPermutations,pa,Cvec0},
   m=Length[Nvec];
+  If[Max[Nvec]<0,Print["StackInvariant: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  If[Plus@@Nvec==1,Return[1]];
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
   pa=Flatten[Map[Permutations,ListAllPartitions[Nvec]],1];
   If[$QuiverVerbose,
     If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
         Print["StackInvariant: Length of DSZ matrix, FI and dimension vectors do not match !"]];
     If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
 		Print["StackInvariant: DSZ matrix is not antisymmetric !"]];
-    If[Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision,
-		Print["StackInvariant: FI parameters do not sum up to 0 !"]];
-    Print["StackInvariant: summing ", Length[pa]," ordered partitions"];
+  If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
+		Print["StackInvariant: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+    ];   
+  Print["StackInvariant: summing ", Length[pa]," ordered partitions"];
   ];
   (-y)^($QuiverMultiplier Sum[-Max[Mat[[k,l]],0]Nvec[[k]]Nvec[[l]],{k,m},{l,m}]-1+Plus@@ Nvec)
 	   (y^2-1)^(1-Plus@@Nvec)
-	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,{b,Length[pa[[i]]]-1}],
+	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec0[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,{b,Length[pa[[i]]]-1}],
       (-1)^(Length[pa[[i]]]-1)
        y^(2$QuiverMultiplier  Sum[Max[Mat[[l,k]],0] pa[[i,a,k]]pa[[i,b,l]],
     {a,1,Length[pa[[i]]]},{b,a,Length[pa[[i]]]},{k,m},{l,m}])/
     Product[QFact[pa[[i,j,k]],y] ,{j,1,Length[pa[[i]]]},{k,m}],0],{i,Length[pa]}]
 ];
 
-AbelianStackInvariant[Mat_,Cvec_,y_]:=Module[{m,ListAllPermutations,pa,ListPerm},
+(* StackInvariantGen2[Mat_,Cvec_,Nvec_,y_]:=Module[{m,ListAllPermutations,pa,Cvec0,Eu},
+  m=Length[Nvec];
+  If[Max[Nvec]<0,Print["StackInvariantGen: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  (* If[Plus@@Nvec==1,Return[1]]; *)
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+  pa=Flatten[Map[Permutations,ListAllPartitions[Nvec]],1];
+  If[$QuiverVerbose,
+    If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
+        Print["StackInvariantGen: Length of DSZ matrix, FI and dimension vectors do not match !"]];
+    If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
+		Print["StackInvariantGen: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+    ];   
+  Print["StackInvariantGen: summing ", Length[pa]," ordered partitions"];
+  ];
+    Eu=EulerForm[Mat];
+(y-1/y) (-y)^(-Sum[Eu[[k,l]] Nvec[[k]] Nvec[[l]],{k,m},{l,m}])
+	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec0[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,{b,Length[pa[[i]]]-1}],
+      (-1)^(Length[pa[[i]]]-1)
+       y^(2  Sum[ Eu[[l,k]] pa[[i,a,k]]pa[[i,b,l]],
+    {a,1,Length[pa[[i]]]},{b,a,Length[pa[[i]]]},{k,m},{l,m}])/
+    Product[(1-y^(2 l)),{j,1,Length[pa[[i]]]},{k,m},{l,1,pa[[i,j,k]]}],0],{i,Length[pa]}]
+];
+*)
+
+
+AbelianStackInvariant[Mat_,Cvec_,y_]:=Module[{m,ListAllPermutations,pa,ListPerm,Cvec0},
   m=Length[Cvec];
-  pa=Flatten[Map[Permutations,ListAllPartitions[ConstantArray[1,m]]],1];
+  If[Max[Nvec]<0,Print["AbelianStackInvariant: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  If[Plus@@Nvec==1,Return[1]];
   If[$QuiverVerbose,
     If[Length[Union[{Length[Cvec],Length[Mat]}]]>1, 
         Print["AbelianStackInvariant: Length of DSZ matrix and FI  vectors do not match !"]];
     If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
 		Print["AbelianStackInvariant: DSZ matrix is not antisymmetric !"]];
-    If[Abs[Plus@@Cvec]>$QuiverPrecision,
-		Print["AbelianStackInvariant: FI parameters do not sum up to 0 !"]]; 
-    ListPerm=Permutations[Range[m]];
-    Do[ If[Abs[Sum[Cvec[[ListPerm[[j,i]]]],{i,k}]]<=$QuiverPrecision, 
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+  pa=Flatten[Map[Permutations,ListAllPartitions[ConstantArray[1,m]]],1];
+  If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
+ 		Print["AbelianStackInvariant: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+   ];   
+   ListPerm=Permutations[Range[m]];
+    Do[ If[Abs[Sum[Cvec0[[ListPerm[[j,i]]]],{i,k}]]<=$QuiverPrecision, 
            If[Abs[Sum[Mat[[ListPerm[[j,i1]],ListPerm[[j,i2]]]],
                 {i1,k},{i2,k+1,m}]]>$QuiverPrecision,
                Print["AbelianStackInvariant: FI sit on wall of marginal stability"];
@@ -992,7 +1247,7 @@ AbelianStackInvariant[Mat_,Cvec_,y_]:=Module[{m,ListAllPermutations,pa,ListPerm}
   ];	
   (-y)^($QuiverMultiplier Sum[-Max[Mat[[k,l]],0],{k,m},{l,m}]-1+m)
 	   (y^2-1)^(1-m)
-	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,
+	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec0[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,
           {b,Length[pa[[i]]]-1}],
       (-1)^(Length[pa[[i]]]-1)
        y^(2$QuiverMultiplier  Sum[Max[Mat[[l,k]],0] pa[[i,a,k]]pa[[i,b,l]],
@@ -1026,10 +1281,61 @@ OmbToHiggsG[f_]:=f/.{Omb[gam_,y_]:>Module[{Li,gcd},
 
 EvalHiggsG[Mat_,Cvec_,f_]:=f/.{HiggsG[gam_,y_]:>StackInvariant[Mat,Cvec,gam,y]};
 
+EvalHiggsGGen[Mat_,Cvec_,f_]:=f/.{HiggsG[gam_,y_]:>StackInvariantGen[Mat,Cvec,gam,y]};
+
 EvalHiggsg[Mat_,Cvec_,f_]:=f/.{Higgsg[Li_,y_]:>AbelianStackInvariant[
 	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
 	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]};
+
+StackInvariantGen[Mat_,Cvec_,Nvec_,y_]:=Module[{m,ListAllPermutations,pa,Cvec0,Eu},
+  (* differs from StackInvariant by y\[Rule]1/y ! *)
+  m=Length[Nvec];
+  If[Max[Nvec]<0,Print["StackInvariantGen: The dimension vector must be positive !"]];
+  If[Plus@@Nvec==0,Return[0]];
+  (* If[Plus@@Nvec==1,Return[1]]; *)
+  Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+  pa=Flatten[Map[Permutations,ListAllPartitions[Nvec]],1];
+  If[$QuiverVerbose,
+    If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
+        Print["StackInvariantGen: Length of DSZ matrix, FI and dimension vectors do not match !"]];
+    If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
+		Print["StackInvariantGen: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+    ];   
+  Print["StackInvariantGen: summing ", Length[pa]," ordered partitions"];
+  ];
+    Eu=EulerForm[Mat];
+(1/y-y) (-y)^(Sum[Eu[[k,l]] Nvec[[k]] Nvec[[l]],{k,m},{l,m}])
+	Sum[If[(Length[pa[[i]]]==1) ||And@@Table[Sum[Cvec0[[k]] pa[[i,a,k]],{a,b},{k,m}]>0,{b,Length[pa[[i]]]-1}],
+      (-1)^(Length[pa[[i]]]-1)
+       y^(-2  Sum[ Eu[[l,k]] pa[[i,a,k]]pa[[i,b,l]],
+    {a,1,Length[pa[[i]]]},{b,a,Length[pa[[i]]]},{k,m},{l,m}])/
+    Product[(1-y^(-2 l)),{j,1,Length[pa[[i]]]},{k,m},{l,1,pa[[i,j,k]]}],0],{i,Length[pa]}]
+];
+
+EulerForm[Mat_]:=Table[If[k==l,1,0]-$QuiverMultiplier Max[Mat[[k,l]],0],{k,Length[Mat]},{l,Length[Mat]}];
+
+SubVectors[Nvec_]:=Module[{Li},If[Length[Nvec]<=1,Table[{i},{i,0,Nvec[[1]]}],
+Li=SubVectors[Drop[Nvec,1]];
+Flatten[Table[Flatten[{i,Li[[j]]}],{i,0,Nvec[[1]]},{j,Length[Li]}],1]]];
+
+StackInvariantFast[Mat_,Cvec_,Nvec_,y_]:=Module[{Eu,Li,Cvec0,ReinekeMatrix}, If[Max[Nvec]<0,Print["StackInvariantFast: The dimension vector must be positive !"]];
+       If[Plus@@Nvec==0,Return[0]]; If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1, 
+Print["StackInvariantFast: Length of DSZ matrix, FI and dimension vectors do not match !"]];
+Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
+Eu=EulerForm[Mat];
+If[$QuiverVerbose,
+          If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
+		Print["StackInvariantFast: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
+    ]];   
+Li=Union[Flatten[{{Nvec},{ConstantArray[0,Length[Nvec]]},Select[SubVectors[Nvec],#.Cvec0>0 &]},1]];
+ReinekeMatrix=Table[If[i==j,1,If[Max[Li[[i]]-Li[[j]]]<=0,(-y)^(-Li[[i]].(Transpose[Eu]-Eu).Li[[j]]-(Li[[j]]-Li[[i]]).Eu.(Li[[j]]-Li[[i]]))/
+Product[1-y^(-2l),{k,Length[Nvec]},{l,1,Li[[j,k]]-Li[[i,k]]}]
+,0]],{i,Length[Li]},{j,Length[Li]}];
+If[$QuiverVerbose,Print["StackInvariantFast: Inverting matrix of size ",Length[Li]]];
+(y-1/y)Inverse[ReinekeMatrix][[1,Length[Li]]]
+];
+
 
 
 (* ::Subtitle:: *)
