@@ -12,6 +12,10 @@
     \def\CI {{\cal I}}
     \def\CF {{\cal F}}
 
+\usepackage{marginnote}
+ \reversemarginpar
+ \newcommand{\newnote}{ \marginnote{\bf New in v2.0:}[-4mm]}
+ 
 
 % from Bourjaily arXiv:1212.6974
 %\pdfoutput=1
@@ -243,29 +247,11 @@
 
 \newcommand{\href}[1]{#1}
 
-\title{CoulombHiggs.m v1.0}
+\def\newdefy{\vardef{y}}
+
+\title{CoulombHiggs.m v2.0}
  
 \author{Jan Manschot, Boris Pioline, Ashoke Sen}
-%\\
-%$^1$ {\it Bethe Center for Theoretical Physics, Physikalisches Institut, Universit\"at Bonn, \\
-%53115 Bonn, Germany}\\
-%$^2$ {\it Max Planck Institute for Mathematics, 53111 Bonn, Germany} \\
-%$^3$ {\it CERN PH-TH,
-%Case C01600, CERN, CH-1211 Geneva 23, Switzerland}\\
-%$^4$ {\it Laboratoire de Physique Th\'eorique et Hautes
-%Energies, CNRS UMR 7589, \\
-%Universit\'e Pierre et Marie Curie,
-%4 place Jussieu, 75252 Paris cedex 05, France} \\
-%$^5$ Harish-Chandra Research Institute,
-%Chhatnag
-%Road, Jhusi, Allahabad 211019, India
-%\\
-%\vspace*{2mm} {\tt e-mail: 
-%manschot@uni-bonn.de, pioline@lpthe.jussieu.fr,
-%sen@hri.res.in}
-%\vspace*{-3mm}
-%}
-
 
 \begin{document}
 
@@ -279,10 +265,10 @@
 
 The  {\sc Mathematica} package {\tt CoulombHiggs.m} allows to compute the Poincaré-Laurent polynomial of the moduli space of stable representations of quivers using the {\it Coulomb branch} and {\it Higgs branch} formulae. The latter is based on Reineke's solution to the Harder-Narasimhan recursion \cite{MR1974891} and applies to quivers without oriented closed loops, while the former is based on a physical picture of BPS states as bound states of elementary 'single-centered' constitutents, and applies to any quivers with or without oriented loops \cite{1011.1258,1103.1887,Manschot:2012rx}.  This package was released together with the preprint \cite{Manschot:2013rx} where a general algorithm for computing the index of the
 quantum mechanics of multi-centered BPS black holes (the Coulomb index) was outlined.
-The package file {\tt CoulombHiggs.m} and example files {\tt Kronecker.nb},
-{\tt Threenode.nb},{\tt Multinode.nb} and {\tt CoulombIndexCheck.nb} were 
-included in the ``source'' of this paper available in the arXiv submission.
-Uptodate versions can be obtained from the second named author's webpage,
+The new version 2.0, released along with the preprint \cite{Manschot:2013}, allows to compute the
+Dolbeault-Laurent polynomial, relax assumptions on single-centered indices for basis vectors, study the effect of generalized mutations, and more. 
+The package file {\tt CoulombHiggs.m} and various example files 
+can be obtained from the second named author's webpage,
 \vskip 2mm
 
 \centerline{\tt http://www.lpthe.jussieu.fr/\~\,pioline/computing.html}
@@ -292,33 +278,53 @@ Uptodate versions can be obtained from the second named author's webpage,
 Assuming that the file {\tt CoulombHiggs.m} is present in the user's {\sc Mathematica} Application 
 directory, the package is loaded by entering 
 
-\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs v 1.0 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae. }
+\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs v 2.0 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae. }
 
 If the file  {\tt CoulombHiggs.m} has not yet been copied in the user's {\sc Mathematica} Application 
 directory but is in the same directory as the notebook, evaluate instead
 
-\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs v 1.0 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae.}
+\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs v 2.0 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae.}
 
 
-The first main routine  is {\tt \color{functioncolor} CoulombBranchFormula}, whose basic usage is illustrated below: 
+The first main routine  is {\tt \color{functioncolor} CoulombBranchFormula}, whose basic usage is illustrated below: \footnote{Note the following changes in v2.0: the fugacity $y$ 
+is no longer a parameter of \fun{CoulombBranchFormula} and \fun{QuiverBranchFormula},
+and the former computes the Dolbeault polynomial in terms of $\OmS(\alpha_i,t)$, 
+rather than expressing  the Poincar\'e polynomial in terms of $\OmS(\alpha_i)$.
+Other changes are highlighted by margin notes below. }
 
 
-\mathematica{1.0}{Simplify[CoulombBranchFormula[4\{\{0, 1, -1\},\{-1, 0, 
-   1\}, \{1, -1, 0\}\}, \{1/2, 1/6, -2/3\}, \{1, 1, 1\}, y]]
-  }
-   {$ 2+ \frac{1}{y^2}+y^2 +  \text{OmS}(\{1,1,1\}) $
+\mathematica{0.9}{Simplify[CoulombBranchFormula[4\{\{0, 1, -1\},\{-1, 0, 
+   1\}, \{1, -1, 0\}\}, \{1/2, 1/6, -2/3\}, \{1, 1, 1\}]]  
+     }
+   {$ 2+ \frac{1}{y^2}+y^2 +  \text{OmS}(\{1,1,1\},y,t) $
 }
 
-The first argument corresponds to the matrix of DSZ products $\alpha_{ij}$ (an antisymmetric matrix of integers), the second to the FI parameters $\zeta_i$ (a vector of rational numbers), the third to the dimension vector $N_i$ (a vector of integers), and the last to the angular momentum fugacity (a formal variable). In this example, the routine expresses the 
-Poincar\'e-Laurent polynomial of the moduli space of a three-node Abelian cyclic quiver with $4$ arrows between each subsequent node, in terms of the single centered degeneracy $\Omega^{\rm S}(\gamma_1+\gamma_2+\gamma_3)$.
 
+%\mathematica{0.9}{Simplify[CoulombBranchFormulaNew[4\{\{0, 1, -1\},\{-1, 0, 
+%   1\}, \{1, -1, 0\}\}, \{1/2, 1/6, -2/3\}, \{1, 1, 1\}]]
+%%   /.  \{\text{OmS[gam\underline{~}, y\smallwedge n\underline{~}] -> OmS[gam, t\smallwedge
+%%   n]},  \text{OmS[gam\underline{~}, y] -> OmS[gam, t]}\}
+%  }
+%   {$ 2+ \frac{1}{y^2}+y^2 +  \text{OmS}(\{1,1,1\}, t) $
+%}
+
+This routine computes the Dolbeault-Laurent polynomial  of the quiver moduli space, expressed in terms of the single-centered indices. 
+The first argument corresponds to the matrix of DSZ products $\alpha_{ij}$ (an antisymmetric matrix of integers), the second to the FI parameters $\zeta_i$ (a vector of rational numbers), the third to the dimension vector $N_i$ (a vector of integers). 
+The variables
+ $y$ and $t$ are fugacities conjugate to the sum of the Dolbeault
+degrees $p+q$ (i.e. the angular
+momentum) and to the difference of the Dolbeault
+degrees $p-q$, respectively. The Poincar\'e-Laurent
+polynomial is obtained by setting $t=1$. For generic superpotential, the single-centered
+indices $\OmS(\gamma,y)\equiv \OmS(\gamma,y,1)$ are conjectured to be
+independent of $y$.  In the above example,  the 
+Dolbeault polynomial of the moduli space of a three-node Abelian cyclic quiver with $4$ arrows between each subsequent node is expressed in terms of the single-centered index
+$\OmS(\gamma_1+\gamma_2+\gamma_3,y,t)$. 
 The second main routine is {\tt \color{functioncolor} HiggsBranchFormula}, which computes the
-Poincar\'e-Laurent polynomial  using the Higgs branch formula \eqref{eq:inversestackinv}.
-The arguments are the same as for {\tt \color{functioncolor} CoulombBranchFormula}, but it
-only applies to quivers without oriented  loop (although no test is made to ensure that
-this is the case):
+Poincar\'e-Laurent polynomial  using the Higgs branch formula  (which is only valid for quivers without oriented  loop, but the routine works irrespective of this
+assumption). The arguments are the same as for {\tt \color{functioncolor} CoulombBranchFormula}: 
 
-\mathematica{1.0}{Simplify[HiggsBranchFormula[\{\{0, 3\},\{-3, 0\}\}, \{1/2,-1/2\}, \{2, 2\}, y]]
+\mathematica{1.0}{Simplify[HiggsBranchFormula[\{\{0, 3\},\{-3, 0\}\}, \{1/2,-1/2\}, \{2, 2\}]]
   }
    {$ -\frac{\left(y^2+1\right) \left(y^8+y^4+1\right)}{y^5} $
 }
@@ -334,47 +340,56 @@ obtained by typing e.g.
 \section{Symbols}
 
  
+\defvar{y}{fugacity conjugate to the sum of Dolbeault degrees $p+q$ (i.e. angular momentum);}
 
-\defvar{y}{Angular momentum fugacity;}
+\defvar{t}{fugacity conjugate to the difference of Dolbeault degrees $p-q$;}
 
-\defn{Om}{\vardef{charge vector},\vardef{y}}{denotes the refined index  
+\defn{Om}{\vardef{charge vector},\newdefy}{denotes the refined index  
 $\Omega(\gamma,y)$;}
 
-\defn{Omb}{\vardef{charge vector},\vardef{y}}{denotes the rational refined index
+\defn{Omb}{\vardef{charge vector},\newdefy }{denotes the rational refined index
 $\bar\Omega(\gamma,y)$;}
 
 
-\defn{OmS}{\vardef{charge vector},\vardef{y}}{denotes the single centered degeneracy 
-$\OmS(\gamma,y)$. The dependence on $y$ can be omitted, but only at the
-              end of the computation;}
-              
-\defn{OmT}{\vardef{charge vector},\vardef{y}}{denotes the (unevaluated)  
-function $\Omega_{\rm tot}(\gamma,y)$}
+\defn{OmS}{\vardef{charge vector},\newdefy,\vardef{t} }{denotes the single-centered index 
+$\OmS(\gamma,y,t)$. } \newnote %bp
 
-\defn{Coulombg}{\vardef{list of charge vectors},\vardef{y}}{denotes the (unevaluated) Coulomb index $\gref(\{\alpha_i\},\{c_i\},y)$, leaving the FI parameters unspecified;} 
+\defn{OmS}{\vardef{charge vector},\newdefy}{denotes 
+$\OmS(\gamma,y)\equiv \OmS(\gamma,y,t=1)$.}
 
-\defn{HiggsG}{\vardef{charge vector},\vardef{y}}{denotes the (unevaluated)  
+\defn{OmS}{\vardef{charge vector}}{denotes 
+$\OmS(\gamma,y)$, under the assumption that it is independent of $y$ (which is
+conjectured to be the case for  generic superpotential)}
+
+
+\defn{OmT}{\vardef{charge vector},\newdefy }{denotes the (unevaluated)  
+function $\Omega_{\rm tot}(\gamma,y)$;}
+
+\defn{Coulombg}{\vardef{list of charge vectors},\newdefy }{: denotes the (unevaluated) Coulomb index $\gref(\{\alpha_i\},\{c_i\},y)$, leaving the FI parameters unspecified;} 
+
+\defn{HiggsG}{\vardef{charge vector},\newdefy }{denotes the (unevaluated)  
 stack invariant $\gR(\gamma,y)$;}
 
 
 
-\defn{CoulombH}{\vardef{list of charge vectors},\vardef{multiplicity vector},\vardef{y}}{denotes the (unevaluated) factor $H(\{\alpha_i\},\{n_i\},y)$ appearing in the formula \eqref{essp2} for 
+\defn{CoulombH}{\vardef{list of charge vectors},\vardef{multiplicity vector},\newdefy }{denotes the (unevaluated) factor $H(\{\alpha_i\},\{n_i\},y)$ appearing in the formula  for 
 $\Omega_{\rm tot}(\sum n_i\alpha_i,y)$  in terms of 
 $\OmS(\alpha_i,y)$.}
 
-\defn{QFact}{\vardef{n},\vardef{y}}{represents the (non-evaluated) $q$-deformed factorial $[n,y]!$}
+\defn{QFact}{\vardef{n},\newdefy }{represents the (non-evaluated) $q$-deformed factorial $[n,y]!$}
+
 
 \section{Environment variables}
 
 
 \defvar{{\tt \$QuiverPerturb1}}{Sets the size of the perturbation $\epsilon_1=1/\var{\$QuiverPerturb}$ of the DSZ products, set to 1000 by default.}
 
-\defvar{{\tt \$QuiverPerturb2}}{Sets the size of the perturbation $\epsilon_2=1/\var{\$DSZPerturb}$ of the DSZ products, set to 100000 by default.}
+\defvar{{\tt \$QuiverPerturb2}}{Sets the size of the perturbation $\epsilon_2=1/\var{\$DSZPerturb}$ of the DSZ products, set to $10^{10}$ by default.}
 
 
-\defvar{{\tt \$QuiverNoLoop}}{If set to True, the quiver will be assumed to have no oriented loop, hence all $H$ factors and all $\Omega^{\rm S}(\alpha)$ will be set to zero (unless $\alpha$ is a basis vector). Set to False by default.}
+\defvar{{\tt \$QuiverNoLoop}}{If set to True, the quiver will be assumed to have no oriented loop, hence all $H$ factors and all $\OmS(\alpha)$ will be set to zero (unless $\alpha$ is a basis vector). Set to False by default.}
 
-\defvar{{\tt \$QuiverTestLoop}}{If set to True, all $H$ factors and $\Omega^{\rm S}(\alpha)$ corresponding to subquivers without loops will be set to zero (unless $\alpha$ is a basis vector).
+\defvar{{\tt \$QuiverTestLoop}}{If set to True, all $H$ factors and $\OmS(\alpha)$ corresponding to subquivers without loops will be set to zero (unless $\alpha$ is a basis vector).
 Set to True by default.
 Determining whether a subquiver has loops is time-consuming, so for large quivers it may be advisable to disable this feature. Note that 
 \var{{\tt \$QuiverNoLoop}} takes precedence over this variable.}
@@ -392,6 +407,17 @@ Determining whether a subquiver has loops is time-consuming, so for large quiver
 are carried out. This is set to 0 by default since all data are assumed to be rational numbers. This can be set to a small real number when using real data, however the user is warned that rounding errors
 tend to grow quickly.}
 
+
+
+\defvar{{\tt \$QuiverRecursion}}{If set to 1 (default value), then the new recursion relations 
+from \cite[v2]{Manschot:2013rx} are used for computing
+\fun{\tt CoulombF};  if set to 0  the recursion relation
+from \cite[v1]{Manschot:2013rx}  is used instead. } \newnote %bp
+
+\defvar{{\tt \$QuiverOmSbasis}}{Set to 1 by default. If set to 0,  the routines 
+\fun{\tt SimplifyOmSbasis} and \fun{\tt SimplifyOmSbasismult} are deactivated, so that 
+ the assumption that basis 
+vectors carry $\OmS(\ell\gamma_i)=\delta_{\ell,1}$ is relaxed.}  %bp
 %\end{itemize}
 
 \section{Coulomb index}
@@ -406,42 +432,41 @@ $G(\{\ha_1,\cdots \ha_n\})$
 with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total angular momentum 
                    $\sum_{i<j} Mat[[i,j]]$ must vanish;}
 
-\defn{CoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{y}}{evaluates the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\};y)$ 
+\defn{CoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy }{evaluates the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\};y)$ 
                    with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to \var{PMat}[[i,j]] so as to lift 
                    accidental degeneracies, possibly rescaled by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}}, 
                    FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y};
-%                   \\[5pt]
-%                   \mathematica{1}{Mat = \{\{0, 1, -1\},\{-1, 0, 1\}, \{1, -1, 0\}\}; Cvec = \{1, 1, -2\};
-%                   Coulombgref[Mat, Mat, Cvec, k, y]}
-%                   {$\frac{(-1)^{\text{k}+2} \left(y^{-\text{k}}+y^{\text{k}}\right)}{\left(y-\frac{1}{y}\right)^2}$}           
-%%               %   {((-1)\exp (2 + k)*(y \exp (-k) + y\exp k))/(-y\exp (-1) + y)\exp 2}
                    }
 
 
-\defn{CoulombFNum}{\vardef{Mat}}{computes numerically the index $F(\{\ta_1,\dots \ta_n\},\{\cc_1,\dots \cc_n\})$  with DSZ matrix $\ta_{ij}=\var{Mat}[[i,j]]$ and FI parameters $\cc_i=\var{Cvec}[[i]]$. Works only for few centers.}
+\defn{CoulombFNum}{\vardef{Mat}}{computes numerically the index $F(\{\ta_1,\dots \ta_n\},\{\cc_1,\dots \cc_n\})$  with DSZ matrix $\ta_{ij}=\var{Mat}[[i,j]]$ and FI parameters $\cc_i=\var{Cvec}[[i]]$. For testing purposes only, works for up to 5 centers.}
 
-\defn{CoulombGNum}{\vardef{Mat}}{computes numerically the scaling index $G(\ha_1,\dots \ha_n)$  with DSZ matrix $\ha_{ij}=\var{Mat}[[i,j]]$. Works only for few centers.}
+\defn{CoulombGNum}{\vardef{Mat}}{computes numerically the scaling index $G(\ha_1,\dots \ha_n)$  with DSZ matrix $\ha_{ij}=\var{Mat}[[i,j]]$. For testing purposes only, works for up to 6 centers.}
                    
 
-\defn{CoulombIndexNum}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{k},\vardef{y}}{returns the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\};y)$ 
+\defn{CoulombIndexNum}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{k},\newdefy }{returns the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\};y)$ 
                    with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  possibly rescaled by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}},  
                    FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y}, by searching
-                   collinear solutions numerically;                   }
+                   collinear solutions numerically;    For testing purposes only, works for up to 5 centers.               }
+
 
 
 \section{Coulomb branch formula}
 
- \defn{CoulombBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{y}}
-	                                   {computes  is the Poincar\'e-Laurent
-                   polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$ 
-                   (possibly              rescaled by \var{{\tt \$QuiverMultiplier}})
+ \defn{CoulombBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}
+	                                   {computes  the Dolbeault %Poincar\'e-Laurent
+                   polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,
                    dimension vector $N_i=\var{Nvec}[[i]]$, 
                    FI parameters $\zeta_i=\var{Cvec}[[i]]$,
                    in terms of single-centered invariants $\OmS$.
-                  This standalone routine first constructs the Poincar\'e-Laurent polynomial using \eqref{essp1},
-                   evaluates the Coulomb indices $\gref$, and determines the $H$ factors recursively using the minimal modification hypothesis. 
+                  This standalone routine first constructs the Poincar\'e-Laurent 
+                  polynomial,
+                   evaluates the Coulomb indices $\gref$, 
+                   determines the $H$ factors recursively using the minimal modification hypothesis
+                   and finally replaces $y$ by $t$ in the argument of $\OmS$ to construct
+                   the Dolbeault polynomial. 
 If \var{{\tt \$QuiverDisplayCoulombH}} is 
                    set to True, the routine  returns a list $\{ \var{Q}, \var{R} \}$,
                                     where $\var{Q}$ is the Poincar\'e polynomial and \var{R} is a  list of replacement rules for the \var{CoulombH} factors.
@@ -450,71 +475,42 @@ If \var{{\tt \$QuiverDisplayCoulombH}} is
                    it is advisable to implement the Coulomb branch formula step by step, using the 
                    more elementary routines described below. 
                    }
+
+
                    
-                   
- \defn{CoulombBranchFormulaFromH}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{R},\vardef{y}}
-	                                   {returns the Poincar\'e-Laurent
-                   polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  possibly rescaled by \var{{\tt \$QuiverMultiplier}}, dimension vector $N_i=\var{Nvec}[[i]]$, 
+ \defn{CoulombBranchFormulaFromH}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{R} }
+	                                   {returns the Dolbeault
+                   polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  
+                   dimension vector $N_i=\var{Nvec}[[i]]$, 
 FI parameters $\zeta_i=\var{Cvec}[[i]]$, using the rule 
            \var{R} to replace all \var{CoulombH} factors.}
                    
 
 
-\defn{QuiverPoincarePolynomial}{\vardef{Nvec},\vardef{y}}{constructs the Poincar\'e-Laurent
-                   polynomial of a quiver  according to
- \ben \label{essp1}
-\QC(\gamma; \zeta;y) &=& \sum_{m|\gamma} 
-\frac{\mu(m)}{ m}  {y - y^{-1}\over y^m - y^{-m}}
-\bQC(\gamma/m; \zeta;y^m) \nonumber \\
-\bQC(\gamma; \zeta;y) &=& 
-\sum_{n\ge 1}\sum_{\{\alpha_i\in \Gamma\} \atop \sum_{i=1}^n \alpha_i =\gamma}
- \frac{\gref\left(\{\alpha_1, \cdots, \alpha_n\},
- \{\dx_1,\cdots \dx_n\};y\right)}
-{  |{\rm Aut}(\{\alpha_1,\cdots, \alpha_n\})|}
-  \nonumber \\ &&\quad
-\prod_{i=1}^n \left\{\sum_{m_i\in\bZ\atop m_i|\alpha_i}
-{1\over m_i} {y - y^{-1}\over y^{m_i} - y^{-m_i}}\, 
-\Omega_{\rm tot}(\alpha_i/m_i;y^{m_i})
-%\left( \Omega^{S}_{\rm ref}(\alpha_i/m_i;y^{m_i})
-%+ \Omega_{\rm scaling}(\alpha_i/m_i;y^{m_i})\right)
-\right\}
-\, ,
-\een
-Coincides with
+\defn{QuiverPoincarePolynomial}{\vardef{Nvec},\newdefy }{constructs the Poincar\'e-Laurent
+                   polynomial of a quiver. Coincides with
                    \fun{\tt QuiverPoincarePolynomialRat}                   for primitive dimension vector;
-%                    \\[5pt]
-%                   \mathematica{1}{QuiverPoincarePolynomial[\{1, 1\}]}
-%                   {gref[\{\{0, 1\}, \{1, 0\}\}, y]*OmT[\{0, 1\}, y]*OmT[\{1, 0\}, y] + 
-%                    gref[\{\{1, 1\}\}, y]*OmT[\{1, 1\}, y]}
                  }
 
 
-\defn{QuiverPoincarePolynomialRat}{\vardef{Nvec},\vardef{y}}{constructs the rational Poincar\'e-Laurent
-                   polynomial $\bQC(\gamma;\zeta;y)$  according to the second line in \eqref{essp1};}
+\defn{QuiverPoincarePolynomialRat}{\vardef{Nvec},\newdefy }{constructs the rational Poincar\'e-Laurent
+                   polynomial $\bQC(\gamma;\zeta;y)$;}
          
 \defn{QuiverPoincarePolynomialExpand}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},
 \vardef{Nvec}, \vardef{Q}}{
-                  evaluates the Coulomb indices $\gref$ and  the   total 
-                   single center degeneracies $\Omega_{\rm tot}(\alpha_i,y)$   appearing in the 
+                  evaluates the Cou-lomb 
+                  indices $\gref$ and   total 
+                   single-centered indices $\Omega_{\rm tot}(\alpha_i,y)$   appearing in the 
                   Poincar\'e-Laurent polynomial \var{Q} of a quiver with DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to 
-                   $\var{PMat}[[i,j]]$ and rescaled by  \var{{\tt \$QuiverMultiplier}},
+                   $\var{PMat}[[i,j]]$, 
                    dimension vector $N_i=\var{Nvec}[[i]]$, 
-                 FI parameters $\zeta_i=\var{Cvec}[[i]]$, using 
-                 \be \label{essp2}
-\Omega_{\rm tot}(\alpha;y) = \OmS(\alpha;y) + 
-\sum_{\{\beta_i\in \Gamma\}, \{m_i\in\bZ\}\atop
-m_i\ge 1, \, \sum_i m_i\beta_i =\alpha}
-H(\{\beta_i\}; \{m_i\};y) \, \prod_i 
-\OmS(\beta_i;y^{m_i})
-\, .
-\ee
-}
+                 FI parameters $\zeta_i=\var{Cvec}[[i]]$;}
 
 
   
 
-\defn{CoulombHSubQuivers}{\vardef{Mat},\vardef{PMat},\vardef{Nvec},\vardef{y}}{computes recursively all \var{CoulombH} factors for DSZ matrix \var{Mat}, perturbed to \var{PMat},
+\defn{CoulombHSubQuivers}{\vardef{Mat},\vardef{PMat},\vardef{Nvec},\newdefy }{computes recursively all \var{CoulombH} factors for DSZ matrix \var{Mat}, perturbed to \var{PMat},
 and any dimension vector strictly less than \var{Nvec}; relies on the next two routines:}
 
                   
@@ -528,9 +524,9 @@ and any dimension vector strictly less than \var{Nvec}; relies on the next two r
 
          
 \defn{SolveCoulombH}{\vardef{ListH},\vardef{ListC},
-\vardef{rule}}{ returns
+\vardef{R}}{ returns
                    a list of replacement rules for the \var{CoulombH} factors 
-                   listed \var{ListH}, by applying the minimal modification hypothesis
+                   listed in \var{ListH}, by applying the minimal modification hypothesis
                    to the coefficients listed in \var{ListC}. The last argument  is 
                    a replacement rule for \var{CoulombH} factors associated to subquivers.}
                    
@@ -545,18 +541,12 @@ and any dimension vector strictly less than \var{Nvec}; relies on the next two r
 by deforming the contour around 0 into a sum of counters over all poles of $f(u)$ and zeros
 of $(1-uy)(1-u/y)$. This trick allows to compute \eqref{uint} even if the order of the pole of $f(y)$
 at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a formal variable.
- %                    \\[5pt]
-%                   \mathematica{.9}
-%                   {Simplify[MinimalModif[(y\^\  k + 1/ y\^\  k)/(y - 1/y)\^\  2], k in Integers]
-%                   }
-%                   {$\frac{1}{2} \left(\frac{2
-%   \left(y^{2-\text{k}}+y^{\text{k}+2}\right)}{\left(y^2-1\right)^2}+\frac{(-1)
-%   ^{\text{k}} y}{(y+1)^2}-\frac{y}{(y-1)^2}\right)$}
                    }
 
-\defn{SymplifyOmSbasis}{\vardef{f}}{replaces  $\OmS(\gamma,y)\to 1$ when $\gamma$ is a basis vector;}
+\defn{SimplifyOmSbasis}{\vardef{f}}{replaces  $\OmS(\gamma,y)\to 1$ when $\gamma$ is a basis vector, unless  \var{{\tt \$QuiverOmSbasis}} is set to 0; 
+}  \newnote %bp
 
-\defn{SymplifyOmSbasismult}{\vardef{f}}{replaces  $\OmS(\gamma,y)\to 0$ when $\gamma$   is a non-trivial multiple of a basis vector;}
+\defn{SimplifyOmSbasismult}{\vardef{f}}{replaces  $\OmS(\gamma,y)\to 0$ when $\gamma$   is a non-trivial multiple of a basis vector, unless  \var{{\tt \$QuiverOmSbasis}} is set to 0;} %bp
 
 
 
@@ -565,13 +555,14 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False}
 
+
 \defn{OmTNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\Omega_{\rm tot}$
                   factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
                   }
 
-\defn{OmSNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\OmS$  %as2
+\defn{OmSNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\OmS$  
                   factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
@@ -579,20 +570,23 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
 
                    \defn{EvalCoulombH3}{\vardef{Mat},\vardef{f}}{ evaluates any 3-center $H$ factor with multiplicity vector $\{1,1,1\}$ 
                appearing   in $f$. Not used in any routine so far.}
+
+\defn{DropFugacity}{\vardef{f}}{replaces $\OmS(\gamma,y^m,t^m)$ by $\OmS(\gamma,t^m)$ everywhere in $f$} \newnote %bp
                 
-\defn{DropFugacity}{\vardef{f}}{drops second argument in any $\OmS(\gamma,y)$ appearing in \var{f}, to be used at end of computation only;}
+\defn{SwapFugacity}{\vardef{f}}{replaces $\OmS(\gamma,y^m)$ with $\OmS(\gamma,y^m,t^m)$ everywhere in $f$} 
 
 
 \section{Higgs branch formula}
 
-\defn{HiggsBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{y}}
+\defn{HiggsBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec} }
 	                                   {computes the Poincar\'e-Laurent
                    polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$ (possibly              rescaled by \var{{\tt \$QuiverMultiplier}}), dimension vector $N_i=\var{Nvec}[[i]]$, 
-                   FI parameters $\zeta_i=\var{Cvec}[[i]]$, using the Higgs branch formula. It is assumed, but not checked, that the quiver has no oriented closed
+                   FI parameters $\zeta_i=\var{Cvec}[[i]]$, using the Higgs branch formula. 
+                   It is assumed, but not checked, that the quiver has no oriented 
                    loop;}
 
 
-\defn{StackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{y}}{gives 
+\defn{StackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy }{gives 
                  the stack 
                   invariant 
                   of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
@@ -600,10 +594,10 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
                    \var{{\tt \$QuiverMultiplier}}, 
                   FI parameters $\zeta_i=\var{Cvec}[[i]]$,  dimension vector $N_i=\var{Nvec}[[i]]$, 		using Reineke's formula; the answer is written in terms of unevaluated
 		$q$-deformed factorials \var{QFact[n,y]};}
-        
-\defn{AbelianStackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{y}}{gives 
+		
+		\defn{AbelianStackInvariant}{\vardef{Mat},\vardef{Cvec},\newdefy }{gives 
                  the Abelian stack 
-                  invariant 
+                  invariant \eqref{edefghiggs} 
                   of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
                   by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}}, 
@@ -612,29 +606,21 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
                   with \var{Nvec}$=\{1,\dots 1\}$ except that tests of marginal or threshold stability
                   are performed (unless   \var{\tt \$QuiverVerbose} is set to False);
                   }
-  
                    
-\defn{QDeformedFactorial}{\vardef{n},\vardef{y}}{gives the $q$-deformed factorial $[n,y]!$}
+\defn{QDeformedFactorial}{\vardef{n},\newdefy }{gives the $q$-deformed factorial $[n,y]!$}
 
 
 \defn{EvalQFact}{\vardef{f}}{evaluates any \var{QFact[n,y]} appearing in \var{f}}
-
 
 
 \section{Utilities}
 
 \defn{ListAllPartitions}{\vardef{charge vector}}{returns the list of unordered 
                    partitions $\{\alpha_i\}$ of the positive integer vector $\gamma$ as a sum of positive, non-zero integer vectors $\alpha_i$; 
-%                   \mathematica{1}{ListAllPartitions[\{1, 2\}]}{
-%                   \{\{\{0, 1\}, \{0, 1\}, \{1, 0\}\}, \{\{0, 2\}, \{1, 0\}\}, \{\{0, 1\}, \{1, 1\}\}, \{\{1,    2\}\}\}
-%                   }
                    }
                    
                    \defn{ListAllPartitionsMult}{\vardef{charge vector}}{returns the list of unordered 
                    partitions $\{\alpha_i,m_i\}$ of the positive integer vector $\gamma$ as a sum of positive, non-zero integer vectors $\alpha_i$ with multiplicity $m_i$; 
-%                   \mathematica{1}{ListAllPartitions[\{1, 2\}]}{
-%                   \{\{\{0, 1\}, \{0, 1\}, \{1, 0\}\}, \{\{0, 2\}, \{1, 0\}\}, \{\{0, 1\}, \{1, 1\}\}, \{\{1,    2\}\}\}
-%                   }
                    }
 
 \defn{ListSubQuivers}{\vardef{Nvec}}{gives a list of all dimension vectors less or equal to \var{Nvec};}
@@ -645,35 +631,91 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
 
  \defn{SymmetryFactor}{\vardef{Li}}{gives the symmetry factor $1/  |{\rm Aut}(\{\alpha_1, \alpha_2,\cdots, \alpha_n\}|$ for the list of charge vectors \var{Li};}
 
-\defn{OmTRat}{\vardef{Nvec},\vardef{y}}{ gives the rational total invariant 
+\defn{OmTRat}{\vardef{Nvec},\newdefy }{ gives the rational total invariant 
 $\bar\Omega_{\rm tot}(\gamma;y)$ in terms of $\Omega_{\rm tot}(\gamma;y)$.
 Coincides with the latter if $\gamma$ is primitive.}
 
 \defn{OmTToOmS}{\vardef{f}}{expands out any $\Omega_{\rm tot}(\gamma;y)$ in $f$
- into $H$ factors and $\OmS$'s using\eqref{essp2};}
+ into $H$ factors and $\OmS$'s;}
            
-\defn{OmToOmb}{\vardef{f}}{expresses out any $\Omega(\gamma;y)$ in $f$
+\defn{OmToOmb}{\vardef{f}}{expresses any $\Omega(\gamma;y)$ in $f$
  in terms of $\bar\Omega(\gamma;y)$'s;}
 
-\defn{OmbToOm}{\vardef{f}}{expresses out any $\bar\Omega(\gamma;y)$ in $f$
+\defn{OmbToOm}{\vardef{f}}{expresses  any $\bar\Omega(\gamma;y)$ in $f$
  in terms of $\Omega(\gamma;y)$'s;}
 
                  
-\defn{HiggsGToOmb}{\vardef{Nvec},\vardef{y}}{Returns the (unevaluated) HN invariant
-$\gR(\gamma,y)$ in terms of the rational refined indices $\Omega(\gamma;y)$
-using \eqref{gtoQb};}
+\defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) HN invariant
+$\gR(\gamma,y)$ in terms of the rational refined indices $\Omega(\gamma;y)$;}
 
-\defn{OmbToHiggsG}{\vardef{Nvec},\vardef{y}}{Returns the (unevaluated) rational refined index $\Omega(\gamma;y)$ in terms of the (unevaluated) 
-stack invariants $\gR(\gamma,y)$ 
-using \eqref{eq:inversestackinv};}
+\defn{OmbToHiggsG}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) rational refined index $\Omega(\gamma;y)$ in terms of the (unevaluated) 
+stack invariants $\gR(\gamma,y)$;}
 
 
 
 \defn{RandomCvec}{\vardef{Nvec}}{generates a random set of FI parameters $\zeta_i$ between -1 and 1, such that $\sum \zeta_i\, \var{Nvec}[[i]]=0$;}
 
-\defn{UnitStepWarn}{\vardef{x}}{gives 1 for $x>0$, 0 for $x<0$, and $1/2$ if $x=0$. Produces a warning in this latter case, irrespective of the value of \var{\tt \$QuiverVerbose}. If so, run the 
-computation again with a different random perturbation.}
+\defn{UnitStepWarn}{\vardef{x}}{gives 1 for $x>0$, 0 for $x<0$, and $1/2$ if $x=0$. Produces a warning in this latter case, irrespective of the value of \var{\tt \$QuiverVerbose}. If so, the user
+is advised run the 
+computation again with a different random perturbation. 
+}
 
+\defn{GrassmannianPoincare}{\vardef{k},\vardef{n},\newdefy}{computes the Poincar\'e
+polynomial of the Grassmannian $G(k,n)$ via Eq. (6.22) in \cite{Manschot:2012rx}.} \newnote%bp
+
+\defn{CyclicQuiverOmS}{\vardef{avec},\vardef{t}}{computes the single-centered index 
+$\OmS(\gamma_1,\dots, \gamma_K)$ associated
+to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$ via Eq
+(4.29) in \cite{Manschot:2012rx}.} %bp
+
+\defn{QuiverPlot}{\vardef{Mat}}{Displays the quiver with DSZ matrix \var{Mat}.} %bp
+
+\subsection{Mutations} \newnote %bp
+
+The following routines and environment variables were introduced in  {\tt CoulombHiggs.m} v1.1,
+to allow investigation of mutations of generalized quivers \cite{Manschot:2013}:
+
+\defn{MutateRight}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{k}}{
+Computes the  DSZ matrix, FI parameters and dimension vector of the quiver obtained
+by applying a right-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
+right mutations $k_i$ are applied successively, starting from the last entry in \var{k}.  No
+consistency check on the FI parameters is performed.}
+
+\defn{MutateLeft}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{k}}{
+Computes the  DSZ matrix, FI parameters and dimension vector of the quiver obtained
+by applying a left-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
+right mutations $k_i$ are applied successively, starting from the last entry in \var{k}. No
+consistency check on the FI parameters is performed.} 
+
+\defn{OmStoOmS2}{\vardef{f}}{replaces $\var{\tt OmS[gam,y,t]}$ by $\var{\tt OmS2[gam,y,t]}$
+anywhere in $\var{f}$. This is useful for distinguishing the single-centered invariants of the mutated
+quiver from those of the original one.}
+
+\defn{MutateRightOmS}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+invariants $\var{\tt OmS[gam,y,t]}$ of the original quiver with DSZ matrix \var{Mat} in terms of the single-centered
+invariants $\var{\tt OmS2[gam,y,t]}$ of the quiver obtained by right-mutation with respect to node $k$,
+using Eq. 1.13 in \cite{Manschot:2013}.}
+
+\defn{MutateLeftOmS}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+invariants $\var{\tt OmS[gam,y,t]}$ of the original quiver with DSZ matrix \var{Mat} in terms of the single-centered
+invariants $\var{\tt OmS2[gam,y,t]}$ of the quiver obtained by left-mutation with respect to node $k$,
+using Eq. 1.13 in \cite{Manschot:2013}.}
+
+\defn{MutateRightOmS2}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+invariants $\var{\tt OmS2[gam,y,t]}$ a quiver with DSZ matrix \var{Mat} in terms of the single-centered
+invariants $\var{\tt OmS[gam,y,t]}$ of the quiver obtained by right-mutation with respect to node $k$.
+Identical to \fun{\tt MutateRightOmS}, except for swapping $\var{\tt OmS[gam,y,t]}$ and $\var{\tt OmS2[gam,y,t]}$.}
+
+\defn{MutateLefttOmS2}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+invariants $\var{\tt OmS2[gam,y,t]}$ a quiver with DSZ matrix \var{Mat} in terms of the single-centered
+invariants $\var{\tt OmS[gam,y,t]}$ of the quiver obtained by right-mutation with respect to node $k$.
+Identical to \fun{\tt MutateLeftOmS}, except for swapping $\var{\tt OmS[gam,y,t]}$ and $\var{\tt OmS2[gam,y,t]}$.}
+
+\defn{DropOmSNeg}{\vardef{f}}{equates to 0 any $\OmS(\gamma,y,t)$ where the dimension
+vector associated to $\gamma$ has negative components.}
+
+\defvar{{\tt \$QuiverMutationMult}}{Equal to 1 by default. Set to $M$, defined in Eq. (1.8) of
+  \cite{Manschot:2013} when dealing with generalized quivers.}  
 
 
 \begin{thebibliography}{9}
@@ -706,10 +748,16 @@ M.~Reineke, ``The {H}arder-{N}arasimhan system in quantum groups and cohomology
 
 \bibitem{Manschot:2013rx}
   J.~Manschot, B.~Pioline and A.~Sen,
-  ``On the Coulomb and Higgs branch formulae for multi-centered black holes and quiver invariants'',
-    [arXiv:1302.nnnn [hep-th]].
-
-
+  ``On the Coulomb and Higgs branch formulae for multi-centered black holes and quiver invariants,''
+  JHEP {\bf 1305} (2013) 166
+  [arXiv:1302.5498 [hep-th]].
+  %%CITATION = ARXIV:1302.5498;%%
+  %3 citations counted in INSPIRE as of 26 Sep 2013
+  
+\bibitem{Manschot:2013}
+ J.~Manschot, B.~Pioline and A.~Sen,
+  ``Generalized quiver mutations and single-centered invariants'',
+    [arXiv:1309.nnnn [hep-th]].
 
 \end{thebibliography}
 
