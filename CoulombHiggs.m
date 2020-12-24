@@ -1131,7 +1131,7 @@ SymmetryFactor[pa_]:=Length[Permutations[pa]]/Length[pa]!;
 
 OmTRat[gam_,y_]:=DivisorSum[GCD@@gam,(y-1/y)/#/(y^#-1/y^#)OmT[gam/#,y^#]&];
 
-SimplifyOmSbasis[f_]:=f/.{OmS[gam_,y_]:> If[Length[$QuiverOmSbasis]==0,
+SimplifyOmSbasis[f_]:=f/.{OmS[gam_,y__]:> If[Length[$QuiverOmSbasis]==0,
      If[$QuiverOmSbasis==0,OmS[gam,y],$QuiverOmSbasis],
      $QuiverOmSbasis[[Tr[Position[gam,1]]]]]/; (Plus@@gam==1)};
 

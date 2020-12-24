@@ -102,7 +102,7 @@
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v3.1}
+\title{CoulombHiggs.m v3.2}
  
 \author{Boris Pioline}
 
@@ -379,6 +379,9 @@ with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total a
                    collinear solutions numerically;    For testing purposes only, works for up to 5 centers.               }
 
 
+\defn{EvalCoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{f} }{evaluates
+any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat},\var{Cvec}$. }
+
 
 \section{Coulomb branch formula}
 
@@ -534,10 +537,6 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
                   are performed (unless   \var{\tt \$QuiverVerbose} is set to False);
                   }
                    
-\defn{QDeformedFactorial}{\vardef{n},\newdefy }{gives the $q$-deformed factorial $[n,y]!$}
-
-
-\defn{EvalQFact}{\vardef{f}}{evaluates any \var{QFact[n,y]} appearing in \var{f}}
 
 
 \section{Utilities}
@@ -554,7 +553,7 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
 
 
 \defn{SubDSZ}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{gives the
-                    DSZ matrix of the subquiver made of vectors in list \var{Li};}
+                    DSZ matrix of the subquiver made of the charge vectors in list \var{Li};}
 
  \defn{SymmetryFactor}{\vardef{Li}}{gives the symmetry factor $1/  |{\rm Aut}(\{\alpha_1, \alpha_2,\cdots, \alpha_n\}|$ for the list of charge vectors \var{Li};}
 
@@ -573,9 +572,9 @@ Coincides with the latter if $\gamma$ is primitive.}
 
                  
 \defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) HN invariant
-$\gR(\gamma,y)$ in terms of the rational refined indices $\Omega(\gamma;y)$;}
+$\gR(\gamma,y)$ in terms of the rational refined indices $\bar\Omega(\gamma;y)$;}
 
-\defn{OmbToHiggsG}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) rational refined index $\Omega(\gamma;y)$ in terms of the (unevaluated) 
+\defn{OmbToHiggsG}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) rational refined index $\bar\Omega(\gamma;y)$ in terms of the (unevaluated) 
 stack invariants $\gR(\gamma,y)$;}
 
 
@@ -601,11 +600,23 @@ to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$
 
 \defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{Computes the FI parameters $\{c_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $c_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $c_i$ are rounded up to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}.}
 
+\defn{AttractorFI}{\vardef{Mat}}{gives the list of net number of arrows at each node. Perhaps an analogue of the attractor point for quivers.}
+
+\defn{QDeformedFactorial}{\vardef{n},\newdefy }{gives the $q$-deformed factorial $[n,y]!$}
+
+\defn{EvalQFact}{\vardef{f}}{evaluates any \var{QFact[n,y]} appearing in \var{f}}
+
 \defn{ExpandTheta}{\vardef{f}}{Replaces $\var{Theta}$ and $\var{Eta}$ by their $q$-expansions, truncated at order $\var{kmax}$}
 
 \defn{qSeries}{\vardef{f}}{Replaces $\tau$ by $\log q/(2\pi i)$, and Taylor expand around $q=0$ up to order $\var{kmax}$}
 
+\defn{SubVectors}{\vardef{Nvec}}{List all positive dimension vectors which are strictly less than $\var{Nvec}$.}
 
+\defn{EulerForm}{\vardef{Mat}}{construct the antisymmetric Ringel-Tits form from the intersection matrix $\var{Mat}$ (coincides with the latter if $\var{Mat}$ is antisymmetric).}
+
+\defn{ListLoopRCharges}{\vardef{Mat},\vardef{RMat}}{Lists the oriented closed loops and corresponding R-charge.}
+
+\defn{TestNoLoop}{\vardef{Mat},\vardef{Li}}{Tests if the subquiver associated to the  charge vectors $\var{Li}$ has oriented closed loops.}
 
 \subsection{Mutations}  
 
