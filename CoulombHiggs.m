@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 2.3                 
+ *  CoulombHiggs.m 3.0                 
  *                                                          
- *  Copyright J. Manschot, B. Pioline and A. Sen, Nov 2014
+ *  Copyright J. Manschot, B. Pioline and A. Sen, Sep 2015
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -34,8 +34,12 @@
  * - Introduced StackInvariantFast, computing StackInvariantGen using Reineke's fast algorithm
  * - Introduced HuaFormula
  *
+ * Release notes for 3.0:
+ * - Fixed bug in HuaFormula
+ * - Introduced JKIndex, etc
+ *
  *********************************************************************)
-Print["CoulombHiggs v 2.2 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae."];
+Print["CoulombHiggs 3.0 - A package for evaluating quiver invariants using the Coulomb branch, Higgs branch and Jeffrey-Kirwan residue formulae."];
 
 
 BeginPackage["CoulombHiggs`"]
@@ -47,6 +51,12 @@ y::usage = "Angular momentum fugacity, conjugate to sum of Dolbeault degrees";
 t::usage = "fugacity, conjugate to difference of Dolbeault degrees";
 
 x::usage = "fugacity, conjugate to rank in Hua formula";
+
+z::usage = "Angular momentum chemical potential, y=Exp[I Pi z]";
+
+u::usage = "u[i,s]: s-th Cartan variable for i-th gauge group";
+
+ut::usage = "ut[i,s]: Cartan variable u, rotated to the diagonal basis for flag";
 
 Om::usage = "Om[gam_,y_] denotes the integer valued BPS index";
 
@@ -178,6 +188,54 @@ DropOmSNeg::usage = "DropOmSNeg[f_] replaces every OmS[gam] and OmS2[gam] by zer
 
 HuaFormula::usage = "HuaFormula[Mat_,Nvec_] computes the generating function of A-polynomials with dimensions up to Nvec";
 
+PartitionWeight::usage="PartitionWeight[pa_]computes the weight of a partition in Hua's formula";
+
+PartitionPairing::usage="PartitionPairing[pa1_,pa2_] computes the pairing between two partitions";
+
+AllPartitions::usage="AllPartitions[d_] constructs all partitions with entries less than d";
+
+HuaTermMult::usage="HuaTermMult[Mat_,ListPa_] computes the contribution of one set of partitions to Hua's formula";
+
+(* Jeffrey-Kirwan residue formula *)
+
+JKIndex::usage = "JKIndex[ChargeMatrix_,Nvec_,Etavec_] computes the chi_y genus of the GLSM with given charge matrix, dimension vector and stability parameter";
+
+JKIndexSplit::usage = "JKIndexSplit[ChargeMatrix_,Nvec_,Etavec_] computes the chi_y genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinant";
+
+InitializeJK::usage = "InitializeJK[Nvec,FrozenCartan] initializes the internal variables"; 
+
+gEuler::usage="gEuler[ChargeMatrix,Nvec] computes the integrand in the residue formula for the index";
+ 
+gRat::usage= "gRat[ChargeMatrix,Nvec] constructs the integrand in the residue formula for the chi_y genus in rational representation";
+
+gTrig::usage= "gTrig[ChargeMatrix,Nvec] constructs the integrand in the residue formula for the chi_y genus in trigonometric representation";
+
+gEulerPartial::usage="gEulerPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces gEuler[ChargeMatrix,Nvec]";
+
+gTrigPartial::usage="gTrigPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in trigonometric representation, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces gTrig[ChargeMatrix,Nvec]";
+
+gRatPartial::usage= "gRatPartial[ChargeMatrix_,Nvec_,ListPerm_] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in rational representation, corresponding to the partitions Listperm at each node; ; the sum over all permutations reproduces gRat[ChargeMatrix,Nvec]";
+
+JKResidueRat::usage= "JKResidueRat[Flags_,f_] extracts the sum of the residues of f (in rational representation) at the specified Flags, weighted with sign; the first entry in Flags is the intersection point, the second is a list of r-plets of charges for each flag";  
+
+JKResidueTrig::usage ="JKResidueTrig[Flags_,f_] extracts the sum of the residues of f (in trigonometric representation) at the specified Flags, weighted with sign; the first entry in Flags is the intersection point, the second is a list of r-plets of charges for each flag";  
+
+JKIndexEulerFromStableFlags::usage ="JKIndexEulerFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the Euler index from the specified list of all stable flags";
+
+JKIndexRefinedFromStableFlags::usage ="JKIndexRefinedFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in rational representation) from the specified list of all stable flags";
+
+JKIndexTrigFromStableFlags::usage ="JKIndexTrigFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in trigonometric representation) from the specified list of all stable flags";
+
+JKIndexEulerSplitFromStableFlags::usage ="JKIndexEulerFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the Euler index from the specified list of all partial stable flags";
+
+JKIndexRefinedSplitFromStableFlags::usage ="JKIndexRefinedFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in rational representation) from the specified list of all partial stable flags";
+
+JKIndexTrigSplitFromStableFlags::usage ="JKIndexTrigFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_] computes the chi_y genus (in trigonometric representation) from the specified list of all partial stable flags";
+
+FindSingularities::usage = "FindSingularities[ChargeMatrix_] constructs the list of singular hyperplanes for the specified charge matrix";
+
+FindStableFlags::usage = "FindStableFlags[ListSings_,Nvec_,Etavec_] constructs the list of stable flags with stability parameter Etavec from the specified list of singular hyperplanes";
+
 
 
 (** Utilities **)
@@ -256,6 +314,63 @@ CyclicQuiverOmS::usage = "CyclicQuiverOmS[Vec_,t_] gives the single-centered deg
 EulerForm::usage = "EulerForm[Mat_] gives the Ringel-Tits form";
 
 SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors strictly less than Nvec";
+
+ListLoopRCharges::usage = "ListLoopRCharges[Mat_,RMat_] computes the R-charge of the primitive loops in a quiver with DSZ matrix Mat";
+
+(* for Jeffrey-Kirwan residue formula *)
+
+FrozenCartan::usage = "List of pairs {i,s} labelling frozen Cartan variables";
+
+FrozenRuleEuler::usage = "Rule for replacing the frozen u[i,s] by 0";
+
+FrozenRuleRat::usage = "Rule for replacing the frozen u[i,s] by 1";
+
+FrozenMask::usage = "Vector of booleans indicating non-frozen entries in ListuAll";
+
+Listu::usage = "List of non-frozen u[i,s] variables";
+
+Listut::usage = "List of non-frozen ut[i,s] variables";
+
+ListuAll::usage = "List of all u[i,s] variables";
+
+ListAllPerms::usage = "List of partitions at each node (represented by a standard permutation) and corresponding multiplicity";
+
+ListAllSings::usage= "Keeps track of singular hyperplanes for all permutations";
+
+ListAllStableFlags::usage="Keeps track of stable flags for all permutations";
+
+CompleteChargeMatrix::usage= "PartialChargeMatrix[ChargeMatrix_,Nvec_,perm_] constructs the extended charge matrix consisting of chiral multiplets and vector multiplets";
+
+PartialChargeMatrix::usage= "PartialChargeMatrix[ChargeMatrix_,Nvec_,perm_] constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm";
+
+SameFlagQ::usage= "SameFlagQ[Q1_,Q2_] tests if the flags Q1 and Q2 (represented by square charge matrices) are equivalent ";
+
+LegCharge::usage= "LegCharge[Nvec_,{i_,ii_},{j_,jj_}] constructs a charge vector with 1 in position {i,ii} and -1 in position {j,jj}";
+
+TrimChargeTable::usage= "TrimChargeTable[ChargeMatrix_] removes the last two columns and frozen entries in charge matrix ChargeMatrix";
+
+FindIntersection::usage="FindIntersection[Sing_] computes the intersection points of the hyperplanes listed in Sing on the cylinder";
+
+FlagToHyperplanes::usage = "FlagToHyperplanes[Sing_] translates the flag Sing, given as r-plet of charge vectors, into a list of linear combinations of Cartan variables";
+
+PartitionToPermutation::usage = "PartitionToPermutation[pa_] translates the partition pa into a standard permutation";
+
+PermutationToPartition::usage = "PermutationToPartition[perm_] translates the standard permutation perm into a partition";
+
+PartitionMultiplicity::usage="PartitionMultiplicity[pa_]";
+
+ListPermutationsWithMultiplicity::usage = "ListPermutationsWithMultiplicity[Nvec_] computes the list of all multi-partitions of Nvec, represented by a standard permutation, and their multiplicity ";
+
+ListHyperplanesIntersectingAt::usage = "ListHyperplanesIntersectingAt[ListSings_,Inter_] collects all the hyperplanes in ListSings which intersect at Inter ";
+
+TestProjectiveIntersection::usage = "TestProjectiveIntersection[ListSings_,Inter_] tests if the intersection point Inter of the hyperplanes listed in ListSings is projective";
+
+CollectHyperplanes::usage = "CollectHyperplanes[ListInterrplets_,Inter_] collects all the hyperplanes from ListInterrplets, which intersect at the point Inter";
+
+TestStableFlag::usage = "TestStableFlag[ListHyper_,Flag_,Etavec_] tests if the flag Flag constructed out of the hyperplanes in ListHyper is stable with respect to Etavec ";
+
+ChargeMatrixFromQuiver::usage = "ChargeMatrixFromQuiver[Mat_,RMat_,Nvec_] constructs the charge matrix for a quiver with DSZ matrix Mat, R-charge matrix RMat, and dimension vector Nvec; do not forget to set FrozenCartan={{1,1}} to decouple the overall U(1)";
+
 
 
 
@@ -1125,12 +1240,9 @@ RandomCvec[gam_]:=Module[{m,mnonzero,k,Cvec},
 	Cvec/$QuiverPerturb1
 ];
 
-
-
 CyclicQuiverOmS[avec_,t_]:=Module[{n,P,eps,Pexp,x},n=Length[avec]; P=Simplify[-1/2(t-1/t)/(1/t Product[(1+x[i] t),{i,n}]-t Product[(1+x[i] /t),{i,n}])(t Product[x[i]/(1+x[i] t),{i,n}]+1/t Product[x[i]/(1+x[i]/ t),{i,n}])+ 1/2Sum[(1-x[k]^2)/(1+x[k] t)/(1+x[k]/t)Product[If[i==k,1,x[i]/(1-x[i]/x[k])/(1-x[i]x[k])],{i,n}],{k,n}]];
   Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
   Coefficient[Pexp,Product[x[i]^avec[[i]],{i,n}]]];
-
 
 HirzebruchR[J_,v_]:=1/((1-v)/(1-Exp[-(1-v)J])+v);
 
@@ -1145,6 +1257,11 @@ Cvec=Map[Rationalize[#,1/$QuiverPerturb1]&,Im[Exp[-I phi] Zvec]];
 QuiverPlot[Mat_]:=GraphPlot[Table[Max[Mat[[i,j]],0],{i,Length[Mat]},{j,Length[Mat]}],
       DirectedEdges->True,MultiedgeStyle->True,VertexLabeling->True];
 
+(* list loops and associated R-charges *)
+ListLoopRCharges[Mat_,RMat_]:=Module[{perm},
+perm=FindCycle[AdjacencyGraph[Table[If[Mat[[i,j]]>0,1,0],{i,Length[Mat]},{j,Length[Mat]}]]];
+Table[{Table[perm[[i,j,1]],{j,Length[perm[[i]]]}],Plus@@Table[RMat[[perm[[i,j,1]],perm[[i,j,2]]]],{j,Length[perm[[i]]]}]},{i,Length[perm]}]
+];
 
 
 
@@ -1437,22 +1554,346 @@ DropOmSNeg[f_]:= f /.{OmS[gam_,t___]:>0 /;Min[gam]<0, OmS2[gam_,t___]:>0 /;Min[g
 
 PartitionWeight[pa_]:=Sum[i pa[[i]],{i,Length[pa]}];
 PartitionPairing[pa1_,pa2_]:=Sum[Min[i,j]pa1[[i]]pa2[[j]],{i,Length[pa1]},{j,Length[pa2]}];
-AllPartitions[d_]:=If[d==1,{{0},{1}},Drop[Union[Flatten[Table[If[Sum[i k[i],{i,d}]<=d,k/@Range[d],
-          {}],##]&@@({k[#],0,d}&/@Range[d]),d-1]],1]];
-HuaTermMult[ListPa_]:=Product[If[Mat[[k,l]]>0,
-    y^(2Mat[[k,l]] PartitionPairing[ListPa[[k]],ListPa[[l]]]),1],{k,Length[Mat]},{l,Length[Mat]}] 
-    Product[x[l]^(PartitionWeight[ListPa[[l]]])
-    /y^(2PartitionPairing[ListPa[[l]],ListPa[[l]]])
-    /Product[(1-y^(-2j)),{i,Length[ListPa[[l]]]},{j,ListPa[[l,i]]}],{l,Length[Mat]}];
+AllPartitions[d_]:=Module[{k},If[d==1,{{0},{1}},Drop[Union[Flatten[Table[If[Sum[i k[i],{i,d}]<=d,k/@Range[d],
+          {}],##]&@@({k[#],0,d}&/@Range[d]),d-1]],1]]];
+HuaTermMult[Mat_,ListPa_]:=Module[{i,j,k,l},Product[If[Mat[[k,l]]>0, 
+    y^(2Mat[[k,l]] PartitionPairing[ListPa[[k]],ListPa[[l]]]),1]
+    ,{k,Length[Mat]},{l,Length[Mat]}] Product[
+    x[l]^(PartitionWeight[ListPa[[l]]])/y^(2PartitionPairing[ListPa[[l]],ListPa[[l]]])/Product[(1-y^(-2j)),{i,Length[ListPa[[l]]]},{j,ListPa[[l,i]]}],{l,Length[Mat]}]];
 HuaFormula[Mat_,Nvec_]:=Module[{Li,HuaSum,LogHuaSum,t,k,m},
   Li=Table[AllPartitions[Nvec[[i]]],{i,Length[Nvec]}];
-  HuaSum=Sum[HuaTermMult[Table[Li[[i,m[i]]],{i,Length[Mat]}]],##]&@@
+  HuaSum=Sum[HuaTermMult[Mat,Table[Li[[i,m[i]]],{i,Length[Mat]}]],##]&@@
               ({m[#],Length[Li[[#]]]}&/@Range[Length[Mat]]);
-  LogHuaSum=Normal[Expand[Series[Log[HuaSum]/.x[i_]->t x[i],{t,0,Plus@@Nvec}]]
-              /.{x[i_]^p_:>0/;p>Nvec[[i]]}];
-  Normal[ExpandAll[Simplify[Series[(q-1)Sum[MoebiusMu[k]/k 
-         (LogHuaSum/.{x[i_]->x[i]^k,y->y^k,t->t^k}),{k,1,Max[Nvec]}],{t,0,Plus@@Nvec}]]]]
+  LogHuaSum=Expand[Normal[Expand[Series[Log[HuaSum]/.x[i_]->t x[i],{t,0,Plus@@Nvec}]]
+              /.{x[i_]^p_:>0/;p>Nvec[[i]]}]]/.{x[i_]^p_:>0/;p>Nvec[[i]]};
+  Normal[ExpandAll[Simplify[Series[(y^2-1)Sum[MoebiusMu[k]/k 
+         (LogHuaSum/.{x[i_]->x[i]^k,y->y^k,t->t^k}/.{x[i_]^p_:>0/;p>Nvec[[i]]}),{k,1,Max[Nvec]}],{t,0,Plus@@Nvec}]]]]
   /.{x[i_]^p_:>0/;p>Nvec[[i]]}/.t->1];
+
+
+(* ::Subsection:: *)
+(*Jeffrey-Kirwan residue formula*)
+
+
+InitializeJK[Nvec_,FrozenCartan_]:=Module[{},
+(* construct a Mask with False on entries which are decoupled, True otherwise *)
+FrozenMask=Flatten[Table[Table[If[Length[Position[FrozenCartan,{i,j}]]>0,False,True],{j,Nvec[[i]]}],{i,Length[Nvec]}]];
+(* construct list of Cartan variables for each node, except decoupled ones *)
+FrozenRuleEuler=Table[u[FrozenCartan[[i,1]],FrozenCartan[[i,2]]]->0,{i,Length[FrozenCartan]}];
+FrozenRuleRat=Table[u[FrozenCartan[[i,1]],FrozenCartan[[i,2]]]->1,{i,Length[FrozenCartan]}];
+(* u[i,ii] is the ii-th Cartan associated the i-th node *)ListuAll=Flatten[Table[u[i,ii],{i,Length[Nvec]},{ii,Nvec[[i]]}]];
+Listu=Pick[ListuAll,FrozenMask];
+Listut=Listu/.{u[i_,j_]:>ut[i,j]};
+];
+
+gEulerPartial[ChargeMatrix_,Nvec_,ListPerm_]:=z^Length[FrozenCartan] Product[ Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)/
+Product[(u[i,ii]-u[i,ListPerm[[i,ii]]]+z),{ii,Length[ListPerm[[i]]]}],{i,Length[ListPerm]}]Product[(-((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/.FrozenRuleEuler;
+
+gTrigPartial[ChargeMatrix_,Nvec_,ListPerm_]:=(2Pi I)^(Plus@@Nvec-Length[FrozenCartan])Product[(-(Exp[I Pi z]-Exp[-I Pi z])/2/I)^Length[ListPerm[[i]]]Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)Product[2I/(Exp[Pi I (u[i,ii]-u[i,ListPerm[[i,ii]]]-z)]-Exp[-Pi I (u[i,ii]-u[i,ListPerm[[i,ii]]]-z)]),{ii,Length[ListPerm[[i]]]}],{i,Length[Nvec]}]Product[(-((Exp[Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))]-Exp[-Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))])/((Exp[Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]-Exp[-Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]))))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(Exp[Pi I z]-Exp[-Pi I z])^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleEuler;
+
+gRatPartial[ChargeMatrix_,Nvec_,ListPerm_]:=Product[ (1-y^2)^Length[ListPerm[[i]]] Signature[ListPerm[[i]]]/(Length[ListPerm[[i]]]!)/
+Product[u[i,ii]-y^2 u[i,ListPerm[[i,ii]]],{ii,Length[ListPerm[[i]]]}],{i,Length[ListPerm]}]Product[(-(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(-1+ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(1-ChargeMatrix[[i,-2]]/2))/(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(-ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(y-1/y)^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleRat; 
+
+gEuler[ChargeMatrix_,Nvec_]:= z^(Length[FrozenCartan]-Plus@@Nvec)/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,-(u[i,ii]-u[i,jj])/ (u[i,ii]-u[i,jj]-z )],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/.FrozenRuleEuler;
+
+gRat[ChargeMatrix_,Nvec_]:=1/Product[Nvec[[i]]!,{i,Length[Nvec]}]/Product[u[i,ii],{i,Length[Nvec]},{ii,Nvec[[i]]}]Product[If[ii==jj,1,(-y(u[i,ii]-u[i,jj])/(u[i,ii]-y^2 u[i,jj]))],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(-1+ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(1-ChargeMatrix[[i,-2]]/2))/(Times@@(ListuAll^(Drop[ChargeMatrix[[i]],-2]/2)) y^(ChargeMatrix[[i,-2]]/2)-Times@@(ListuAll^(-Drop[ChargeMatrix[[i]],-2]/2)) y^(-ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(y-1/y)^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleRat; 
+
+gTrig[ChargeMatrix_,Nvec_]:= (2Pi I)^(Plus@@Nvec-Length[FrozenCartan])/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,(-(Exp[Pi I (u[i,ii]-u[i,jj])]-Exp[-Pi I (u[i,ii]-u[i,jj])])/(Exp[Pi I (u[i,ii]-u[i,jj]-z )]-Exp[-Pi I (u[i,ii]-u[i,jj]-z)]))],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-((Exp[Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))]-Exp[-Pi I (Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z(ChargeMatrix[[i,-2]]/2-1))])/((Exp[Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]-Exp[-Pi I(Sum[ChargeMatrix[[i,j]]ListuAll[[j]],{j,Length[ListuAll]}]+z ChargeMatrix[[i,-2]]/2)]))))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]/(Exp[Pi I z]-Exp[-Pi I z])^(Plus@@Nvec-Length[FrozenCartan])/.FrozenRuleEuler;
+
+JKResidueRat[StableFlag_,gRat_]:=Module[{Inter,QT,QTi,Ksign,QTu,QTut,repu,gt,i,j},
+Table[
+Inter=StableFlag[[1]];
+QT=TrimChargeTable[StableFlag[[2,j,1]]];
+Ksign=StableFlag[[2,j,2]];
+QTi=Inverse[QT];
+QTut=y^(2 D[Inter,z])Exp[2Pi I Inter/.z->0]Table[Product[ Listut[[j]]^QTi[[i,j]],{j,Length[Listut]}],{i,Length[Listut]}];
+repu=Table[Listu[[i]]->QTut[[i]],{i,Length[Listu]}];
+gt=(gRat/.repu) ((Product[Listu[[i]],{i,Length[Listu]}]/.repu)/Product[Listut[[i]],{i,Length[Listut]}])/ Det[QT];
+Do[ 
+gt=Residue[gt,{Listut[[i]],1}],{i,Length[Listut]}];
+ Ksign  gt,
+{j,Length[StableFlag[[2]]]}]];
+
+JKResidueTrig[StableFlag_,gTrig_]:=Module[{Inter,QT,Ksign,repu,gt,i,j},
+Table[
+Inter=StableFlag[[1]];
+QT=TrimChargeTable[StableFlag[[2,j,1]]];
+Ksign=StableFlag[[2,j,2]];
+repu=Table[Listu[[i]]->(Inverse[QT].Listut+Inter)[[i]],{i,Length[Listu]}];
+gt=(gTrig/.repu)/Det[QT];
+Do[gt=Residue[gt,{Listut[[i]], 0}],{i,Length[Listut]}];
+ Ksign  gt,
+{j,Length[StableFlag[[2]]]}]];
+
+JKIndexEulerFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{jj},
+PrintTemporary["Evaluating JK residue at singularity ",Dynamic[jj]];
+Table[
+JKResidueTrig[ListStableFlags[[jj]],gEuler[ChargeMatrix,Nvec]],{jj,Length[ListStableFlags]}]
+];
+
+JKIndexRefinedFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{jj,gRatsimp},
+PrintTemporary["Evaluating JK residue at singularity ",Dynamic[jj]];
+gRatsimp=Simplify[gRat[ChargeMatrix,Nvec]];
+Table[
+JKResidueRat[ListStableFlags[[jj]],gRatsimp],
+{jj,Length[ListStableFlags]}]
+];
+
+JKIndexTrigFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{jj},
+PrintTemporary["Evaluating JK residue at singularity ",Dynamic[jj]];
+Table[
+JKResidueTrig[ListStableFlags[[jj]],gTrig[ChargeMatrix,Nvec]],{jj,Length[ListStableFlags]}]
+];
+
+JKIndexEulerSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{perm,mul,k,jj},
+PrintTemporary["Evaluating JK residue for partition ",Dynamic[k]," at singularity ",Dynamic[jj]];
+Table[
+perm=ListAllPerms[[k,1]];
+mul=ListAllPerms[[k,2]];
+Table[
+mul JKResidueTrig[ListStableFlags[[k,jj]],gEulerPartial[ChargeMatrix,Nvec,perm]],{jj,Length[ListStableFlags[[k]]]}]
+,{k,Length[ListAllPerms]}]];
+
+JKIndexRefinedSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{perm,mul,k,jj,gRatsimp},
+PrintTemporary["Evaluating JK residue for partition ",Dynamic[k]," at singularity ",Dynamic[jj]];
+   Table[
+perm=ListAllPerms[[k,1]];
+mul=ListAllPerms[[k,2]];
+gRatsimp=Simplify[gRatPartial[ChargeMatrix,Nvec,perm]];
+Table[
+mul JKResidueRat[ListStableFlags[[k,jj]],gRatsimp],
+{jj,Length[ListStableFlags[[k]]]}]
+,{k,Length[ListAllPerms]}]
+];
+
+JKIndexTrigSplitFromStableFlags[ChargeMatrix_,Nvec_,ListStableFlags_]:=Module[{perm,mul,k,jj},
+PrintTemporary["Evaluating JK residue for partition ",Dynamic[k]," at singularity ",Dynamic[jj]];
+Table[
+perm=ListAllPerms[[k,1]];
+mul=ListAllPerms[[k,2]];
+Table[
+mul JKResidueTrig[ListStableFlags[[k,jj]],gTrigPartial[ChargeMatrix,Nvec,perm]],{jj,Length[ListStableFlags[[k]]]}]
+,{k,Length[ListAllPerms]}]];
+
+PartialChargeMatrix[ChargeMatrix_,Nvec_,perm_]:= Select[Flatten[{ChargeMatrix,Flatten[Table[If[(jj==perm[[i,ii]])&&ii!=jj,Flatten[{LegCharge[Nvec,{i,ii},{i,jj}],-2,1}],{}],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}],2]},1],Length[#]>0&];
+
+CompleteChargeMatrix[ChargeMatrix_,Nvec_]:= Select[Flatten[{ChargeMatrix,Flatten[Table[Flatten[{LegCharge[Nvec,{i,ii},{i,jj}],-2,1}],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,ii+1,Nvec[[i]]}],2]},1],Length[#]>0&];
+
+LegCharge[Nvec_,{i_,ii_},{j_,jj_}]:=Module[{k,kk},Flatten[Table[If[{k,kk}=={i,ii},1,If[{k,kk}=={j,jj},-1,0]],{k,Length[Nvec]},{kk,Nvec[[k]]}]]];
+
+TrimChargeTable[Sing_]:=Map[Pick[#,Flatten[{FrozenMask,False,False}]]&,Sing];
+(* two flags are equivalent if Q2.Inverse[Q1] is lower triangular *)
+
+FindIntersection[Sing_]:=Module[{QT,Rvec,i,d,so0,so1},
+QT=TrimChargeTable[Sing];
+d=Abs[Det[QT]];
+Rvec=Table[Sing[[i,-2]],{i,Length[Sing]}];
+If[d==0,(*Print["Degenerate intersection"];*)
+  {},
+If[d==1,
+(Listu/.Solve[QT.Listu+Rvec/2==0,Listu])z
+,Print["Two hyperplanes intersect more than once !"];
+(* inhomogenous solution *)
+so0=Solve[QT.Listu+Rvec/2==0,Listu];
+(* homogeneous solution mod Det *)
+so1=Select[Flatten[Table[If[Mod[QT.Listu,d]==ConstantArray[0,Length[Listu]],Listu,{}],##]&@@Table[{Listu[[i]],0,d-1},{i,Length[Listu]}],Length[Listu]-1],Length[#]>0&];
+Table[(Listu/.so0[[1]]) z+so1[[i]]/d,{i,Length[so1]}]]
+]];
+
+FlagToHyperplanes[Sing_]:=Module[{QT,QT2,Rvec,i},
+Rvec=Table[Sing[[i,-2]],{i,Length[Sing]}];
+QT=Map[Drop[#,-2]&,Sing];
+QT.ListuAll+z Rvec/2];
+
+PartitionToPermutation[pa_]:=Module[{perm={},i=1,ta,mul},Do[AppendTo[perm,Range[i,i+pa[[j]]-1]];i=i+pa[[j]],{j,Length[pa]}];
+ PermutationList[Cycles[perm],Plus@@pa]];
+
+(* reverse operation *)
+PermutationToPartition[perm_]:=Module[{li},
+li=Map[Length,List@@PermutationCycles[perm][[1]]];
+Join[li,ConstantArray[1,Length[perm]-Plus@@li]]
+];
+
+(* symmetry factor for a given cycle shape *)
+PartitionMultiplicity[pa_]:=Module[{ta=Tally[pa]},Factorial[Plus@@pa]/Product[ta[[i,1]]^ta[[i,2]] ta[[i,2]]!,{i,Length[ta]}]];
+
+(* Constructs list of partitions at each node, represented by standard permutation, along with multiplicity *)
+ListPermutationsWithMultiplicity[Nvec_]:=Module[{ListPermEachNode,ListPm,k,ListAllPerms},ListPermEachNode=Table[Map[PartitionToPermutation,IntegerPartitions[Nvec[[i]]]],{i,Length[Nvec]}];
+ListAllPerms=Flatten[Table[ListPm[#,k[#]]& /@Range[Length[Nvec]],##]& @@({k[#],1,Length[ListPermEachNode[[#]]]}&/@Range[Length[Nvec]]),Length[Nvec]-1]/.ListPm[i_,j_]:>ListPermEachNode[[i,j]];
+Table[{ListAllPerms[[i]],Product[PartitionMultiplicity[PermutationToPartition[ListAllPerms[[i,j]]]],{j,Length[ListAllPerms[[i]]]}]},{i,Length[ListAllPerms]}]
+];
+
+ListHyperplanesIntersectingAt[ListSings_,Inter_]:=ListSings[[Position[ListSings,Inter,2][[1,1]],2]];
+
+TestProjectiveIntersection[ListSings_,Inter_]:=Module[{QT},
+QT=TrimChargeTable[ListHyperplanesIntersectingAt[ListSings,Inter]];
+If[Length[FindInstance[Min[QT.Listu]>0,Listu]]==0,False,True]];
+
+(* collect hyperplanes which intersect at the point Inter *)
+CollectHyperplanes[ListInterrplets_,Inter_]:=Module[{Li,ListInter},
+ListInter=First[Transpose[ListInterrplets]];
+Li=Flatten[Transpose[Position[ListInter,Inter]][[1]]];
+Union[Flatten[Table[ListInterrplets[[Li[[i]],2]],{i,Length[Li]}],1]]
+];
+
+SameFlagQ[Q1_,Q2_]:=Module[{i,j,Q3},Q3=Q2.Inverse[Q1];Union[Flatten[Table[Q3[[i,j]],{i,1,Length[Q3]-1},{j,i+1,Length[Q3]}]]]]=={0};
+
+FindSingularities[ChargeMatrix_]:=Module[{Listrplets,ListInterrplets,ListInter,ListInterDistinct,ListSings},
+(* list of all r-plets of hyperplanes *)
+Listrplets=Subsets[ChargeMatrix,{Length[ChargeMatrix[[1]]]-2-Length[FrozenCartan]}];
+ListInterrplets=Select[Table[{FindIntersection[Listrplets[[l]]],Listrplets[[l]]},{l,Length[Listrplets]}],Length[#[[1]]]>0&];
+  (* retain only intersection points *)
+ListInter=First[Transpose[ListInterrplets]];
+ListInterDistinct=DeleteDuplicates[Flatten[ListInter,1]];
+(* list all distinct intersections along with hyperplanes meeting at that point *)
+ListSings=Table[{ListInterDistinct[[i]],CollectHyperplanes[ListInter,ListInterrplets,ListInterDistinct[[i]]]},{i,Length[ListInterDistinct]}]
+(*PrintTemporary[Length[ListSings]," distinct intersections"];*)
+];
+
+FindSingularities[ChargeMatrix_]:=Module[{Listrplets,ListInterrplets,ListInterDistinct,ListSings},
+(* list of all r-plets of hyperplanes *)
+Listrplets=Subsets[ChargeMatrix,{Length[ChargeMatrix[[1]]]-2-Length[FrozenCartan]}];
+ListInterrplets=Select[Table[{FindIntersection[Listrplets[[l]]],Listrplets[[l]]},{l,Length[Listrplets]}],Length[#[[1]]]>0&];
+  (* extract distinct intersection points *)
+ListInterDistinct=DeleteDuplicates[Flatten[First[Transpose[ListInterrplets]],1]];
+(* list all distinct intersections along with hyperplanes meeting at that point *)
+ListSings=Table[{ListInterDistinct[[i]],CollectHyperplanes[ListInterrplets,ListInterDistinct[[i]]]},{i,Length[ListInterDistinct]}]
+(*PrintTemporary[Length[ListSings]," distinct intersections"];*)
+];
+
+FindStableFlags[ListSings_,Nvec_,Etavec_]:=Module[{ListSubsets,ListAllFlags,ListFlags,ListDistinctFlags,ListStableFlags,Test},
+ListAllFlags=Table[
+{ListSings[[l,1]],
+Flatten[(* produce the list of unordered r-tuplets *)ListSubsets=Subsets[ListSings[[l,2]],{Plus@@Nvec-Length[FrozenCartan]}];
+Select[Table[
+If[Det[TrimChargeTable[ListSubsets[[k]]]]==0,{},
+(* for each ordered r-tuplet, list reduced charge matrix and r-tuplet *)
+ListFlags=Permutations[ListSubsets[[k]]];
+Table[
+{TrimChargeTable[ListFlags[[j]]],ListFlags[[j]]},{j,Length[ListFlags]}]]
+,{k,Length[ListSubsets]}],Length[#]>0&],1]
+}
+,{l,Length[ListSings]}];
+(* keep only distinct flags *) 
+ ListDistinctFlags=Table[{ListAllFlags[[i,1]],Map[Last,DeleteDuplicates[ListAllFlags[[i,2]],SameFlagQ[#1[[1]],#2[[1]]]&]]},{i,Length[ListAllFlags]}];
+ ListStableFlags=Select[
+Table[
+(* for each singularity *){ListSings[[i,1]],
+Select[Table[
+(* for each distinct flag attached to this singularity *)
+Test=TestStableFlag[ListSings[[i,2]],ListDistinctFlags[[i,2,j]],Etavec];
+If[Test!=0,{ListDistinctFlags[[i,2,j]],Test},{}]
+,{j,Length[ListDistinctFlags[[i,2]]]}],Length[#]>0&]}
+,{i,Length[ListDistinctFlags]}], Length[#[[2]]]>0&];
+(*Print[Plus@@Table[Length[ListStableFlags[[i,2]]],{i,Length[ListStableFlags]}]," stable flags"];*)
+ListStableFlags
+];
+
+TestStableFlag[ListHyper_,Flag_,Etavec_]:=Module[{QT,ListCharges,KTab},
+QT=TrimChargeTable[Flag];
+ListCharges=TrimChargeTable[ListHyper];
+(*Print["Testing stability of ",Flag," ,QT=",QT," ,List=",ListCharges];*)
+(* construct the kappa matrix *) 
+KTab=Table[Sum[If[MatrixRank[Flatten[{Take[QT,r],{ListCharges[[i]]}},1]]==r,(* charge belongs to r-th graded component *) ListCharges[[i]],ConstantArray[0,Length[QT]]],{i,Length[ListCharges]}],{r,Length[QT]}];
+If[Det[KTab]==0,0,
+         If[Min[Pick[Etavec,FrozenMask].Inverse[KTab]]>=0,
+Sign[Det[KTab]],0]]
+];
+
+JKIndexSplit[ChargeMatrix_,Nvec_,Etavec_]:=Module[{ListSings,ListStableFlags,ListAllIntersections,IndEuler,IndHirzebruch,ListRelevantSings,RelevantStableFlags},
+If[Length[Etavec]!=Plus@@Nvec,Print["The length of the dimension and stability vectors do not match !"];
+];
+If[Length[Transpose[ChargeMatrix]]!=(Plus@@Nvec)+2,Print["The width of the charge matrix should equal the rank plus 2 !"];
+];
+If[Min[Last[Transpose[ChargeMatrix]]]<1,Print["The last column of the charge matrix should be strictly positive integers !"];
+];
+If[Min[Nvec]<0,Print["The dimension vector should be a vector of positive integers !"];
+];
+InitializeJK[Nvec,FrozenCartan];
+(* list of one representative per cycle shape, per node *) 
+ListAllPerms=ListPermutationsWithMultiplicity[Nvec];
+Print[Length[ListAllPerms]," partitions"];
+Print[MatrixForm[Table[{ListAllPerms[[k,1]],ListAllPerms[[k,2]]},{k,Length[ListAllPerms]}]]];ListAllSings={};
+ListAllStableFlags={};
+Do[
+ListSings=FindSingularities[PartialChargeMatrix[ChargeMatrix,Nvec,ListAllPerms[[k,1]]]];
+ListStableFlags=FindStableFlags[ListSings,Nvec,Etavec];
+(* return the list of stable flags for given decomposition of Nvec *)
+ ListAllSings=Append[ListAllSings,ListSings];
+ ListAllStableFlags=Append[ListAllStableFlags,ListStableFlags];
+Print["Partition",Map[PermutationToPartition,ListAllPerms[[k,1]]],": ", Length[ListSings]," intersections, ",Length[ListStableFlags], " stable flags"];
+,{k,Length[ListAllPerms]}
+];
+ListAllIntersections=DeleteDuplicates[Map[First,Flatten[ListAllSings,1]]];
+Print[Length[ListAllIntersections]," distinct intersections in total"];
+(* display list of (partition, intersection point, projective test, stable flag, multiplicity) *)
+Print[Flatten[Table[{Map[PermutationToPartition,ListAllPerms[[k,1]]],
+ListAllStableFlags[[k,i,1]],
+FlagToHyperplanes[ListAllStableFlags[[k,i,2,j,1]]],
+ListAllStableFlags[[k,i,2,j,2]] ListAllPerms[[k,2]],TestProjectiveIntersection[ListAllSings[[k]],ListAllStableFlags[[k,i,1]]]
+},
+{k,Length[ListAllStableFlags]},{i,Length[ListAllStableFlags[[k]]]},{j,Length[ListAllStableFlags[[k,i,2]]]}],2]//MatrixForm];
+IndEuler=JKIndexEulerSplitFromStableFlags[ChargeMatrix,Nvec,ListAllStableFlags];
+Print["Euler Number = ",Plus@@Flatten[IndEuler]];
+(* identify singularities with non-zero contributions to Euler characteristics *)
+ListRelevantSings=Table[Complement[Range[Length[IndEuler[[i]]]],Flatten[Position[IndEuler[[i]],{0}]]],{i,Length[IndEuler]}];
+RelevantStableFlags=Table[ListAllStableFlags[[k,ListRelevantSings[[k,i]]]],{k,Length[ListAllStableFlags]},{i,Length[ListRelevantSings[[k]]]}];
+(* display list of (partition, intersection point, projective test, stable flag, multiplicity) *)
+Print["From computing the Euler number, ",Length[Flatten[ListRelevantSings]]," stable flags appear to contribute: "];
+Print[Flatten[Table[{Map[PermutationToPartition,ListAllPerms[[k,1]]],
+RelevantStableFlags[[k,i,1]],
+FlagToHyperplanes[RelevantStableFlags[[k,i,2,j,1]]],
+RelevantStableFlags[[k,i,2,j,2]] ListAllPerms[[k,2]],TestProjectiveIntersection[ListAllSings[[k]],RelevantStableFlags[[k,i,1]]]
+},
+{k,Length[RelevantStableFlags]},{i,Length[RelevantStableFlags[[k]]]},{j,Length[RelevantStableFlags[[k,i,2]]]}],2]//MatrixForm];
+IndHirzebruch=JKIndexRefinedSplitFromStableFlags[ChargeMatrix,Nvec,RelevantStableFlags];
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]];
+Print["Now including all stable flags: "];
+JKIndexRefinedSplitFromStableFlags[ChargeMatrix,Nvec,ListAllStableFlags]
+];
+
+JKIndex[ChargeMatrix_,Nvec_,Etavec_]:=Module[{ListSings,ListStableFlags,ListAllIntersections,IndEuler,IndHirzebruch,ListRelevantSings,RelevantStableFlags},
+If[Length[Etavec]!=Plus@@Nvec,Print["The length of the dimension and stability vectors do not match !"];
+];
+If[Length[Transpose[ChargeMatrix]]!=(Plus@@Nvec)+2,Print["The width of the charge matrix should equal the rank plus 2 !"];
+];
+If[Min[Last[Transpose[ChargeMatrix]]]<1,Print["The last column of the charge matrix should be strictly positive integers !"];
+];
+If[Min[Nvec]<0,Print["The dimension vector should be a vector of positive integers !"];
+];
+InitializeJK[Nvec,FrozenCartan];
+ListSings=FindSingularities[CompleteChargeMatrix[ChargeMatrix,Nvec]];
+ListStableFlags=FindStableFlags[ListSings,Nvec,Etavec];
+Print[ Length[ListSings]," intersections, ",Length[ListStableFlags], " stable flags"];
+(* display list of (partition, intersection point, projective test, stable flag, multiplicity) *)
+Print[Flatten[Table[{
+ListStableFlags[[i,1]],
+FlagToHyperplanes[ListStableFlags[[i,2,j,1]]],
+ListStableFlags[[i,2,j,2]] ,
+TestProjectiveIntersection[ListSings,ListStableFlags[[i,1]]] 
+},{i,Length[ListStableFlags]},{j,Length[ListStableFlags[[i,2]]]}],1]//MatrixForm];
+IndEuler=JKIndexEulerFromStableFlags[ChargeMatrix,Nvec,ListStableFlags];
+Print["Euler Number = ",Plus@@Flatten[IndEuler]];
+(* identify singularities with non-zero contributions to Euler characteristics *)
+ListRelevantSings=Complement[Range[Length[IndEuler]],Flatten[Position[IndEuler,{0}]]];
+RelevantStableFlags=Table[ListStableFlags[[ListRelevantSings[[i]]]],{i,Length[ListRelevantSings]}];
+(* display list of (partition, intersection point, projective test, stable flag, multiplicity) *)
+Print["From computing the Euler number, ",Length[Flatten[ListRelevantSings]]," stable flags appear to contribute: "];
+Print[Flatten[Table[{
+RelevantStableFlags[[i,1]],
+FlagToHyperplanes[RelevantStableFlags[[i,2,j,1]]],
+RelevantStableFlags[[i,2,j,2]] ,
+TestProjectiveIntersection[ListSings,RelevantStableFlags[[i,1]]]
+},{i,Length[RelevantStableFlags]},{j,Length[RelevantStableFlags[[i,2]]]}],1]//MatrixForm];
+IndHirzebruch=JKIndexRefinedFromStableFlags[ChargeMatrix,Nvec,RelevantStableFlags];
+Print[Simplify[Plus@@Flatten[IndHirzebruch]]]Print["Now including all stable flags: "];
+JKIndexRefinedFromStableFlags[ChargeMatrix,Nvec,ListStableFlags]
+];
+
+ChargeMatrixFromQuiver[Mat_,RMat_,Nvec_]:=Select[Flatten[
+Table[If[Mat[[i,j]]>0,Flatten[{LegCharge[Nvec,{i,ii},{j,jj}],RMat[[i,j]],Mat[[i,j]]}],{}],{i,Length[Mat]},{j,Length[Mat]},{ii,Nvec[[i]]},{jj,Nvec[[j]]}],3],Length[#]>0&];
+
+
 
 
 End[];
