@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 2.2                 
+ *  CoulombHiggs.m 2.3                 
  *                                                          
- *  Copyright J. Manschot, B. Pioline and A. Sen, Sep 2014
+ *  Copyright J. Manschot, B. Pioline and A. Sen, Nov 2014
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -32,6 +32,7 @@
  * - Introduced StackInvariantGen, relaxing antisymmetry of DSZ matrix 
  * - Introduced EulerForm, SubVectors
  * - Introduced StackInvariantFast, computing StackInvariantGen using Reineke's fast algorithm
+ * - Introduced HuaFormula
  *
  *********************************************************************)
 Print["CoulombHiggs v 2.2 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae."];
@@ -44,6 +45,8 @@ BeginPackage["CoulombHiggs`"]
 y::usage = "Angular momentum fugacity, conjugate to sum of Dolbeault degrees";
 
 t::usage = "fugacity, conjugate to difference of Dolbeault degrees";
+
+x::usage = "fugacity, conjugate to rank in Hua formula";
 
 Om::usage = "Om[gam_,y_] denotes the integer valued BPS index";
 
@@ -170,6 +173,10 @@ MutateLeftOmS::usage = "MutateLeftOmS[Mat_,k_,f_] replaces every OmS[gam] by OmS
 MutateLeftOmS2::usage = "MutateLeftOmS2[Mat_,k_,f_] replaces every OmS2[gam] by OmS[gam'] where gam'=gam+max(0,-<gam,gam_k>) gam_k, except when gam is collinear with gam_k";
 
 DropOmSNeg::usage = "DropOmSNeg[f_] replaces every OmS[gam] and OmS2[gam] by zero any time gam contains a negative entry";
+
+(* Hua formula *)
+
+HuaFormula::usage = "HuaFormula[Mat_,Nvec_] computes the generating function of A-polynomials with dimensions up to Nvec";
 
 
 
@@ -1422,6 +1429,30 @@ MutateLeftOmS2[Mat_,k_,f_]:=f/.OmS2[Nvec_,y___]:>
          {i,Length[Mat]}],y]];
 
 DropOmSNeg[f_]:= f /.{OmS[gam_,t___]:>0 /;Min[gam]<0, OmS2[gam_,t___]:>0 /;Min[gam]<0};
+
+
+(* ::Subsection:: *)
+(*Hua formula*)
+
+
+PartitionWeight[pa_]:=Sum[i pa[[i]],{i,Length[pa]}];
+PartitionPairing[pa1_,pa2_]:=Sum[Min[i,j]pa1[[i]]pa2[[j]],{i,Length[pa1]},{j,Length[pa2]}];
+AllPartitions[d_]:=If[d==1,{{0},{1}},Drop[Union[Flatten[Table[If[Sum[i k[i],{i,d}]<=d,k/@Range[d],
+          {}],##]&@@({k[#],0,d}&/@Range[d]),d-1]],1]];
+HuaTermMult[ListPa_]:=Product[If[Mat[[k,l]]>0,
+    y^(2Mat[[k,l]] PartitionPairing[ListPa[[k]],ListPa[[l]]]),1],{k,Length[Mat]},{l,Length[Mat]}] 
+    Product[x[l]^(PartitionWeight[ListPa[[l]]])
+    /y^(2PartitionPairing[ListPa[[l]],ListPa[[l]]])
+    /Product[(1-y^(-2j)),{i,Length[ListPa[[l]]]},{j,ListPa[[l,i]]}],{l,Length[Mat]}];
+HuaFormula[Mat_,Nvec_]:=Module[{Li,HuaSum,LogHuaSum,t,k,m},
+  Li=Table[AllPartitions[Nvec[[i]]],{i,Length[Nvec]}];
+  HuaSum=Sum[HuaTermMult[Table[Li[[i,m[i]]],{i,Length[Mat]}]],##]&@@
+              ({m[#],Length[Li[[#]]]}&/@Range[Length[Mat]]);
+  LogHuaSum=Normal[Expand[Series[Log[HuaSum]/.x[i_]->t x[i],{t,0,Plus@@Nvec}]]
+              /.{x[i_]^p_:>0/;p>Nvec[[i]]}];
+  Normal[ExpandAll[Simplify[Series[(q-1)Sum[MoebiusMu[k]/k 
+         (LogHuaSum/.{x[i_]->x[i]^k,y->y^k,t->t^k}),{k,1,Max[Nvec]}],{t,0,Plus@@Nvec}]]]]
+  /.{x[i_]^p_:>0/;p>Nvec[[i]]}/.t->1];
 
 
 End[];
