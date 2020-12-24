@@ -2,14 +2,16 @@
 
 (*********************************************************************
  *                                                                 
- *  CoulombHiggs.m  v. 1.0                 
+ *  CoulombHiggs.m  v. 1.1                 
  *                                                          
  *  Copyright J. Manschot, B. Pioline and A. Sen, Feb 2013
  *
  *  Distributed under the terms of the GNU General Public License 
  *
+ * v 1.1: changed TestNoLoop
+ *
  *********************************************************************)
-Print["CoulombHiggs v 1.0 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae."];
+Print["CoulombHiggs v 1.1 - A package for evaluating quiver invariants using the Coulomb and Higgs branch formulae."];
 
 
 BeginPackage["CoulombHiggs`"]
@@ -123,6 +125,10 @@ DropFugacity::usage = "DropFugacity[f_] replaces OmS[gam,y]->OmS[gam] in f";
 
 EvalCoulombH3::usage = "EvalCoulombH3[Mat_,f_] evaluates any 3-center CoulombH factor in f.";
 
+TestNoLoop::usage = "TestNoLoop[Mat_,Li_] tests if the quiver made from vectors in list Li is a tree";
+
+TestNoFullLoop::usage = "TestNoFullLoop[Mat_,Li_] tests if the quiver made from vectors in list Li has no loop going through all nodes";
+
 CoulombHNoLoopToZero::usage = "CoulombHNoLoopToZero[Mat_,f_] sets to zero any CoulombH factor in f corresponding to non-scaling subquivers. Returns f is $QuiverTestLoop=False.";
 
 OmTNoLoopToZero::usage = "OmTNoLoopToZero[Mat_,f_]sets to zero any OmT in f corresponding to non-scaling subquivers (except basis vectors). Returns f is $QuiverTestLoop=False.";
@@ -154,6 +160,10 @@ CoulombHSubQuivers::usage = "CoulombHSubQuivers[Mat_,PMat_,Nvec_,y_] computes al
 RandomCvec::usage = "RandomCvec[gam_] generates a random set of FI parameters between -1 and 1";
 
 UnitStepWarn::usage = "UnitStepWarn[x_] gives 1 for x>0, 0 for x<0, and produces a warning for x=0";
+
+Mutate::usage = "Mutate[{Mat_,Cvec_,Nvec_},klist_] mutates the quiver with respect to nodes in klist";
+
+QuiverPlot::usage = "QuiverPlot[Mat_] displays the quiver with DSZ matrix Mat";
 
 
 Begin["`Private`"]
@@ -504,6 +514,7 @@ QuiverPoincarePolynomialRat[gam_,y_]:=Module[{ListAllPart},
 
 QuiverPoincarePolynomial[gam_,y_]:=DivisorSum[GCD@@gam,
 	MoebiusMu[#]/# (y-1/y)/(y^#-y^(-#)) QuiverPoincarePolynomialRat[gam/#,y^#]&];
+
 (* evaluate Coulombg using induction rule *)
 EvalCoulombIndex[Mat_,PMat_,Cvec_,f_]:=f/.{Coulombg[Li_,y_]:>CoulombIndex[
 	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
@@ -511,9 +522,11 @@ EvalCoulombIndex[Mat_,PMat_,Cvec_,f_]:=f/.{Coulombg[Li_,y_]:>CoulombIndex[
 	Table[Sum[Li[[i,k]]Li[[j,l]]PMat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
 	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]};
-QuiverPoincarePolynomialExpand[Mat_,PMat_,Cvec_,Nvec_,QPoinca_]:=OmSNoLoopToZero[Mat,
+
+QuiverPoincarePolynomialExpand[Mat_,PMat_,Cvec_,Nvec_,QPoinca_]:=OmSNoLoopToZero[PMat,
     CoulombHNoLoopToZero[PMat,
 	OmTToOmS[EvalCoulombIndex[Mat,PMat,Cvec,OmTNoLoopToZero[PMat,QPoinca]]]]];
+
 ListCoulombH[Nvec_,QPoinca_]:=Module[{Li,ListMonomials,ListCoulombHFac,ListCoeffMonomials,ListPick,
 	ListCoeffMonomialsReduced,ListCoulombHReduced},
   Li=ListAllPartitionsMult[Nvec];
@@ -606,10 +619,28 @@ TestNoLoop[Mat_,Li_]:=Module[{m,MatProd,ListPerm},
 	]
 ];
 
+TestNoFullLoop[Mat_,Li_]:=Module[{m,MatProd,ListSubsets,ListComplements},
+	m=Length[Li];
+    Which[
+      m==1,False,
+      m==2,True,
+      $QuiverNoLoop,True,
+      !$QuiverTestLoop,False,
+      $QuiverTestLoop,
+	    MatProd=Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],{i,m},{j,m}];
+	    ListSubsets=Subsets[Range[m],{1,m-1}];
+        ListComplements=Map[Complement[Range[m],#]&,ListSubsets];
+	    Or@@Table[And@@Flatten[
+                  Table[MatProd[[ListSubsets[[i,j]],ListComplements[[i,k]]]]>0,
+                    {j,Length[ListSubsets[[i]]]},{k,Length[ListComplements[[i]]]}]]
+                ,{i,Length[ListSubsets]}]
+	]
+];
+
 CoulombHNoLoopToZero[Mat_,f_]:= f/.{CoulombH[Li_,gam_,y_]:>0/;TestNoLoop[Mat,Li]};
 
 OmSNoLoopToZero[Mat_,f_]:= f /.{
-      OmS[gam_,y_]:>0 /;TestNoLoop[Mat,
+      OmS[gam_,y_]:>0 /;TestNoFullLoop[Mat,
          Select[Table[If[j==i,gam[[j]],0],{j,Length[gam]},{i,Length[gam]}],#!=Table[0,{i,Length[Mat]}]&]]};
 
 OmTNoLoopToZero[Mat_,f_]:= f /.{
@@ -796,6 +827,29 @@ EvalHiggsg[Mat_,Cvec_,f_]:=f/.{Higgsg[Li_,y_]:>AbelianStackInvariant[
 	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
 	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]};
+
+
+(*Mutate[{Mat_,Cvec_,Nvec_},k_]:=Module[{m},
+  m=Length[Mat];
+  {Table[If[(i==k)||(j==k),-Mat[[i,j]],Mat[[i,j]]+Max[0,Mat[[i,k]] Mat[[k,j]]] Sign[Mat[[k,j]]]],{i,m},{j,m}],
+   Table[If[i==k,-Cvec[[i]],Cvec[[i]]+Max[0,Mat[[i,k]]] Cvec[[k]]],{i,m}],
+   Table[If[i==k,-Nvec[[i]]+Sum[Nvec[[j]] Max[0,Mat[[j,k]]],{j,m}],Nvec[[i]]],{i,m}]}];
+*)
+
+Mutate[{Mat_,Cvec_,Nvec_},klist_]:=Module[{m,Mat2,Cvec2,Nvec2,k},
+  If[Length[klist]>1,
+    {Mat2,Cvec2,Nvec2}=Mutate[{Mat,Cvec,Nvec},Drop[klist,-1]]; 
+       k=Last[klist];,
+    {Mat2,Cvec2,Nvec2}={Mat,Cvec,Nvec};
+       k=klist[[1]];
+  ];
+  m=Length[Mat2];
+  {Table[If[(i==k)||(j==k),-Mat2[[i,j]],Mat2[[i,j]]+Max[0,Mat2[[i,k]] Mat2[[k,j]]] Sign[Mat2[[k,j]]]],{i,m},{j,m}],
+   Table[If[i==k,-Cvec2[[i]],Cvec2[[i]]+Max[0,Mat2[[i,k]]] Cvec2[[k]]],{i,m}],
+   Table[If[i==k,-Nvec2[[i]]+Sum[Nvec2[[j]] Max[0,Mat2[[j,k]]],{j,m}],Nvec2[[i]]],{i,m}]}];
+
+QuiverPlot[Mat_]:=GraphPlot[Table[Max[Mat[[i,j]],0],{i,Length[Mat]},{j,Length[Mat]}],
+      DirectedEdges->True,MultiedgeStyle->True,VertexLabeling->True];
 
 
 (* ::Text:: *)
