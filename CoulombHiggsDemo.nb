@@ -1,0 +1,239 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      7273,        230]
+NotebookOptionsPosition[      6544,        199]
+NotebookOutlinePosition[      6900,        215]
+CellTagsIndexPosition[      6857,        212]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Demonstrating CoulombHiggs", "Title",
+ CellChangeTimes->{{3.611374584054455*^9, 3.61137458784956*^9}}],
+
+Cell["\<\
+Boris Pioline, June 10, 2014; based on work with Jan Manschot and Ashoke Sen
+
+Download CoulombHiggs.m from \
+http://www.lpthe.jussieu.fr/~pioline/computing.html\
+\>", "Text",
+ CellChangeTimes->{{3.611374608179715*^9, 3.6113746486661577`*^9}, {
+  3.6113767048083487`*^9, 3.6113767331682587`*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SetDirectory", "[", 
+   RowBox[{"NotebookDirectory", "[", "]"}], "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"<<", "CoulombHiggs`"}]}], "Input",
+ CellChangeTimes->{{3.611374755665613*^9, 3.611374760375086*^9}, {
+  3.611375219564439*^9, 3.611375219936695*^9}, {3.611376203023643*^9, 
+  3.611376203360457*^9}}],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.6113750506251593`*^9, 3.611375051265974*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Kronecker quiver", "Section"]], "Subtitle",
+ CellChangeTimes->{{3.61137502839052*^9, 3.611375031084304*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Mat", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"0", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "3"}], ",", "0"}], "}"}]}], "}"}]}], ";", 
+  RowBox[{"Nvec", "=", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "2"}], "}"}]}], ";", 
+  RowBox[{"Cvec", "=", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", 
+     RowBox[{"-", "1"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$QuiverVerbose", "=", "False"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"QuiverPlot", "[", "Mat", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Simplify", "[", 
+  RowBox[{"CoulombBranchFormula", "[", 
+   RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Simplify", "[", 
+  RowBox[{"HiggsBranchFormula", "[", 
+   RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.61137487715594*^9, 3.611375007908587*^9}, {
+  3.6113750571730413`*^9, 3.611375143219325*^9}, {3.611375271887579*^9, 
+  3.61137529348034*^9}, {3.611375409359548*^9, 3.6113754114146976`*^9}, {
+  3.611375762235331*^9, 3.611375766054593*^9}, {3.611375807892075*^9, 
+  3.611375808259797*^9}, {3.61137606032971*^9, 3.6113760639360313`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Three-node quiver with loop", "Section",
+ CellChangeTimes->{{3.611375821802265*^9, 3.6113758278400993`*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"aa", "=", "3"}], ";", 
+  RowBox[{"bb", "=", "3"}], ";", 
+  RowBox[{"cc", "=", "3"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Mat", "=", 
+   RowBox[{"(", GridBox[{
+      {"0", "aa", 
+       RowBox[{"-", "cc"}]},
+      {
+       RowBox[{"-", "aa"}], "0", "bb"},
+      {"cc", 
+       RowBox[{"-", "bb"}], "0"}
+     },
+     GridBoxAlignment->{
+      "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}},
+        "RowsIndexed" -> {}},
+     GridBoxSpacings->{"Columns" -> {
+         Offset[0.27999999999999997`], {
+          Offset[0.7]}, 
+         Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+         Offset[0.2], {
+          Offset[0.4]}, 
+         Offset[0.2]}, "RowsIndexed" -> {}}], ")"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Nvec", "=", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], ";", 
+  RowBox[{"Cvec", "=", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", 
+     RowBox[{"-", "3"}], ",", "2"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"QuiverPlot", "[", "Mat", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Simplify", "[", 
+  RowBox[{"CoulombBranchFormula", "[", 
+   RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.611375894095821*^9, 3.611375901789379*^9}, {
+  3.611375932862132*^9, 3.6113759329219027`*^9}, {3.611375966108469*^9, 
+  3.611376032223658*^9}, {3.611376076279676*^9, 3.611376108132045*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Cyclic quivers", "Section",
+ CellChangeTimes->{{3.61137630175065*^9, 3.611376306797546*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Avec", "=", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "3", ",", "2", ",", "1", ",", "2"}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Cvec", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1"}], ",", "1", ",", 
+     RowBox[{"1", "/", "3"}], ",", "1", ",", 
+     RowBox[{
+      RowBox[{"-", "1"}], "/", "2"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Nvec", "=", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2", ",", "1", ",", "1", ",", "1"}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"n", "=", 
+   RowBox[{"Length", "[", "Avec", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Mat", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Which", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"j", "-", "i"}], ",", "n"}], "]"}], "\[Equal]", "1"}], ",", 
+       
+       RowBox[{"Avec", "[", 
+        RowBox[{"[", "i", "]"}], "]"}], ",", 
+       RowBox[{
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"j", "-", "i"}], ",", "n"}], "]"}], "\[Equal]", 
+        RowBox[{"n", "-", "1"}]}], ",", 
+       RowBox[{"-", 
+        RowBox[{"Avec", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{"Mod", "[", 
+            RowBox[{
+             RowBox[{"j", "-", "1"}], ",", "n"}], "]"}], "+", "1"}], "]"}], 
+         "]"}]}], ",", "True", ",", "0"}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "n"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"j", ",", "n"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"QuiverPlot", "[", "Mat", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Simplify", "[", 
+  RowBox[{"CoulombBranchFormula", "[", 
+   RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.6113763263407183`*^9, 3.61137659630586*^9}}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{740, 607},
+WindowMargins->{{Automatic, 84}, {28, Automatic}},
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
+2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 108, 1, 77, "Title"],
+Cell[690, 25, 305, 7, 56, "Text"],
+Cell[998, 34, 350, 8, 45, "Input"],
+Cell[1351, 44, 94, 1, 28, "Input"],
+Cell[CellGroupData[{
+Cell[1470, 49, 132, 1, 43, "Subtitle"],
+Cell[1605, 52, 1251, 31, 91, "Input"],
+Cell[CellGroupData[{
+Cell[2881, 87, 114, 1, 68, "Section"],
+Cell[2998, 90, 1475, 40, 129, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4510, 135, 98, 1, 68, "Section"],
+Cell[4611, 138, 1893, 56, 139, "Input"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
