@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 4.6                
+ *  CoulombHiggs.m 5.0                
  *                                                          
- *  Copyright B. Pioline, June 2019
+ *  Copyright B. Pioline, July 2019
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -67,7 +67,7 @@
  * - Fixed CyclicQuiverOmS, AttractorFI, ListLoopRCharges
  * - Optimized ExpandTheta
  *
- * Release notes for 4.6:
+ * Release notes for 5.0:
  * - Removed z variable in hyperplanes
  * - Renamed gEuler, gRat, gTrig, etc into ZEuler, ZRational, ZTrig
  * - Renamed IndEuler, IndHirzebruch into JKEuler, JKChiGenus
@@ -80,7 +80,7 @@
  * - Added Joyce-Song formula
  
  *********************************************************************)
-Print["CoulombHiggs 4.6 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 5.0 - A package for evaluating quiver invariants"];
 
 
 
