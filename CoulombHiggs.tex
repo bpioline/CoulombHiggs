@@ -14,9 +14,12 @@
   
 \usepackage{marginnote}
 \reversemarginpar
-\newcommand{\newnotea}{ \marginnote{\bf New in v3.1:}[-4mm]}
-\newcommand{\newnoteb}{ \marginnote{\bf New in v2.1:}[-4mm]}
+%\newcommand{\newnotea}{ \marginnote{\bf New in v3.1:}[-4mm]}
+%\newcommand{\newnoteb}{ \marginnote{\bf New in v2.1:}[-4mm]}
  
+ \newcommand{\newnotea}{}
+\newcommand{\newnoteb}{}
+
 
 % from Bourjaily arXiv:1212.6974
 %\pdfoutput=1
@@ -89,10 +92,15 @@
 \newcommand{\gRa}{g_{\rm Higgs}}
 \newcommand{\QR}{Q_{\rm Higgs}}
 \newcommand{\bQR}{\bar Q_{\rm Higgs}}
-\newcommand{\QC}{Q_{\rm Coulomb}}
-\newcommand{\bQC}{{\bar Q}_{\rm Coulomb}}
+%\newcommand{\QC}{Q_{\rm Coulomb}}
+%\newcommand{\bQC}{{\bar Q}_{\rm Coulomb}}
+
+\newcommand{\QC}{\Omega}
+\newcommand{\bQC}{\bOm}
+
 \newcommand{\gC}{G_{\rm Coulomb}}
 \newcommand{\OmS}{\Omega_{\rm S}} 
+\newcommand{\Omatt}{\Omega_*} 
 \newcommand{\I}{{\rm i}}
 %\newcommand{\eqref}{\refb}
 
@@ -102,7 +110,7 @@
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v4.3}
+\title{CoulombHiggs.m v4.5}
  
 \author{Boris Pioline}
 
@@ -112,36 +120,69 @@
 
 \baselineskip 15pt
 
-%\tableofcontents
+\tableofcontents
+
+\medskip
+
+\section{Summary}
+
+The  {\sc Mathematica} package {\tt CoulombHiggs.m} provides a suite of routines compute (specializations of) the Hodge polynomial 
+\be
+\label{defOm}
+\Omega(\gamma,\zeta,y,t) := 
+\sum_{p,q=0}^{d}\, (-y)^{p+q-d} t^{p-q}\, h_{p,q}(\cM_Q)\, 
+\ee
+of the moduli space $\cM_Q$ of semi-stable representations of a quiver $Q$ with antisymmetric
+adjacency matrix $\alpha_{ij}$,  dimension vector $\gamma=(N_1,\dots, N_K)$ and stability parameters $(\zeta_1,\dots, \zeta_K)$ such that $\sum_i N_i \zeta_i=0$. When $\cM_Q$ is 
+a smooth projective variety of complex dimension $d$, \eqref{defOm} is a Laurent polynomial  with integer coefficients, invariant under separate inversions $y\to 1/y, t\to 1/t$. When $\gamma$ is not primitive, it is useful to introduce the rational function
+\be
+\label{defbOm}
+\bOm(\gamma,\zeta,y,t)=\sum_{d|\gamma} \frac{y-1/y)}{d(y^d-y^{-d})} \Omega(\gamma/d,\zeta,y^d,t^d)\ee 
+which satisfies simpler wall-crossing identities.
+The  following main formulae are implemented:
+ \begin{itemize}
+ \item  the {\it Higgs branch formula} is  based on Reineke's solution to the Harder-Narasimhan recursion \cite{MR1974891} for quivers with primitive dimension vector and no closed loops. 
+ The formula apparently also applies to quivers with oriented loops but without superpotential 
+ and for non-primitive dimension vector, provided the Hodge numbers $h_{p,q}(\cM_Q)$
+ are defined using intersection homology;
+ \item the {\it Coulomb branch} formula \cite{1011.1258,1103.1887,Manschot:2012rx,Manschot:2014fua} is based on a physical picture of BPS states as bound states of single-centered black holes; it applies to any quivers with or without oriented loops  and expresses the index in terms
+ of `single-centered invariants' $\OmS(\gamma_i)$, which are independent of stability conditions,
+ and conjecturally depend only on $t$;
+\item the  {\it flow tree formula} \cite{Alexandrov:2018iao} is based on 
+ the attractor flow tree conjecture, and expresses the total index in terms of attractor indices
+ $\Omatt(\gamma_i)$ which are also independent of stability conditions, but may depend on both 
+ $y$ and $t$; they are supposed to be equal to $\Omega(\gamma_i,\zeta_*,y,t)$ evaluated at
+ the attractor point $\zeta_a=-\kappa_{ab} N_b^i$;  
+\item The  {\it JK residue formulae} \cite{Hori:2014tda} (see also \cite{Cordova:2014oxa,Benini:2013xpa}) is based on localization, and evaluates the $\chi$-index
+$\Omega(\gamma,\zeta,y,y)$ as a suitable sum of residues of a certain rational or trigonometric function; when $\gamma$ is not primitive, the residue formula computes the value at $y=t$ of the rational invariant
+\eqref{defbOm}.
+\end{itemize}
 
 
 
-The  {\sc Mathematica} package {\tt CoulombHiggs.m} allows to compute the Poincar-Laurent polynomial of the moduli space of stable representations of quivers using the {\it Coulomb branch} and {\it Higgs branch} formulae. The Higgs branch formula is based on Reineke's solution to the Harder-Narasimhan recursion \cite{MR1974891} and applies to quivers without oriented closed loops. The Coulomb branch is based on a physical picture of BPS states as bound states of elementary 'single-centered' constitutents, and applies to any quivers with or without oriented loops \cite{1011.1258,1103.1887,Manschot:2012rx}.  
-The first version of this package was released together with the preprint \cite{Manschot:2013rx} where a general algorithm for computing the index of the quantum mechanics of multi-centered BPS black holes (the Coulomb index) was outlined. The second version 2.0, released along with the preprint \cite{Manschot:2013}, allowed to compute the Dolbeault-Laurent polynomial, relax assumptions on single-centered indices for basis vectors, study the effect of generalized mutations, and more. Version 2.1, released along with the review \cite{Manschot:2014fua}, was optimized to speed up the evaluation of Coulomb indices.  Starting with version 3.0, the package implements the Jeffrey-Kirwan residue formula for the refined index of 0+1-dimensional gauged linear models with $\cN=4$ supersymmetry \cite{Hori:2014tda} (see also \cite{Cordova:2014oxa}). 
-Starting with version 3.1, it  computes the elliptic genus for 1+1 dimensional gauged
-linear sigma models with $(2,2)$ supersymmetry (see \cite{Benini:2013xpa}). 
-Starting with version 4.0, the package implements the flow tree formula proposed in \cite{Alexandrov:2018iao}.
+\medskip
 
 The package file {\tt CoulombHiggs.m} and various example files 
-can be obtained from the second named author's webpage,
+can be obtained from the author's webpage,
 \vskip 2mm
 
 \centerline{\tt http://www.lpthe.jussieu.fr/$\sim$\,pioline/computing.html}
 
-\section{Basic usage}
+\subsection{Basic usage}
 
 Assuming that the file {\tt CoulombHiggs.m} is present in the user's {\sc Mathematica} Application 
 directory, the package is loaded by entering 
 
-\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs 4.0 - A package for evaluating quiver invariants. }
+\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs 4.5 - A package for evaluating quiver invariants. }
 
 If the file  {\tt CoulombHiggs.m} has not yet been copied in the user's {\sc Mathematica} Application 
 directory but is in the same directory as the notebook, evaluate instead
 
-\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs 4.0 - A package for evaluating quiver invariants.}
+\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs 4.5 - A package for evaluating quiver invariants.}
 
+\subsubsection{Coulomb branch formula}
 
-The first main routine  is {\tt \color{functioncolor} CoulombBranchFormula}, whose basic usage is illustrated below: \footnote{Note the following changes in v2.0: the fugacity $y$ 
+The basic usage of {\tt \color{functioncolor} CoulombBranchFormula} is illustrated below: \footnote{Note the following changes in v2.0: the fugacity $y$ 
 is no longer a parameter of \fun{CoulombBranchFormula} and \fun{QuiverBranchFormula},
 and the former computes the Dolbeault polynomial in terms of $\OmS(\alpha_i,t)$, 
 rather than expressing  the Poincar\'e polynomial in terms of $\OmS(\alpha_i)$.
@@ -150,7 +191,7 @@ a uniform translation is applied internally to the $\zeta_i$'s.  %bp
 Other changes are highlighted by margin notes below. }
 
 
-\mathematica{0.9}{Simplify[CoulombBranchFormula[4\{\{0, 1, -1\},\{-1, 0, 
+\mathematica{1.0}{Simplify[CoulombBranchFormula[4\{\{0, 1, -1\},\{-1, 0, 
    1\}, \{1, -1, 0\}\}, \{1/2, 1/6, -2/3\}, \{1, 1, 1\}]]  
      }
    {$ 2+ \frac{1}{y^2}+y^2 +  \text{OmS}(\{1,1,1\},y,t) $
@@ -165,58 +206,82 @@ Other changes are highlighted by margin notes below. }
 %   {$ 2+ \frac{1}{y^2}+y^2 +  \text{OmS}(\{1,1,1\}, t) $
 %}
 
-This routine computes the Dolbeault-Laurent polynomial  of the quiver moduli space, expressed in terms of the single-centered indices. 
 The first argument corresponds to the matrix of DSZ products $\alpha_{ij}$ (an antisymmetric matrix of integers), the second to the FI parameters $\zeta_i$ (a vector of rational numbers), the third to the dimension vector $N_i$ (a vector of integers). 
-The variables
- $y$ and $t$ are fugacities conjugate to the sum of the Dolbeault
-degrees $p+q$ (i.e. the angular
-momentum) and to the difference of the Dolbeault
-degrees $p-q$, respectively. The Poincar\'e-Laurent
-polynomial is obtained by setting $t=1$. For generic superpotential, the single-centered
-indices $\OmS(\gamma,y)\equiv \OmS(\gamma,y,1)$ are conjectured to be
-independent of $y$.  In the above example,  the 
-Dolbeault polynomial of the moduli space of a three-node Abelian cyclic quiver with $4$ arrows between each subsequent node is expressed in terms of the single-centered index
+%The variables
+% $y$ and $t$ are fugacities conjugate to the sum of the Dolbeault
+%degrees $p+q$ (i.e. the angular
+%momentum) and to the difference of the Dolbeault
+%degrees $p-q$, respectively. The Poincar\'e-Laurent
+%polynomial is obtained by setting $t=1$. For generic superpotential, the single-centered
+%indices $\OmS(\gamma,y)\equiv \OmS(\gamma,y,1)$ are conjectured to be
+%independent of $y$.  
+Here,  the 
+Dolbeault polynomial of the moduli space of a three-node Abelian cyclic quiver $C_{4,4,4}$ with $4$ arrows between each consecutive node is expressed in terms of the single-centered index
 $\OmS(\gamma_1+\gamma_2+\gamma_3,y,t)$. 
 
-\medskip
+\subsubsection{Higgs branch formula}
 
-The second main routine is {\tt \color{functioncolor} HiggsBranchFormula}, which computes the
-Poincar\'e-Laurent polynomial  using the Higgs branch formula  (which is only valid for quivers without oriented  loop, but the routine works irrespective of this
-assumption). The arguments are the same as for {\tt \color{functioncolor} CoulombBranchFormula}: 
+The arguments of {\tt \color{functioncolor} HiggsBranchFormula} are the same as for {\tt \color{functioncolor} CoulombBranchFormula}: 
 
 \mathematica{1.0}{Simplify[HiggsBranchFormula[\{\{0, 3\},\{-3, 0\}\}, \{1/2,-1/2\}, \{2, 2\}]]
   }
    {$ -\frac{\left(y^2+1\right) \left(y^8+y^4+1\right)}{y^5} $
 }
-The above command computes the Poincar\'e-Laurent polynomial for the Kronecker quiver with 3 arrows, FI parameters $(1/2,-1/2)$, dimension vector $(2,2)$. 
+The above command computes the invariant $\Omega(\gamma,\zeta,t,y)$ for the Kronecker quiver 
+$K_3(2,2)$ with 3 arrows,  dimension vector $\gamma=(2,2)$ and stability  parameters 
+$\zeta=(1/2,-1/2)$,. Note that the result is a symmetric Laurent polynomial with integer coefficients, despite the fact that $\gamma$ is not primitive. 
 
-\medskip
+\subsubsection{Jeffrey-Kirwan residue  formula}
 
 The third main routine {\tt \color{functioncolor} JKIndex} implements the Jeffrey-Kirwan residue formula. 
-Its first argument is an extended charge matrix, where the rows encode the charges of the chiral
-multiplets under $U(1)^{\sum N_i}$, along with the R-charge and the multiplicity. The second argument
-is the dimension vector $N_i$, and the last argument is the stability condition $\eta$, a vector of length $\sum N_i$. 
-The charge matrix can be obtained from the DSZ matrix,R-matrix and dimension vector using {\tt \color{functioncolor} ChargeMatrixFromQuiver}. For example,  the index of a two-node quiver with three arrows, dimension vector $N_i=(1,2)$, stability vector 
+Its first argument \var{ChargeMatrix} is an extended charge matrix, where the rows encode the charges of the chiral
+multiplets under $U(1)^{\sum N_i}$, along with the R-charges and the multiplicity. 
+The second argument \var{Nvec} is the dimension vector $N_i$, and the last argument 
+\var{Etavec} is the stability condition $\eta$, a vector of length $\sum_i N_i$. These  arguments 
+can be generated by using \fun{JKInitialize}, which takes as arguments  the antisymmetric DSZ matrix $\alpha_{ij}$, symmetric R-matrix $r_{ij}$, stability
+vector $\zeta_i$ and dimension vector $N_i$, and sets various global variables including  
+\var{ChargeMatrix} and \var{Etavec}.  For example,  the index of a two-node quiver with three arrows, dimension vector $N_i=(1,2)$, stability vector 
 $\eta=(1,-2/5,-3/5)$ is obtained from 
 
-
 \mathematica{1.0}{
-FrozenCartan = \{\{1, 1\}\}; 
-JKIndex[ ChargeMatrixFromQuiver[\{\{0, 3\}, \{-3, 0\}\}, \{\{0, 0\}, \{0, 0\}\}, \{1, 
-   2\}], \{1, 2\}, \{1, -2/5,-3/5\}]
-}{$y^2+1+\frac{1}{y^2} $}   
+InitializeJK[\{\{0, 3\}, \{-3, 0\}\}, \{\{0, 0\}, \{0, 0\}\}, \{1, 2\}, \{1, -1/2\}];
+JKIndex[ ChargeMatrix, \{1, 2\},Etavec]
+}{$\{y^2+1+\frac{1}{y^2} \}$}   
 
-The variable $\var{FrozenCartan}$ is a list of pairs $(i,s)$, which specifies that the list of Cartan variables $u_{i,s}$ (associated to the $i$-th gauge group $U(N_i)$, with $s=1\dots N_i)$ should be frozen to 0, rather than integrated over. For quiver quantum mechanics the overall $U(1)$ factor in $\prod_i U(N_i)$ decouples one variable, e.g. $u_{1,1}$, must be frozen to 0.
+The result produces a list of contributions from each contributing stable flag, which consists of a single flag in this case. The routine first determines the stable flags which give a non-zero contribution to the Euler number $\Omega(\gamma,\zeta,1,1)$, and then uses the same flags to compute the $\chi$-genus $\Omega(\gamma,\zeta,y,y)$, which is more time-consuming. The result for the Euler number can be accessed from the global variable \var{IndEuler}. Note that flavor fugacities
+can be switched on by using  the routine \fun{FlavoredRMatrix} to construct  the matrix of R-charges (which was chosen to vanish in the previous example).
 
-A variant {\tt \color{functioncolor} JKIndexSplit} of the same routine is provided, which computes the same index by first splitting the vector multiplet determinant as a sum over (equivalence classes of) permutations, using Cauchy's determinant formula, and computes the Jeffrey-Kirwan residue of each term separately (the two procedures are of course identical for Abelian quivers). This simplifies both the enumeration of stable flags (as the number of singular hyperplanes due to vector multiplets is reduced from $N_i(N_i-1)$ to $\mathcal{O}(N_i)$) and the computation of the residues. Moreover, for quivers with loops this splitting appears to match the sum over decompositions $\gamma=\sum\alpha_i$ in the Coulomb branch formula \cite{Pioline2015}. The list of all splittings, along with their multiplicity, is stored in the global variable ${\tt \color{varcolor} ListAllPerms}$.
 
-For the evaluation of the residue, we note that it is more efficient to use a rational representation of the integrand (using exponentiated Cartan variables) than a trigonometric representation. Both options are allowed in the code, mainly for debugging.
+%The variable $\var{FrozenCartan}$ is a list of pairs $(i,s)$, which specifies that the list of Cartan variables $u_{i,s}$ (associated to the $i$-th gauge group $U(N_i)$, with $s=1\dots N_i)$ should be frozen to 0, rather than integrated over. For quiver quantum mechanics the overall $U(1)$ factor in $\prod_i U(N_i)$ decouples one variable, e.g. $u_{1,1}$, must be frozen to 0.
 
 \medskip
 
-Finally, the last main routine, available from v4.0, is \fun{\tt FlowTreeFormula}, which expresses
-the BPS index (or Poincar\'e-Laurent polynomial) in terms of attractor indices $\Omega_*(\gamma_i)$
-using the sum over flow trees introduced in \cite{Alexandrov:2018iao}. The arguments are the same as for {\tt \color{functioncolor} CoulombBranchFormula}:
+A variant {\tt \color{functioncolor} JKIndexSplit} of the same routine is provided, which computes the same index by first splitting the vector multiplet determinants as a sum over (equivalence classes of) permutations, using Cauchy's determinant formula, and computes the Jeffrey-Kirwan residue of each term separately (the two procedures are of course identical for Abelian quivers). This simplifies both the enumeration of stable flags (as the number of singular hyperplanes due to vector multiplets is reduced from $N_i(N_i-1)$ to $\mathcal{O}(N_i)$) and the computation of the residues. Moreover, for quivers with loops this splitting appears to match the sum over decompositions $\gamma=\sum\alpha_i$ in the Coulomb branch formula \cite{Pioline2019}. For example, applying this splitting procedure on the second node for the previous example gives
+
+\mathematica{1.0}{
+InitializeJK[\{\{0, 3\}, \{-3, 0\}\}, \{\{0, 0\}, \{0, 0\}\}, \{1, 2\}, \{1, -1/2\}];
+JKIndexSplit[ ChargeMatrix, \{1, 2\},Etavec,\{2\}];
+}{$\{ \{ \frac{-y^8-y^4-1}{2 y^4} \} , \{ 
+ \frac{\left(y^4+y^2+1\right)^2}{2 y^4}\} \}$}   
+
+which sums up to the same result as before $y^2+1+1/y^2$. 
+Each entry in the result corresponds to the contribution
+of a given multi-partition of the dimension vector, the list of which  is stored (along with respective multiplicities) in the global variable ${\tt \color{varcolor} ListAllPerms}$. Again, the intermediate 
+results for the Euler number can be retrieved from the global variable \var{IndEuler}.
+
+\medskip
+
+For the evaluation of the residue, we note that it is often more efficient to use a rational representation of the integrand (using exponentiated Cartan variables) than a trigonometric representation. The former is used when $\var{\$QuiverTrig}$ is set to False. If this variable is set to a value different from True or False, then  the routine does not attempt to compute the full $\chi$-genus and returns the Euler number instead. 
+
+\medskip
+
+Finally, by setting $\var{\$QuiverTrig}$ to True and $ \var{kmax}>0$, the routine will attempt to compute the elliptic genus up to order $q^{\var{kmax}}$ using the residue prescription in \cite{Benini:2013xpa}. Note however that it will only include the same hyperplanes which contribute to the Euler number, and not hyperplanes which decouple as $\tau\to\I\infty$.
+
+
+
+\subsubsection{Flow tree  formula}
+
+The arguments for \fun{\tt FlowTreeFormula} are the same as for {\tt \color{functioncolor} CoulombBranchFormula}:
 
 \mathematica{1.0}{Simplify[FlowTreeFormula[4\{\{0, 1, -1\},\{-1, 0, 
    1\}, \{1, -1, 0\}\}, \{1/2, 1/6, -2/3\}, \{1, 1, 1\}]]  
@@ -224,29 +289,38 @@ using the sum over flow trees introduced in \cite{Alexandrov:2018iao}. The argum
    {$  \text{OmAtt}(\{1,1,1\},y) $
 }
 
-In this case, the sum over tree vanishes. Comparing with the result from the Coulopmb branch formula above, one concludes that the attractor index  $\Omega_*(\gamma)=\OmS(\gamma)+y^2+2+1/y^2$, corresponding to the sum of the contributions of single centered and scaling solutions.
+In this case, the sum over tree vanishes. Comparing with the result from the Coulomb branch formula above, one concludes that the attractor index  $\Omega_*(\gamma)=\OmS(\gamma)+y^2+2+1/y^2$, corresponding to the sum of the contributions of single centered and scaling solutions.
 
-\medskip
+\subsection{Online documentation}
 
-The package allows for much
-more, as documented below. 
-Inline documentation can be 
-obtained by typing e.g. 
+The package contains many more routines, documented below, which can be used independently. Basic inline documentation can be obtained by typing e.g. 
 
 \mathematica{1.0}{?CoulombBranchFormula}
-   {}
+   {CoulombBranchFormula[Mat\_,Cvec\_,Nvec\_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the single center degeneracies OmS[alpha\_i,t] 
+   using the Coulomb branch formula, computing all CoulombH factors recursively using the minimal modification hypothesis. Also provides list of CoulombH factors if \$QuiverDisplayCoulombH is set to True }
+   
+\subsection{History}   
+   
+The first version of this package was released together with the preprint \cite{Manschot:2013rx} where a general algorithm for computing the index of the quantum mechanics of multi-centered BPS black holes (the Coulomb index) was outlined. The second version 2.0, released along with the preprint \cite{Manschot:2013}, allowed to compute the Dolbeault-Laurent polynomial, relax assumptions on single-centered indices for basis vectors, study the effect of generalized mutations, and more. Version 2.1, released along with the review \cite{Manschot:2014fua}, was optimized to speed up the evaluation of Coulomb indices.  The Jeffrey-Kirwan residue formula has been available since beta version 3.0,
+but is  released in alpha form in version 4.5, along with \cite{Pioline2019}. 
+The flow tree formula is available since version 4.0, released along with \cite{Alexandrov:2018iao}.    
 
-\section{Symbols}
+\section{Variables and Symbols}
 
+\subsection{Symbols}
  
 \defvar{y}{fugacity conjugate to the sum of Dolbeault degrees $p+q$ (i.e. angular momentum);}
+
+\newnotea \defvar{z}{chemical potential, $y=e^{i\pi z}$;}
+
 
 
 \defvar{t}{fugacity conjugate to the difference of Dolbeault degrees $p-q$;}
 
 \defvar{q}{modular parameter in the elliptic genus, $q=e^{2\pi i \tau}$;}
 
-\defvar{tau}{complex modulus in the elliptic genus;}
+\defvar{tau}{elliptic modulus, $q=e^{2\I\pi\tau}$, for elliptic genus computations;}
+
 
 
 \defn{Om}{\vardef{charge vector},\newdefy}{denotes the refined index  
@@ -287,24 +361,32 @@ $\OmS(\alpha_i,y)$.}
 
 \defn{QFact}{\vardef{n},\newdefy }{represents the (non-evaluated) $q$-deformed factorial $[n,y]!$}
 
-\newnotea \defvar{z}{chemical potential, $y=e^{i\pi z}$;}
 
-\defvar{tau}{elliptic modulus, $q=e^{2\I\pi\tau}$;}
+
 
 \defvar{u[i,s]}{$s$-th Cartan variable for the $i$-th gauge group when the trigonometric representation is used,
 exponentiated version $e^{2\pi i u_{i,s}}$ of the same when a rational representation is used.}
 
 \defvar{ut[i,s]}{Cartan variables in rotated basis adapted to a singularity, so that the flag is $\tilde u_{1,1}=\dots = u_{K,N_K}=0$ in trigonometric representation, or $\tilde u_{1,1}=\dots = u_{K,N_K}=1$ in rational representation.}
 
-\defvar{FrozenCartan}{List of pairs $\{i,s\}$ which specifies the list of Cartan variables $u_{i,s}$ which should be frozen to 0 (or 1 in rational representation), rather than integrated over. }
+\defvar{th[\vardef{i}]}{Chemical potential for flavor symmetry, used in \fun{FlavoredRMatrix}} 
+
+
+\subsection{Global variables}
+
 
 \defvar{ListuAll}{Flat list of all Cartan variables $u[i,s]$, $i=1\dots K$, $s=1,\dots N_i$}
 
-\defvar{FrozenMask}{Vector of booleans indicating non-frozen entries in \var{ListuAll}}
+\defvar{ListuDisplay}{Same as \var{ListuAll}, only used by \fun{FlagToHyperplane} for display}
 
 \defvar{Listu}{Flat list of unfrozen Cartan variables $u[i,s]$}
 
 \defvar{Listut}{Flat list of unfrozen rotated Cartan variables $ut[i,s]$}
+
+\defvar{FrozenCartan}{List of pairs $\{i,s\}$ which specifies the list of Cartan variables $u_{i,s}$ which should be frozen to 0 (or 1 in rational representation), rather than integrated over. }
+
+\defvar{FrozenMask}{Vector of booleans indicating non-frozen entries in \var{ListuAll}}
+
 
 \defvar{FrozenRuleEuler}{Rule for replacing the frozen $u[i,s]$ by 0}
 
@@ -315,9 +397,20 @@ exponentiated version $e^{2\pi i u_{i,s}}$ of the same when a rational represent
 
 \defvar{Eta}{Dedekind Eta series $\eta(\tau)=q^{1/24} \prod_{k\geq 1} (1-q^k)$}
 
+\defvar{ListRelevantStableFlags}{List of stable flags contributing to the Euler number, as computed by \fun{JKIndex} or \fun{JKIndexSplit}}
+
+\defvar{IndEuler}{List of contributions of all stable flags to the Euler number, as computed by \fun{JKIndex} or \fun{JKIndexSplit}}
+
+\defvar{IndHirzebruch}{List of contributions of all stable flags to the chi-genus, as computed by \fun{JKIndex} or \fun{JKIndexSplit}}
 
 
-\section{Environment variables}
+\defvar{FlagVertexCoordinates}{Coordinates of vertices for \fun{DisplayFlagTree}, set by \fun{InitializeJK}}
+
+\defvar{FlagVertexLabels}{Labels of vertices for \fun{DisplayFlagTree}, set by \fun{InitializeJK}
+
+
+
+\subsection{Environment variables}
 
 
 \defvar{{\tt \$QuiverPerturb1}}{Sets the size of the perturbation $\epsilon_1=1/\var{\$QuiverPerturb}$ of the DSZ products, set to 1000 by default.}
@@ -361,47 +454,62 @@ vectors carry $\OmS(\ell\gamma_i)=\delta_{\ell,1}$ is relaxed.}
 \fun{\tt CoulombF}, \fun{\tt CoulombG}, \fun{\tt CoulombIndex} will use the non-optimized
 code provided in version 2.0, otherwise they use the optimized code provided in version 2.1.}  %bp
 
+\defvar{{\tt \$QuiverNoVM}}{Set to False by default. If set to True, singular hyperplanes from 
+vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSplit}.}
+
+\defvar{{\tt \$QuiverTrig}}{Set to True by default. If set to False, exponentiated variables will be used
+for the residue computation in \fun{JKIndex} and \fun{JKIndexSplit}.}
+
 \defvar{kmax}{Maximal power in the $q$-expansion of the elliptic genus. Set to 0 by default.}
+
+}
 
 
 %\end{itemize}
 
+\section{Higgs branch formula}
+
+\defn{HiggsBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec} }
+	                                   {standalone routine which computes the Poincar\'e-Laurent
+                   polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$ (possibly              rescaled by \var{{\tt \$QuiverMultiplier}}), dimension vector $N_i=\var{Nvec}[[i]]$, 
+                   FI parameters $\zeta_i=\var{Cvec}[[i]]$, using Reineke's formula. 
+                   It is assumed, but not checked, that the quiver has no oriented 
+                   loop;}
 
 
-\section{Coulomb index}
-
-\defn{CoulombF}{\vardef{Mat},\vardef{Cvec}}{returns the index of collinear solutions 
-$F(\{\ta_1,\cdots \ta_n\}, \{\cc_1,\cdots \cc_n\})$ with 
-                   DSZ products $\ta_{ij}=\var{Mat}[[i,j]]$, FI terms $\cc_i=\var{Cvec}[[i]]$ 
-                   and trivial ordering.}
-
-\defn{CoulombG}{\vardef{Mat}}{returns the index of scaling collinear solutions 
-$G(\{\ha_1,\cdots \ha_n\})$ 
-with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total angular momentum 
-                   $\sum_{i<j} Mat[[i,j]]$ must vanish;}
-
-\defn{CoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy }{evaluates the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\};y)$ 
-                   with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to \var{PMat}[[i,j]] so as to lift 
-                   accidental degeneracies, possibly rescaled by an overall factor of 
+\defn{StackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy }{gives 
+                 the stack 
+                  invariant 
+                  of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
+                  by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}}, 
-                   FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y};
-                   }
+                  FI parameters $\zeta_i=\var{Cvec}[[i]]$,  dimension vector $N_i=\var{Nvec}[[i]]$, 		using Reineke's formula; the answer is written in terms of unevaluated
+		$q$-deformed factorials \var{QFact[n,y]};}
+		
+		\defn{AbelianStackInvariant}{\vardef{Mat},\vardef{Cvec},\newdefy }{gives 
+                 the Abelian stack 
+                  invariant 
+                  of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
+                  by an overall factor of 
+                   \var{{\tt \$QuiverMultiplier}}, 
+                  FI parameters $\zeta_i=\var{Cvec}[[i]]$, 		
+                  using Reineke's formula; coincides with \fun{\tt StackInvariant} 
+                  with \var{Nvec}$=\{1,\dots 1\}$ except that tests of marginal or threshold stability
+                  are performed (unless   \var{\tt \$QuiverVerbose} is set to False);
+                  }
+
+\defn{OmToOmb}{\vardef{f}}{expresses any $\Omega(\gamma,y)$ in $f$
+ in terms of $\bar\Omega(\gamma,y)$'s;}
 
 
-\defn{CoulombFNum}{\vardef{Mat}}{computes numerically the index $F(\{\ta_1,\dots \ta_n\},\{\cc_1,\dots \cc_n\})$  with DSZ matrix $\ta_{ij}=\var{Mat}[[i,j]]$ and FI parameters $\cc_i=\var{Cvec}[[i]]$. For testing purposes only, works for up to 5 centers.}
+\defn{OmbToOm}{\vardef{f}}{expresses  any $\bar\Omega(\gamma,y)$ in $f$
+ in terms of $\Omega(\gamma,y)$'s;}
 
-\defn{CoulombGNum}{\vardef{Mat}}{computes numerically the scaling index $G(\ha_1,\dots \ha_n)$  with DSZ matrix $\ha_{ij}=\var{Mat}[[i,j]]$. For testing purposes only, works for up to 6 centers.}
-                   
+\defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) HN invariant
+$\gR(\gamma,y)$ in terms of the rational refined indices $\bar\Omega(\gamma,y)$;}
 
-\defn{CoulombIndexNum}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{k},\newdefy }{returns the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\};y)$ 
-                   with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  possibly rescaled by an overall factor of 
-                   \var{{\tt \$QuiverMultiplier}},  
-                   FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y}, by searching
-                   collinear solutions numerically;    For testing purposes only, works for up to 5 centers.               }
-
-
-\defn{EvalCoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{f} }{evaluates
-any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat},\var{Cvec}$. }
+\defn{OmbToHiggsG}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) rational refined index $\bar\Omega(\gamma,y)$ in terms of the (unevaluated) 
+stack invariants $\gR(\gamma,y)$;}
 
 
 \section{Coulomb branch formula}
@@ -427,7 +535,96 @@ If \var{{\tt \$QuiverDisplayCoulombH}} is
                    more elementary routines described below. 
                    }
 
+\subsection{Generating the sum over all splittings}
 
+
+\defn{QuiverPoincarePolynomial}{\vardef{Nvec},\newdefy }{constructs the Poincar\'e-Laurent
+                   polynomial $\Omega(\gamma,\zeta,y,t)$ as a sum over all partitions of the dimension vector $\var{Nvec}$. Coincides with
+                   \fun{QuiverPoincarePolynomialRat}                   for primitive dimension vector;
+                 }
+
+
+\defn{QuiverPoincarePolynomialRat}{\vardef{Nvec},\newdefy }{constructs the rational Poincar\'e-Laurent
+                   polynomial $\bOm(\gamma,\zeta,y,t)$  as a sum over all partitions of the dimension vector $\var{Nvec}$ ;}
+         
+\defn{QuiverPoincarePolynomialExpand}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},
+\vardef{Nvec}, \vardef{Q}}{
+                  evaluates the Coulomb 
+                  indices $\gref$ and   total 
+                   single-centered indices $\Omega_{\rm tot}(\alpha_i,y)$   appearing in the 
+                  Poincar\'e-Laurent polynomial \var{Q} of a quiver with DSZ products
+                  $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to 
+                   $\var{PMat}[[i,j]]$, 
+                   dimension vector $N_i=\var{Nvec}[[i]]$, 
+                 FI parameters $\zeta_i=\var{Cvec}[[i]]$;}
+
+\defn{ListAllPartitions}{\vardef{charge vector}}{returns the list of unordered 
+                   partitions $\{\alpha_i\}$ of the positive integer vector $\gamma$ as a sum of positive, non-zero integer vectors $\alpha_i$; 
+                   }
+                   
+                   \defn{ListAllPartitionsMult}{\vardef{charge vector}}{returns the list of unordered 
+                   partitions $\{\alpha_i,m_i\}$ of the positive integer vector $\gamma$ as a sum of positive, non-zero integer vectors $\alpha_i$ with multiplicity $m_i$; 
+                   }
+
+\defn{ListSubQuivers}{\vardef{Nvec}}{gives a list of all dimension vectors less or equal to \var{Nvec};}
+
+
+\defn{SubDSZ}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{gives the
+                    DSZ matrix and FI parameters of the subquiver made of the charge vectors in list \var{Li};}
+
+ \defn{SymmetryFactor}{\vardef{Li}}{gives the symmetry factor $1/  |{\rm Aut}(\{\alpha_1, \alpha_2,\cdots, \alpha_n\}|$ for the list of charge vectors \var{Li};}
+
+
+
+           
+
+\defn{OmTRat}{\vardef{Nvec},\newdefy }{ gives the rational total invariant 
+$\bar\Omega_{\rm tot}(\gamma,y)$ in terms of $\Omega_{\rm tot}(\gamma,y)$.
+Coincides with the latter if $\gamma$ is primitive.}
+
+\defn{OmTToOmS}{\vardef{f}}{expands out any $\Omega_{\rm tot}(\gamma,y)$ in $f$
+ into $H$ factors and $\OmS$'s;}
+
+
+\subsection{Computing the Coulomb index}
+
+\defn{CoulombF}{\vardef{Mat},\vardef{Cvec}}{returns the index of collinear solutions 
+$F(\{\ta_1,\cdots \ta_n\}, \{\cc_1,\cdots \cc_n\})$ with 
+                   DSZ products $\ta_{ij}=\var{Mat}[[i,j]]$, FI terms $\cc_i=\var{Cvec}[[i]]$ 
+                   and trivial ordering.}
+
+\defn{CoulombG}{\vardef{Mat}}{returns the index of scaling collinear solutions 
+$G(\{\ha_1,\cdots \ha_n\})$ 
+with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total angular momentum 
+                   $\sum_{i<j} Mat[[i,j]]$ must vanish;}
+
+\defn{CoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy }{evaluates the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
+                   with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to \var{PMat}[[i,j]] so as to lift 
+                   accidental degeneracies, possibly rescaled by an overall factor of 
+                   \var{{\tt \$QuiverMultiplier}}, 
+                   FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y};
+                   }
+
+
+\defn{CoulombFNum}{\vardef{Mat}}{computes numerically the index $F(\{\ta_1,\dots \ta_n\},\{\cc_1,\dots \cc_n\})$  with DSZ matrix $\ta_{ij}=\var{Mat}[[i,j]]$ and FI parameters $\cc_i=\var{Cvec}[[i]]$. For testing purposes only, works for up to 5 centers.}
+
+\defn{CoulombGNum}{\vardef{Mat}}{computes numerically the scaling index $G(\ha_1,\dots \ha_n)$  with DSZ matrix $\ha_{ij}=\var{Mat}[[i,j]]$. For testing purposes only, works for up to 6 centers.}
+                   
+
+\defn{CoulombIndexNum}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy }{returns the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
+                   with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  possibly rescaled by an overall factor of 
+                   \var{{\tt \$QuiverMultiplier}},  
+                   FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y}, by searching
+                   collinear solutions numerically;    For testing purposes only, works for up to 5 centers. The output is a list of contributions from each collinear solution.              }
+
+
+\defn{EvalCoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{f} }{evaluates
+any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat},\var{Cvec}$. }
+
+  
+
+
+\subsection{Contributions from scaling solutions}
                    
  \defn{CoulombBranchFormulaFromH}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{R} }
 	                                   {returns the Dolbeault
@@ -438,28 +635,6 @@ FI parameters $\zeta_i=\var{Cvec}[[i]]$, using the rule
                    
 
 
-\defn{QuiverPoincarePolynomial}{\vardef{Nvec},\newdefy }{constructs the Poincar\'e-Laurent
-                   polynomial of a quiver. Coincides with
-                   \fun{\tt QuiverPoincarePolynomialRat}                   for primitive dimension vector;
-                 }
-
-
-\defn{QuiverPoincarePolynomialRat}{\vardef{Nvec},\newdefy }{constructs the rational Poincar\'e-Laurent
-                   polynomial $\bQC(\gamma;\zeta;y)$;}
-         
-\defn{QuiverPoincarePolynomialExpand}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},
-\vardef{Nvec}, \vardef{Q}}{
-                  evaluates the Cou-lomb 
-                  indices $\gref$ and   total 
-                   single-centered indices $\Omega_{\rm tot}(\alpha_i,y)$   appearing in the 
-                  Poincar\'e-Laurent polynomial \var{Q} of a quiver with DSZ products
-                  $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to 
-                   $\var{PMat}[[i,j]]$, 
-                   dimension vector $N_i=\var{Nvec}[[i]]$, 
-                 FI parameters $\zeta_i=\var{Cvec}[[i]]$;}
-
-
-  
 
 \defn{CoulombHSubQuivers}{\vardef{Mat},\vardef{PMat},\vardef{Nvec},\newdefy }{computes recursively all \var{CoulombH} factors for DSZ matrix \var{Mat}, perturbed to \var{PMat},
 and any dimension vector strictly less than \var{Nvec}; relies on the next two routines:}
@@ -494,6 +669,13 @@ of $(1-uy)(1-u/y)$. This trick allows to compute \eqref{uint} even if the order 
 at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a formal variable.
                    }
 
+                   \defn{EvalCoulombH3}{\vardef{Mat},\vardef{f}}{ evaluates any 3-center $H$ factor with multiplicity vector $\{1,1,1\}$ 
+               appearing   in $f$. No longer in use.}
+
+
+
+\subsection{Simplifying the result}
+
 \defn{SimplifyOmSbasis}{\vardef{f}}{replaces  $\OmS(\gamma,y)\to 1$ when $\gamma$ is a basis vector, unless  \var{{\tt \$QuiverOmSbasis}} is set to 0; 
 }  
 
@@ -519,49 +701,16 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
                   }
 
-                   \defn{EvalCoulombH3}{\vardef{Mat},\vardef{f}}{ evaluates any 3-center $H$ factor with multiplicity vector $\{1,1,1\}$ 
-               appearing   in $f$. Not used in any routine so far.}
 
 \defn{DropFugacity}{\vardef{f}}{replaces $\OmS(\gamma,y^m,t^m)$ by $\OmS(\gamma,t^m)$ everywhere in $f$}  
                 
 \defn{SwapFugacity}{\vardef{f}}{replaces $\OmS(\gamma,y^m)$ with $\OmS(\gamma,y^m,t^m)$ everywhere in $f$} 
 
-
-\section{Higgs branch formula}
-
-\defn{HiggsBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec} }
-	                                   {standalone routine which computes the Poincar\'e-Laurent
-                   polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$ (possibly              rescaled by \var{{\tt \$QuiverMultiplier}}), dimension vector $N_i=\var{Nvec}[[i]]$, 
-                   FI parameters $\zeta_i=\var{Cvec}[[i]]$, using Reineke's formula. 
-                   It is assumed, but not checked, that the quiver has no oriented 
-                   loop;}
-
-
-\defn{StackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy }{gives 
-                 the stack 
-                  invariant 
-                  of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
-                  by an overall factor of 
-                   \var{{\tt \$QuiverMultiplier}}, 
-                  FI parameters $\zeta_i=\var{Cvec}[[i]]$,  dimension vector $N_i=\var{Nvec}[[i]]$, 		using Reineke's formula; the answer is written in terms of unevaluated
-		$q$-deformed factorials \var{QFact[n,y]};}
-		
-		\defn{AbelianStackInvariant}{\vardef{Mat},\vardef{Cvec},\newdefy }{gives 
-                 the Abelian stack 
-                  invariant 
-                  of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
-                  by an overall factor of 
-                   \var{{\tt \$QuiverMultiplier}}, 
-                  FI parameters $\zeta_i=\var{Cvec}[[i]]$, 		
-                  using Reineke's formula; coincides with \fun{\tt StackInvariant} 
-                  with \var{Nvec}$=\{1,\dots 1\}$ except that tests of marginal or threshold stability
-                  are performed (unless   \var{\tt \$QuiverVerbose} is set to False);
-                  }
                    
 
 
 
-\section{Mutations}  
+\subsection{Mutations}  
 
 The following routines and environment variables were introduced in  {\tt CoulombHiggs.m} v1.1,
 to allow investigation of mutations of generalized quivers \cite{Manschot:2013}:
@@ -612,12 +761,14 @@ vector associated to $\gamma$ has negative components.}
 
 \newnotea
 
-\defn{ChargeMatrixFromQuiver}{\vardef{Mat},\vardef{RMat},\vardef{Nvec}}{constructs the charge matrix for a quiver with DSZ matrix \var{Mat}, R-charge matrix \var{RMat}, and dimension vector \var{Nvec}; the last two columns are the R-charge and multiplicity. Do not forget to set $\var{FrozenCartan}=\{\{1,1\}\}$ to decouple the overall $U(1)$. For non-quiver gauge theories, \var{ChargeMatrix} must be provided by hand.}
-
-\defn{JKIndex}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter.}
+\defn{InitializeJK}{\vardef{Mat},\vardef{RMat},\vardef{Cvec},\vardef{Nvec}}{initializes the internal variables \var{FrozenMask}, \var{FrozenRuleEuler}, \var{FrozenRuleRat}, \var{Listu},   \var{ListuAll},  \var{ListuDisplay},  \var{Listut}, \var{Etavec}, \fun{FlagVertexCoordinates}, \fun{FlagVertexLabels}. To be run before \fun{JKIndex} or \fun{JKIndexSplit}.}
 
 
-\defn{InitializeJK}{\vardef{Nvec},\vardef{FrozenCartan}}{initializes the internal variables \var{FrozenMask}, \var{FrozenRuleEuler}, \var{FrozenRuleRat}, \var{Listu}, \var{Listut}}
+\defn{JKIndex}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter. The list of stable flags whose contributions are non-zero is stored in \fun{ListRelevantFlags}, and the list of the corresponding contributions to the $\chi_y$ genus is stored in \fun{IndHirzebruch}.}
+
+\defn{JKIndexSplit}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec},\vardef{SplitNodes}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinants associated to the nodes listed in \var{SplitNodes}. \cite{Pioline2019}.}
+
+\subsection{Constructing the integrand and extracting the residue}
 
 \defn{gEuler}{\vardef{ChargeMatrix},\vardef{Nvec}}{computes the integrand in the residue formula for the Euler number}
  
@@ -628,73 +779,36 @@ vector associated to $\gamma$ has negative components.}
 \defn{gElliptic}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the integrand in the residue formula for the elliptic genus}
 
 
+\defn{ListPermutationsWithMultiplicity}{\vardef{Nvec}}{computes the list of all multi-partitions of \var{Nvec}, represented by a standard permutation, and their multiplicity}
+
+\defn{PartitionMultiplicity}{\vardef{pa}}{computes the multiplicity of a partition in Cauchy-Bose formula}
+
+\defn{gEulerPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}.}
+
+\defn{gTrigPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
+
+\defn{gRatPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in rational representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
+
+\defn{gEllipticPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the elliptic genus in rational representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
+
+
 \defn{JKResidueRat}{\vardef{Flags},\vardef{f}}{extracts the sum of the residues of \var{f} (in rational representation) at the specified Flags, weighted with sign; the first entry in \var{Flags} is the intersection point, the second is a list of r-plets of charges for each flag}
 
 \defn{JKResidueTrig}{\vardef{Flags},\vardef{f}}{extracts the sum of the residues of \var{f} (in trigonometric representation) at the specified Flags, weighted with sign; the first entry in \var{Flags} is the intersection point, the second is a list of r-plets of charges for each flag}
 
-\defn{JKIndexEulerFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of stable flags}
+%\defn{JKIndexEulerFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of stable flags}
+%
+%\defn{JKIndexRefinedFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in rational representation) from the specified list of stable flags}
+%
+%\defn{JKIndexTrigFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in trigonometric representation) from the specified list of stable flags}
+%
+%\defn{JKIndexEllipticFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus from the specified list of stable flags}
 
-\defn{JKIndexRefinedFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in rational representation) from the specified list of stable flags}
-
-\defn{JKIndexTrigFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in trigonometric representation) from the specified list of stable flags}
-
-\defn{JKIndexEllipticFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus from the specified list of stable flags}
-
+\subsection{Enumerating stable flags}
 
 \defn{FindSingularities}{\vardef{ChargeMatrix}}{constructs the list of singular hyperplanes for the specified charge matrix. Each item is itself a list containing the intersection point and a list of extended charges associated to the hyperplanes meeting at that point.}
 
-\defn{FindStableFlags}{\vardef{ListSings},\vardef{Nvec},\vardef{Etavec}}{constructs the list of stable flags with stability parameter \var{Etavec}$\in\IR^{\sum N_i}$ from the specified list of singular hyperplanes. Each item is itself a list containing the intersection point, a list of basis vectors, and the  sign of $\det\kappa$.}
-
-\defn{FindDegrees}{\vardef{ListSings},\vardef{NumSing}}{constructs a list of singularities and their degree, combining the poles from \var{ListSings} with the zeros from the list of hyperplanes \var{NumSing} }
-
-\defn{DisplayFlagList}{\vardef{ListFlags},\vardef{ListDegrees}}{Displays the list of flags in human-readable form. The first column gives the intersection point, the second the list of hyperplanes associated to the basis vectors, the third colum gives ${\rm sign}(\det\kappa)$, the third column gives True if the intersection is projective, False otherwise; the last column gives the degree of the pole.}
-
-\defn{DisplaySingList}{\vardef{ListSings}}{Displays the list of singularities in human-readable form. The first column gives the intersection point, the second the list of hyperplanes intersecting at that point, and the last columns gives True if the intersection is projective, False otherwise.}
-
-
-
-\subsection{Improved scheme using Cauchy's formula}
-
-\defn{JKIndexSplit}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinant \cite{Pioline2015}.}
-
-
-\defn{gEulerPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the list of permutations associated to each node \var{Listperm}}
-
-\defn{gTrigPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation, corresponding to the list of permutations associated to each node \var{Listperm}}
-
-\defn{gRatPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in rational representation, corresponding to the list of permutations associated to each node \var{Listperm}}
-
-\defn{gEllipticPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the elliptic genus in rational representation, corresponding to the list of permutations associated to each node \var{Listperm}}
-
-\defn{JKIndexEulerSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of all stable flags}
-
-\defn{JKIndexRefinedSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in rational representation) from the specified list of all partial stable flags}
-
-\defn{JKIndexTrigSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in trigonometric representation) from the specified list of all partial stable flags}
-
-\defn{JKIndexEllipticSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus  from the specified list of all partial stable flags}
-
-
-
-\subsection{Internal routines}
-
-\defn{TestStableFlag}{\vardef{Listhyper},\vardef{Flag},\vardef{Etavec}}{Tests if 
-\var{Flag} is stable for the list of hyperplanes \var{Listhyper} and stability  parameter \var{Etavec}.}
-
-\defn{CompleteChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplets}
-
-\defn{PartialChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm}
-
-\defn{SameFlagQ}{\vardef{Q1},\vardef{Q2}}{tests if the flags \var{$Q_1$} and \var{$Q_2$} (represented by square charge matrices) are equivalent}
-
-\defn{LegCharge}{\vardef{Nvec},\vardef{i1},\vardef{s1},\vardef{i2},\vardef{s2}}{constructs a charge vector with 1 in position $(i_1,s_1)$ and $-1$ in position $(i_2,s_2)$}
-
-\defn{TrimChargeTable}{\vardef{ChargeMatrix}}{removes the last two columns and frozen entries in charge matrix, corresponding to the R-charge and multiplicity.}
-
 \defn{FindIntersection}{\vardef{Sing}}{computes the intersection points of the hyperplanes listed in \var{Sing}; this may include points on the cylinder, which contribute to the $\chi_y$ genus but not to the Euler number ! Ultimately, this will be generalized for the computation of the elliptic genus to include all points on the torus.  }
-
-\defn{FlagToHyperplanes}{\vardef{Flag}}{translates the flag \var{Flag}, given as r-plet of charge vectors, into a list of linear combinations of Cartan variables $u_{i,s}$}
-
 
 \defn{ListHyperplanesIntersectingAt}{\vardef{ListSings},\vardef{Inter}}{collects all the hyperplanes in \var{ListSings} which intersect at \var{Inter}}
 
@@ -704,13 +818,72 @@ vector associated to $\gamma$ has negative components.}
 
 \defn{TestStableFlag}{\vardef{ListHyper},\vardef{Flag},\vardef{Etavec}}{tests if the flag \var{Flag} constructed out of the hyperplanes in \var{ListHyper} is stable with respect to \var{Etavec}; returns ${\rm sign}(\det\kappa)$ if it is stable, 0 otherwise.}
 
-\defn{PartitionToPermutation}{\vardef{pa}}{translates the partition pa into a standard permutation}
+\defn{FindStableFlags}{\vardef{Inter},\vardef{ListSing},\vardef{Nvec},\vardef{Etavec}}{constructs the list of stable flags with stability parameter \var{Etavec} from the specified list of singular hyperplanes intersecting at \var{Inter}. Each item in the output is a list containing the intersection point, a list of basis vectors, the reduced charge matrix and the $\kappa$ matrix.}
 
-\defn{PermutationToPartition}{\vardef{perm}}{translates the standard permutation perm into a partition}
+\defn{SameFlagQ}{\vardef{Q1},\vardef{Q2}}{tests if the flags \var{$Q_1$} and \var{$Q_2$} (represented by square charge matrices) are equivalent}
 
-\defn{PartitionMultiplicity}{\vardef{pa}}{computes the multiplicity of a partition in Cauchy's formula}
+\defn{FindStableDomains}{\vardef{Inter},\vardef{ListSing},\vardef{Nvec},\vardef{Etavec}}{
+Construct all the  flags  from the specified list of singular hyperplanes intersecting at \var{Inter},
+and compute their stability domain. Each item in the  output is  a list containing the intersection point, 
+the ordered hyperplanes defining the flag, and the stability condition. Unlikethe routine 
+\fun{FindStableFlags}, no attempt is made to eliminate equivalent flags.}
 
-\defn{ListPermutationsWithMultiplicity}{\vardef{Nvec}}{computes the list of all multi-partitions of \var{Nvec}, represented by a standard permutation, and their multiplicity}
+\defn{FindDegrees}{\vardef{ListSings},\vardef{NumSing}}{constructs a list of singularities and their degree, combining the poles from \var{ListSings} with the zeros from the list of hyperplanes \var{NumSing} }
+
+
+%\defn{TestStableFlag}{\vardef{Listhyper},\vardef{Flag},\vardef{Etavec}}{Tests if 
+%\var{Flag} is stable for the list of hyperplanes \var{Listhyper} and stability  parameter \var{Etavec}.}
+
+
+\subsection{Conversion and visualisation}
+
+\defn{FlagToHyperplanes}{\vardef{Flag}}{translates the flag \var{Flag}, given as r-plet of charge vectors, into a list of linear combinations of Cartan variables taken from \var{ListuDisplay}}
+
+\defn{PartitionToPermutation}{\vardef{pa}}{translates the partition \var{pa} into a standard permutation}
+
+\defn{PermutationToPartition}{\vardef{perm}}{translates the standard permutation \var{perm} into a partition}
+
+\defn{DisplayFlagList}{\vardef{ListFlags},\vardef{ListDegrees}}{Displays the list of flags in human-readable form. The first column gives the intersection point, the second the list of hyperplanes associated to the basis vectors, the third colum gives ${\rm sign}(\det\kappa)$, the third column gives True if the intersection is projective, False otherwise; the last column gives the degree of the pole.}
+
+\defn{DisplaySingList}{\vardef{ListSings}}{Displays the list of singularities in human-readable form. The first column gives the intersection point, the second the list of hyperplanes intersecting at that point, and the last columns gives True if the intersection is projective, False otherwise.}
+
+\defn{DisplayFlagTree}{\vardef{f}}{Displays the tree associated to flag \var{f}, using node positions and labels defined in \fun{FlagVertexCoordinates} and \fun{FlagVertexLabels}, which is preset by \fun{InitializeJK}.}
+
+\subsection{Constructing charge matrices}
+
+\defn{ChargeMatrixFromQuiver}{\vardef{Mat},\vardef{RMat},\vardef{Nvec}}{constructs the charge matrix for a quiver with DSZ matrix \var{Mat}, R-charge matrix \var{RMat}, and dimension vector \var{Nvec}; the last two columns are the R-charge and multiplicity. Do not forget to set $\var{FrozenCartan}=\{\{1,1\}\}$ to decouple the overall $U(1)$. For non-quiver gauge theories, \var{ChargeMatrix} must be provided by hand.}
+
+\defn{FlavoredRMatrix}{\vardef{Mat}}{Constructs a matrix of R-charges with generic flavor potentials $\theta_i$, assuming no oriented closed loop}
+
+\defn{AbelianSubQuiver}{\vardef{Mat},\vardef{RMat},\vardef{Cvec},\vardef{Nvec},\vardef{perm}}{Constructs the DSZ matrix, R-charge matrix  and FI parameters for the Abelian quiver associated to the list of permutations \var{perm}
+in $\prod_{i=1}^K \Sigma_{N_i}$}
+
+\defn{CompleteChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplets}
+
+\defn{PartialChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm}
+
+\defn{CompleteChargeNumMatrix}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the extended charge matrix for the numerators, including both chiral multiplets and vector multiplets}
+
+\defn{PartialChargeNumMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix for the numerators, consisting of chiral multiplets and vector multiplet contributions associated to unsplit nodes (in which case  the permutation is empty)}
+
+\defn{LegCharge}{\vardef{Nvec},\vardef{i1},\vardef{s1},\vardef{i2},\vardef{s2}}{constructs a charge vector with 1 in position $(i_1,s_1)$ and $-1$ in position $(i_2,s_2)$}
+
+\defn{TrimChargeTable}{\vardef{ChargeMatrix}}{removes the last two columns and frozen entries in charge matrix, corresponding to the R-charge and multiplicity.}
+
+
+%\defn{JKIndexEulerSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of all stable flags}
+%
+%\defn{JKIndexRefinedSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in rational representation) from the specified list of all partial stable flags}
+%
+%\defn{JKIndexTrigSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in trigonometric representation) from the specified list of all partial stable flags}
+%
+%\defn{JKIndexEllipticSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus  from the specified list of all partial stable flags}
+
+
+
+
+
+
 
 
 \section{Flow tree formula}
@@ -730,14 +903,14 @@ vector associated to $\gamma$ has negative components.}
 
 \defn{PlaneTreeSign}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{computes the contribution to the partial tree index from the grouping \var{Li} recursively}
 
-\defn{TreeFAlt1}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the first alternative recursion}
+\defn{TreeFAlt1}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
-\defn{TreeFAlt1Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the first alternative recursion}
+\defn{TreeFAlt1Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
 
-\defn{TreeFAlt2}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the second alternative recursion}
+\defn{TreeFAlt2}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
-\defn{TreeFAlt2Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the second alternative recursion}
+\defn{TreeFAlt2Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
 \defn{PlaneTreeSplitList}{\vardef{n}}{constructs all splittings of $\{1,\dots, n\}$ appearing in the alternative recursions for the partial tree index}
 
@@ -748,57 +921,21 @@ vector associated to $\gamma$ has negative components.}
 
 \defn{SubCvecAbelian}{\vardef{Mat},\vardef{Li}}{computes the stability parameters $c_i$ for the subquiver labelled by a list of vertices}
 
+\defn{OmAttToOmAttb}{\vardef{f}}{expresses any $\Omega_*(\gamma,y)$ in $f$
+ in terms of $\bar\Omega_*(\gamma,y)$'s}
+
+\defn{OmAttbToOmAtt}{\vardef{f}}{expresses  any $\bar\Omega_*(\gamma,y)$ in $f$
+ in terms of $\Omega_*(\gamma,y)$'s}
+
+
 
 \section{Utilities}
 
-\defn{ListAllPartitions}{\vardef{charge vector}}{returns the list of unordered 
-                   partitions $\{\alpha_i\}$ of the positive integer vector $\gamma$ as a sum of positive, non-zero integer vectors $\alpha_i$; 
-                   }
-                   
-                   \defn{ListAllPartitionsMult}{\vardef{charge vector}}{returns the list of unordered 
-                   partitions $\{\alpha_i,m_i\}$ of the positive integer vector $\gamma$ as a sum of positive, non-zero integer vectors $\alpha_i$ with multiplicity $m_i$; 
-                   }
+\defn{QuiverPlot}{\vardef{Mat}}{Displays the quiver with DSZ matrix \var{Mat}.} 
 
-\defn{ListSubQuivers}{\vardef{Nvec}}{gives a list of all dimension vectors less or equal to \var{Nvec};}
-
-
-\defn{SubDSZ}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{gives the
-                    DSZ matrix of the subquiver made of the charge vectors in list \var{Li};}
-
- \defn{SymmetryFactor}{\vardef{Li}}{gives the symmetry factor $1/  |{\rm Aut}(\{\alpha_1, \alpha_2,\cdots, \alpha_n\}|$ for the list of charge vectors \var{Li};}
-
-\defn{OmTRat}{\vardef{Nvec},\newdefy }{ gives the rational total invariant 
-$\bar\Omega_{\rm tot}(\gamma;y)$ in terms of $\Omega_{\rm tot}(\gamma;y)$.
-Coincides with the latter if $\gamma$ is primitive.}
-
-\defn{OmTToOmS}{\vardef{f}}{expands out any $\Omega_{\rm tot}(\gamma;y)$ in $f$
- into $H$ factors and $\OmS$'s;}
-           
-\defn{OmToOmb}{\vardef{f}}{expresses any $\Omega(\gamma;y)$ in $f$
- in terms of $\bar\Omega(\gamma;y)$'s;}
-
-\defn{OmbToOm}{\vardef{f}}{expresses  any $\bar\Omega(\gamma;y)$ in $f$
- in terms of $\Omega(\gamma;y)$'s;}
-
-\defn{OmAttToOmAttb}{\vardef{f}}{expresses any $\Omega_*(\gamma;y)$ in $f$
- in terms of $\bar\Omega_*(\gamma;y)$'s;}
-
-\defn{OmAttbToOmAtt}{\vardef{f}}{expresses  any $\bar\Omega_*(\gamma;y)$ in $f$
- in terms of $\Omega_*(\gamma;y)$'s;}
-
-                 
-\defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) HN invariant
-$\gR(\gamma,y)$ in terms of the rational refined indices $\bar\Omega(\gamma;y)$;}
-
-\defn{OmbToHiggsG}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) rational refined index $\bar\Omega(\gamma;y)$ in terms of the (unevaluated) 
-stack invariants $\gR(\gamma,y)$;}
-
-
-
-\defn{RandomCvec}{\vardef{Nvec}}{generates a random set of FI parameters $\zeta_i$ between -1 and 1, such that $\sum \zeta_i\, \var{Nvec}[[i]]=0$;}
 
 \defn{UnitStepWarn}{\vardef{x}}{gives 1 for $x>0$, 0 for $x<0$, and $1/2$ if $x=0$. Produces a warning in this latter case, irrespective of the value of \var{\tt \$QuiverVerbose}. If so, the user
-is advised run the 
+is advised to run the 
 computation again with a different random perturbation. For efficiency, this instruction is no longer
 used in v2.1, however a warning is still issued if one encounters a Heaviside function 
 with zero argument in the evaluation of the Coulomb indices. %bp
@@ -812,11 +949,10 @@ $\OmS(\gamma_1,\dots, \gamma_K)$ associated
 to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$ via Eq
 (4.29) in \cite{Manschot:2012rx}.} 
 
-\defn{QuiverPlot}{\vardef{Mat}}{Displays the quiver with DSZ matrix \var{Mat}.} 
 
-\defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{Computes the FI parameters $\{c_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $c_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $c_i$ are rounded up to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}.}
+\defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{Computes the FI parameters $\{\zeta_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $\zeta_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $\zeta_i$ are rounded up to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}.}
 
-\defn{AttractorFI}{\vardef{Mat}}{gives the list of net number of arrows at each node. Perhaps an analogue of the attractor point for quivers.}
+\defn{AttractorFI}{\vardef{Mat},\vardef{Nvec}}{Gives the attractor point $\zeta_i^*=-\sum_{j} \gamma_{ij} N_j$.}
 
 \defn{QDeformedFactorial}{\vardef{n},\newdefy }{gives the $q$-deformed factorial $[n,y]!$}
 
@@ -839,6 +975,10 @@ to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$
 \defn{RandomDSZWithLoop}{\vardef{n},\vardef{kmax}}{generates a random antisymmetric $n\times n$ matrix with off-diagonal entries less than \var{kmax} in absolute value, ensuring that the quiver has at least one loop}
 
 
+
+\defn{RandomCvec}{\vardef{Nvec}}{generates a random set of FI parameters $\zeta_i$ between -1 and 1, such that $\sum \zeta_i\, \var{Nvec}[[i]]=0$;}
+
+\defn{FastResidue}{\vardef{f},\{ \vardef{x}, \vardef{x0} \}}{Computes the residue of $f$ at $x=x_0$.}
 
 
 
@@ -921,8 +1061,6 @@ M.~Reineke, ``The {H}arder-{N}arasimhan system in quantum groups and cohomology
   %%CITATION = ARXIV:1406.7853;%%
   %16 citations counted in INSPIRE as of 21 sept. 2015
      
-\bibitem{Pioline2015}
-B. Pioline et al, "From the Hirzebruch index to the Coulomb branch formula", in progress.    
 
 %\cite{Alexandrov:2018iao}
 \bibitem{Alexandrov:2018iao}
@@ -930,6 +1068,9 @@ B. Pioline et al, "From the Hirzebruch index to the Coulomb branch formula", in 
   ``Attractor flow trees, BPS indices and quivers,''
   arXiv:1804.06928 [hep-th].
   %%CITATION = ARXIV:1804.06928;%%
+
+\bibitem{Pioline2019}
+G. Beaujard, B. Pioline and S. Mondal, "Quiver invariants from residues", to appear (2019).    
 
 
 \end{thebibliography}
