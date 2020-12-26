@@ -102,7 +102,7 @@
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v4.0}
+\title{CoulombHiggs.m v4.3}
  
 \author{Boris Pioline}
 
@@ -116,7 +116,7 @@
 
 
 
-The  {\sc Mathematica} package {\tt CoulombHiggs.m} allows to compute the PoincarŽ-Laurent polynomial of the moduli space of stable representations of quivers using the {\it Coulomb branch} and {\it Higgs branch} formulae. The Higgs branch formula is based on Reineke's solution to the Harder-Narasimhan recursion \cite{MR1974891} and applies to quivers without oriented closed loops. The Coulomb branch is based on a physical picture of BPS states as bound states of elementary 'single-centered' constitutents, and applies to any quivers with or without oriented loops \cite{1011.1258,1103.1887,Manschot:2012rx}.  
+The  {\sc Mathematica} package {\tt CoulombHiggs.m} allows to compute the PoincarÂŽ-Laurent polynomial of the moduli space of stable representations of quivers using the {\it Coulomb branch} and {\it Higgs branch} formulae. The Higgs branch formula is based on Reineke's solution to the Harder-Narasimhan recursion \cite{MR1974891} and applies to quivers without oriented closed loops. The Coulomb branch is based on a physical picture of BPS states as bound states of elementary 'single-centered' constitutents, and applies to any quivers with or without oriented loops \cite{1011.1258,1103.1887,Manschot:2012rx}.  
 The first version of this package was released together with the preprint \cite{Manschot:2013rx} where a general algorithm for computing the index of the quantum mechanics of multi-centered BPS black holes (the Coulomb index) was outlined. The second version 2.0, released along with the preprint \cite{Manschot:2013}, allowed to compute the Dolbeault-Laurent polynomial, relax assumptions on single-centered indices for basis vectors, study the effect of generalized mutations, and more. Version 2.1, released along with the review \cite{Manschot:2014fua}, was optimized to speed up the evaluation of Coulomb indices.  Starting with version 3.0, the package implements the Jeffrey-Kirwan residue formula for the refined index of 0+1-dimensional gauged linear models with $\cN=4$ supersymmetry \cite{Hori:2014tda} (see also \cite{Cordova:2014oxa}). 
 Starting with version 3.1, it  computes the elliptic genus for 1+1 dimensional gauged
 linear sigma models with $(2,2)$ supersymmetry (see \cite{Benini:2013xpa}). 
@@ -632,18 +632,24 @@ vector associated to $\gamma$ has negative components.}
 
 \defn{JKResidueTrig}{\vardef{Flags},\vardef{f}}{extracts the sum of the residues of \var{f} (in trigonometric representation) at the specified Flags, weighted with sign; the first entry in \var{Flags} is the intersection point, the second is a list of r-plets of charges for each flag}
 
-\defn{JKIndexEulerFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of all stable flags}
+\defn{JKIndexEulerFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of stable flags}
 
-\defn{JKIndexRefinedFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in rational representation) from the specified list of all stable flags}
+\defn{JKIndexRefinedFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in rational representation) from the specified list of stable flags}
 
-\defn{JKIndexTrigFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in trigonometric representation) from the specified list of all stable flags}
+\defn{JKIndexTrigFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the $\chi_y$ genus (in trigonometric representation) from the specified list of stable flags}
 
-\defn{JKIndexEllipticFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus from the specified list of all stable flags}
+\defn{JKIndexEllipticFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus from the specified list of stable flags}
 
 
-\defn{FindSingularities}{\vardef{ChargeMatrix}}{constructs the list of singular hyperplanes for the specified charge matrix}
+\defn{FindSingularities}{\vardef{ChargeMatrix}}{constructs the list of singular hyperplanes for the specified charge matrix. Each item is itself a list containing the intersection point and a list of extended charges associated to the hyperplanes meeting at that point.}
 
-\defn{FindStableFlags}{\vardef{ListSings},\vardef{Nvec},\vardef{Etavec}}{constructs the list of stable flags with stability parameter \var{Etavec}$\in\IR^{\sum N_i}$ from the specified list of singular hyperplanes}
+\defn{FindStableFlags}{\vardef{ListSings},\vardef{Nvec},\vardef{Etavec}}{constructs the list of stable flags with stability parameter \var{Etavec}$\in\IR^{\sum N_i}$ from the specified list of singular hyperplanes. Each item is itself a list containing the intersection point, a list of basis vectors, and the  sign of $\det\kappa$.}
+
+\defn{FindDegrees}{\vardef{ListSings},\vardef{NumSing}}{constructs a list of singularities and their degree, combining the poles from \var{ListSings} with the zeros from the list of hyperplanes \var{NumSing} }
+
+\defn{DisplayFlagList}{\vardef{ListFlags},\vardef{ListDegrees}}{Displays the list of flags in human-readable form. The first column gives the intersection point, the second the list of hyperplanes associated to the basis vectors, the third colum gives ${\rm sign}(\det\kappa)$, the third column gives True if the intersection is projective, False otherwise; the last column gives the degree of the pole.}
+
+\defn{DisplaySingList}{\vardef{ListSings}}{Displays the list of singularities in human-readable form. The first column gives the intersection point, the second the list of hyperplanes intersecting at that point, and the last columns gives True if the intersection is projective, False otherwise.}
 
 
 
@@ -652,13 +658,13 @@ vector associated to $\gamma$ has negative components.}
 \defn{JKIndexSplit}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinant \cite{Pioline2015}.}
 
 
-\defn{gEulerPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the list of partitions \var{Listperm}}
+\defn{gEulerPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the list of permutations associated to each node \var{Listperm}}
 
-\defn{gTrigPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation, corresponding to the list of partitions \var{Listperm}}
+\defn{gTrigPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation, corresponding to the list of permutations associated to each node \var{Listperm}}
 
-\defn{gRatPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in rational representation, corresponding to the list of partitions \var{Listperm}}
+\defn{gRatPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in rational representation, corresponding to the list of permutations associated to each node \var{Listperm}}
 
-\defn{gEllipticPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the elliptic genus in rational representation, corresponding to the list of partitions \var{Listperm}}
+\defn{gEllipticPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the elliptic genus in rational representation, corresponding to the list of permutations associated to each node \var{Listperm}}
 
 \defn{JKIndexEulerSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the Euler index from the specified list of all stable flags}
 
@@ -669,21 +675,21 @@ vector associated to $\gamma$ has negative components.}
 \defn{JKIndexEllipticSplitFromStableFlags}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListStableFlags}}{computes the elliptic genus  from the specified list of all partial stable flags}
 
 
-\defn{PartialChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm}
 
 \subsection{Internal routines}
 
 \defn{TestStableFlag}{\vardef{Listhyper},\vardef{Flag},\vardef{Etavec}}{Tests if 
 \var{Flag} is stable for the list of hyperplanes \var{Listhyper} and stability  parameter \var{Etavec}.}
 
-\defn{CompleteChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplets}
+\defn{CompleteChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplets}
 
+\defn{PartialChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm}
 
 \defn{SameFlagQ}{\vardef{Q1},\vardef{Q2}}{tests if the flags \var{$Q_1$} and \var{$Q_2$} (represented by square charge matrices) are equivalent}
 
 \defn{LegCharge}{\vardef{Nvec},\vardef{i1},\vardef{s1},\vardef{i2},\vardef{s2}}{constructs a charge vector with 1 in position $(i_1,s_1)$ and $-1$ in position $(i_2,s_2)$}
 
-\defn{TrimChargeTable}{\vardef{ChargeMatrix}}{removes the last two columns and frozen entries in charge matrix}
+\defn{TrimChargeTable}{\vardef{ChargeMatrix}}{removes the last two columns and frozen entries in charge matrix, corresponding to the R-charge and multiplicity.}
 
 \defn{FindIntersection}{\vardef{Sing}}{computes the intersection points of the hyperplanes listed in \var{Sing}; this may include points on the cylinder, which contribute to the $\chi_y$ genus but not to the Euler number ! Ultimately, this will be generalized for the computation of the elliptic genus to include all points on the torus.  }
 
@@ -696,7 +702,7 @@ vector associated to $\gamma$ has negative components.}
 
 \defn{CollectHyperplanes}{\vardef{ListInterrplets},\vardef{Inter}}{collects all the hyperplanes from \var{ListInterrplets}, which intersect at the point \var{Inter}}
 
-\defn{TestStableFlag}{\vardef{ListHyper},\vardef{Flag},\vardef{Etavec}}{tests if the flag \var{Flag} constructed out of the hyperplanes in \var{ListHyper} is stable with respect to \var{Etavec}}
+\defn{TestStableFlag}{\vardef{ListHyper},\vardef{Flag},\vardef{Etavec}}{tests if the flag \var{Flag} constructed out of the hyperplanes in \var{ListHyper} is stable with respect to \var{Etavec}; returns ${\rm sign}(\det\kappa)$ if it is stable, 0 otherwise.}
 
 \defn{PartitionToPermutation}{\vardef{pa}}{translates the partition pa into a standard permutation}
 
