@@ -2,7 +2,7 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 5.0                
+ *  CoulombHiggs.m 5.1                
  *                                                          
  *  Copyright B. Pioline, July 2019
  *
@@ -78,9 +78,12 @@
  * - Renamed ListAll* into JKListAll*, EXCEPT ListAllPartitions
  * - Renamed JKResidueRat into JKResidueRational
  * - Added Joyce-Song formula
+ *
+ * Release notes for 5.1:
+ * - Added Mutate
  
  *********************************************************************)
-Print["CoulombHiggs 5.0 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 5.1 - A package for evaluating quiver invariants"];
 
 
 
@@ -277,6 +280,7 @@ EvalQFact::usage = "EvalQFact[f_] replaces QFact[n_,y_] with QDeformedFactorial[
 EulerForm::usage = "EulerForm[Mat] gives the Euler form constructed from the DSZ matrix Mat ";
 
 (* mutations *)
+Mutate::usage = "MutateRight[Mat_,klist_] mutates the quiver with respect to nodes in klist ";
 
 MutateRight::usage = "MutateRight[Mat_,Cvec_,Nvec_,klist_] mutates the quiver with respect to nodes in klist ";
 
@@ -1445,7 +1449,7 @@ If[$QuiverVerbose,Print["StackInvariantFast: Inverting matrix of size ",Length[L
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Mutations*)
 
 
@@ -1473,6 +1477,16 @@ MutateRightList[Mat_,Cvec_,Nvec_,klist_]:=Module[{m,Mat2,Cvec2,Nvec2,k},
    Table[If[i==k,-Cvec2[[i]],Cvec2[[i]]+$QuiverMutationMult Max[0,Mat2[[i,k]]] Cvec2[[k]]],{i,m}],
    Table[If[i==k,-Nvec2[[i]]+Sum[Nvec2[[j]] $QuiverMutationMult Max[0,Mat2[[j,k]]],{j,m}],Nvec2[[i]]],{i,m}]}];
 *)
+
+Mutate[Mat_,klist_]:=Module[{m,Mat2,k},
+  Which[Length[klist]>1,
+    Mat2=Mutate[Mat,Drop[klist,-1]]; k=Last[klist];,
+	Length[klist]==1,  Mat2=Mat; k=klist[[1]],
+    Length[klist]==0,  Mat2=Mat; k=klist;
+ ];
+  m=Length[Mat2]; 
+Table[If[(i==k)||(j==k),-Mat2[[i,j]],Mat2[[i,j]]+$QuiverMutationMult Max[0,Mat2[[i,k]] Mat2[[k,j]]] Sign[Mat2[[k,j]]]],{i,m},{j,m}]
+];
 
 MutateRight[Mat_,Cvec_,Nvec_,klist_]:=Module[{m,Mat2,Cvec2,Nvec2,k},
   Which[Length[klist]>1,

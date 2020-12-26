@@ -47,9 +47,9 @@
 \newcommand{\defnNA}[3]{~\\[-30pt]\begin{itemize}\item[]\indent\hspace{-21pt}$\bullet$\hspace{-.75pt} {\tt {\color{functioncolor}#1}\!}#2{\tt\,\!:}#3\end{itemize}\vspace{-10pt}}
 \newcommand{\defntb}[4]{~\\[-30pt]\begin{itemize}\item[]\indent\hspace{-21pt}$\bullet$\hspace{-.75pt} {\tt {\color{functioncolor}#1}\![}#2{\tt\,]\![}#3{\tt\,]\!:}#4\end{itemize}\vspace{-10pt}}
 \newcommand{\defvar}[2]{~\\[-30pt]\begin{itemize}\item[]\indent\hspace{-21pt}$\bullet$\hspace{-.75pt} \var{#1}: #2\end{itemize}\vspace{-10pt}}
-\newcommand{\var}[1]{{\tt{\color{varcolor}{\sl#1}}}}
+\newcommand{\var}[1]{{\tt{\color{varcolor}{\tt #1}}}}
 \newcommand{\ind}{\hspace{4ex}}
-\newcommand{\fun}[1]{{\color{functioncolor}#1}}
+\newcommand{\fun}[1]{{\color{functioncolor}{\tt #1}}}
 
 %%%%%%%%%%%%%%%
 
@@ -110,7 +110,7 @@
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v5.0}
+\title{CoulombHiggs.m v5.1}
  
 \author{Boris Pioline}
 
@@ -489,9 +489,17 @@ from \cite[v1]{Manschot:2013rx}  is used instead. }
  the assumption that basis 
 vectors carry $\OmS(\ell\gamma_i)=\delta_{\ell,1}$ is relaxed.}  
 
-\defvar{{\tt \$QuiverOpt}}{Set to 1 by default. If set to 0,  the routines
+\defvar{{\tt \$QuiverCoulombOpt}}{Set to 1 by default. If set to 0,  the routines
 \fun{\tt CoulombF}, \fun{\tt CoulombG}, \fun{\tt CoulombIndex} will use the non-optimized
-code provided in version 2.0, otherwise they use the optimized code provided in version 2.1.}  %bp
+code provided in version 2.0, otherwise they use the optimized code provided in version 2.1.
+Before v5.1, this was called \var{ \$QuiverOpt} !}  
+
+\defvar{{\tt \$QuiverFlowTreeOpt}}{Set to 0 by default. If set to 1 or 2,  the first or 
+second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}
+will be used to evaluate the tree index. }  
+
+\defvar{{\tt \$QuiverFlowTreeMethod}}{Set to 0 by default. If set to 1, the wall-crossing in \fun{NonAbelianTreeFlowFormula} will be computed the Coulomb branch formula, otherwise
+it is computed using Reineke's formula for Abelian stack invariants. }   
 
 \defvar{{\tt \$QuiverNoVM}}{Set to False by default. If set to True, singular hyperplanes from 
 vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSplit}.}
@@ -552,6 +560,13 @@ stack invariants $\gR(\gamma,y)$  using \cite[(4.1)]{Manschot:2013rx};}
 
 \defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) HN invariant
 $\gR(\gamma,y)$ in terms of the rational refined indices $\bar\Omega(\gamma,y)$  by inverting \cite[(4.1)]{Manschot:2013rx};}
+
+\defn{EvalReinekeIndex}{\vardef{Mat},\vardef{Cvec},\vardef{f} }{evaluates
+any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as \fun{ReinekeIndex}[\var{Mat2},\var{Cvec2},\var{y}], where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{Cvec}$. }
+
+\defn{ReinekeIndex}{\vardef{Mat},\vardef{Cvec},\vardef{y}}{computes the stack invariant 
+after perturbing the stability parameters.}
+
 
 
 \section{Coulomb branch formula}
@@ -629,8 +644,8 @@ Coincides with the latter if $\gamma$ is primitive.}
 \subsection{Computing the Coulomb index}
 
 
-\defn{SubDSZ}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{gives the
-                    DSZ matrix and FI parameters of the Abelian subquiver made of the charge vectors in list \var{Li};}
+\defn{SubDSZ}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{Li}}{gives the
+                    DSZ matrix, perturbed DSZ matrix and FI parameters of the Abelian subquiver made of the charge vectors in list \var{Li};}
 
 \defn{CoulombF}{\vardef{Mat},\vardef{Cvec}}{returns the index of collinear solutions 
 $F(\{\ta_1,\cdots \ta_n\}, \{\cc_1,\cdots \cc_n\})$ with 
@@ -665,6 +680,8 @@ with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total a
 \defn{EvalCoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{f} }{evaluates
 any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat},\var{Cvec}$. }
 
+\defn{EvalCoulombIndexAtt}{\vardef{Mat},\vardef{PMat},\vardef{f} }{evaluates
+any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat}$ and $\var{Cvec2}$ are the respective attractor moduli.}
   
 
 
@@ -713,6 +730,11 @@ of $(1-uy)(1-u/y)$. This trick allows to compute \eqref{uint} even if the order 
 at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a formal variable.
                    }
 
+\defn{MinimalModifFast}{\vardef{f}}{returns the symmetric Laurent polynomial which coincides 
+                   with the Laurent expansion expansion of the symmetric rational function $f$ at $y=0$, up to strictly positive powers of $y$. This uses the Mathematica function \fun{Residue}, assuming that the order of the pole at $y=0$ is manifest. 
+                   }
+
+
                    \defn{EvalCoulombH3}{\vardef{Mat},\vardef{f}}{ evaluates any 3-center $H$ factor with multiplicity vector $\{1,1,1\}$ 
                appearing   in $f$. No longer in use.}
 
@@ -759,6 +781,11 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
 The following routines and environment variables were introduced in  {\tt CoulombHiggs.m} v1.1,
 to allow investigation of mutations of generalized quivers \cite{Manschot:2013}:
 
+\defn{Mutate}{\vardef{Mat},\vardef{k}}{
+Computes the  DSZ matrix of the quiver obtained
+by applying a right-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
+right mutations $k_i$ are applied successively, starting from the last entry in \var{k}. }
+
 \defn{MutateRight}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{k}}{
 Computes the  DSZ matrix, FI parameters and dimension vector of the quiver obtained
 by applying a right-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
@@ -797,6 +824,9 @@ Identical to \fun{\tt MutateLeftOmS}, except for swapping $\var{\tt OmS[gam,y,t]
 
 \defn{DropOmSNeg}{\vardef{f}}{equates to 0 any $\OmS(\gamma,y,t)$ where the dimension
 vector associated to $\gamma$ has negative components.}
+
+\defn{CompareDSZMatrices}{\vardef{Mat1},\vardef{Mat2}}{gives a list of permutations $P$ such that $\var{Mat1}=\var{Mat2}[[P,P]]$, or an empty list if no such permutation exists; For $\var{Mat1}=\var{Mat2}$, gives the list of automorphisms of the antisymmetric matrix $\var{Mat1}$. 
+}
 
 
 \section{Jeffrey-Kirwan residue formula}
@@ -931,7 +961,15 @@ in $\prod_{i=1}^K \Sigma_{N_i}$}
 \section{Flow tree formula}
 
 
-\defn{FlowTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of attractor indices}
+\defn{FlowTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of attractor indices, using the formula \cite[(2.21)]{Alexandrov:2018iao}}
+
+\defn{FlowTreeFormulaRat}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices}
+
+\defn{NonAbelianFlowTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices, using the general (non-necessarily primitive) wall-crossing formula at each wall of marginal stability.}
+
+\defn{ListFirstWalls}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{gives the list of relevant walls 
+$W_{\gamma_L,\gamma_R}$ for the non-Abelian flow tree formula for $\bOm(\gamma,z)$, as a list of $\{ \{ \gamma_L,n_L\}, , \{ \gamma_R,n_R\}\}$ such that $\gamma=n_L \gamma_L+n_R \gamma_R$ where $\gamma_L,\gamma_R$ are primitive vectors and $n_L, n_R$ positive integers.}
+
 
 \defn{TreePoincarePolynomialRat}{\vardef{gam},\newdefy}{expresses the rational BPS index in terms of terms of attractor indices and tree index}
 
@@ -945,12 +983,14 @@ in $\prod_{i=1}^K \Sigma_{N_i}$}
 
 \defn{PlaneTreeSign}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{computes the contribution to the partial tree index from the grouping \var{Li} recursively}
 
-\defn{TreeFAlt1}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
+\defn{TreeFAlt1}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}. Will be
+used by \fun{TreeIndex} if  \var{\$QuiverOpt} is set to 1.}
 
 \defn{TreeFAlt1Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
 
-\defn{TreeFAlt2}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
+\defn{TreeFAlt2}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}. Will be
+used by \fun{TreeIndex} if  \var{\$QuiverOpt} is set to 2.}
 
 \defn{TreeFAlt2Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
@@ -968,6 +1008,11 @@ in $\prod_{i=1}^K \Sigma_{N_i}$}
 
 \defn{OmAttbToOmAtt}{\vardef{f}}{expresses  any $\bar\Omega_*(\gamma,y)$ in $f$
  in terms of $\Omega_*(\gamma,y)$'s}
+
+\defn{BinarySplits}{\vardef{Nvec}}{gives the list of dimension vectors $\gamma_L$ less than $\gamma$, quotiented by the equivalence relation $\gamma_L \to \gamma-\gamma_L$.}
+
+\defn{ToPrimitive}{\vardef{Nvec}}{gives the pair $\{\gamma', d\}$ such that $\gamma'$ is primitive, $d\geq 1$ and $\gamma=d \gamma'$.}
+
 
 
 \section{Joyce-Song formula}
@@ -1079,6 +1124,8 @@ to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$
 
 
 \defn{DSZProd}{\vardef{Mat},\vardef{Nvec1}, \vardef{Nvec2}}{Computes the Dirac product $\sum \alpha_{ij} N_i^1 N_j^2$.}
+
+\defn{ReduceDSZMatrix}{\vardef{Mat},\vardef{Li}}{Sets $\var{Mat}[[i,j]]=\var{Mat}[[j,i]]=0$ for all elements $\{i,j\}$ in \var{Li}, and returns the resulting matrix. If $i=j$, then the $i$-th row and column of $\var{Mat}$ are set to 0.}
 
 
 \begin{thebibliography}{9}
