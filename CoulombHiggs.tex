@@ -1,6 +1,6 @@
 
-\documentclass[12pt]{article}
-\usepackage{epsfig,amsfonts,amssymb,amsmath,cite,epic}
+\documentclass[12pt]{JHEP3}
+\usepackage{epsfig,amsfonts,amssymb,amsmath}
 
 %\setlength{\topmargin}{.5cm}
 %\setlength{\textheight}{23.1cm}
@@ -106,15 +106,21 @@
 
 \renewcommand{\theequation}{\thesection.\arabic{equation}}
 
-\newcommand{\href}[1]{#1}
+%\newcommand{\href}[1]{#1}
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v5.1}
+\title{CoulombHiggs.m v5.2}
  
 \author{Boris Pioline}
 
+\abstract{Basic documentation for the Mathematica package {\tt CoulombHiggs.m}
+available from {\tt http://www.lpthe.jussieu.fr/$\sim$\,pioline/computing.html}
+%and from  {\tt https://github.com/bpioline/CoulombHiggs}
+ }
+
 \begin{document}
+
 
 \maketitle
 
@@ -133,13 +139,14 @@ The  {\sc Mathematica} package {\tt CoulombHiggs.m} provides a suite of routines
 \sum_{p,q=0}^{d}\, (-y)^{p+q-d} t^{p-q}\, h_{p,q}(\cM_Q)\, 
 \ee
 of the moduli space $\cM_Q$ of semi-stable representations of a quiver $Q$ with antisymmetric
-adjacency matrix $\alpha_{ij}$,  dimension vector $\gamma=(N_1,\dots, N_K)$ and stability parameters $(\zeta_1,\dots, \zeta_K)$ such that $\sum_i N_i \zeta_i=0$. When $\cM_Q$ is 
+adjacency matrix $\alpha_{ij}$ (such that $\alpha_{ij}$ counts the net number of arrows $i\to j$, with
+arrows $j\to i$ counted negatively),  dimension vector $\gamma=(N_1,\dots, N_K)$ and stability parameters $(\zeta_1,\dots, \zeta_K)$ such that $\sum_i N_i \zeta_i=0$. When $\cM_Q$ is 
 a smooth projective variety of complex dimension $d$, \eqref{defOm} is a Laurent polynomial  with integer coefficients, invariant under separate inversions $y\to 1/y, t\to 1/t$. When $\gamma$ is not primitive, it is useful to introduce the {\it rational invariant}
 \be
 \label{defbOm}
-\bOm(\gamma,\zeta,y,t)=\sum_{d|\gamma} \frac{y-1/y)}{d(y^d-y^{-d})} \Omega(\gamma/d,\zeta,y^d,t^d)\ee 
+\bOm(\gamma,\zeta,y,t)=\sum_{d|\gamma} \frac{y-1/y}{d(y^d-y^{-d})} \Omega(\gamma/d,\zeta,y^d,t^d)\ee 
 which satisfies simpler wall-crossing identities. Finally, $\bOm(\gamma,\zeta,y,t)$ may be expressed 
-in terms of the {\it stack invariants} $G_{\rm Higgs}(\gamma,\zeta,y,t)$ defined by \cite[(4.1)]{Manschot:2013rx}
+in terms of the {\it stack invariants} $G_{\rm Higgs}(\gamma,\zeta,y,t)$ defined by \cite[(4.1)]{Manschot:2013sya}
 \be
 \label{eq:inversestackinv}
 \begin{split}
@@ -159,32 +166,45 @@ in terms of the {\it stack invariants} $G_{\rm Higgs}(\gamma,\zeta,y,t)$ defined
 \ee
 where $\vec N$ is the dimension vector corresponding to $\gamma$. The stack invariants 
 satisfy yet simpler wall-crossing identities, but their physical meaning is less transparent.
+Note that they differ from the {\it stacky invariants} by a factor $(1/y-y)$.
 
 \medskip
 
 The package implements the following main formulae:
  \begin{itemize}
  
- \item  the {\it Higgs branch formula} is  based on Reineke's solution to the Harder-Narasimhan recursion \cite{MR1974891} for quivers with primitive dimension vector and no closed loops. 
+ \item  the {\it Higgs branch formula} is  based on Reineke's solution to the Harder-Narasimhan recursion \cite{1043.17010} for quivers with primitive dimension vector and no closed loops. 
  The formula apparently also applies to quivers with oriented loops but without superpotential 
  and for non-primitive dimension vector, provided the Hodge numbers $h_{p,q}(\cM_Q)$
  are defined using intersection homology;
  
- \item the {\it Coulomb branch} formula \cite{1011.1258,1103.1887,Manschot:2012rx,Manschot:2014fua} is based on a physical picture of BPS states as bound states of single-centered black holes; it applies to any quivers with or without oriented loops  and expresses the index in terms
- of `single-centered invariants' $\OmS(\gamma_i)$, which are independent of stability conditions,
+ \item the {\it Coulomb branch} formula \cite{Manschot:2010qz,Manschot:2011xc,
+ Manschot:2012rx,Manschot:2014fua} is based on a physical picture of BPS states as bound states of single-centered black holes; it applies to any quivers with or without oriented loops  and expresses the index in terms
+ of `single-centered invariants' $\OmS(\gamma_i,t)$, which are independent of stability conditions,
  and conjecturally depend only on $t$;
  
+ \item the {\it Joyce formula}  \cite{joyce2008configurations} expresses the rational invariants $\bOm(\gamma,\zeta_1,y,t)$ in terms of the invariants $\bOm(\gamma_i,\zeta_2,y,t)$, and
+ similarly the stack invariants $\gR(\gamma,\zeta_1,y,t)$ in terms of $\gR(\gamma_i,\zeta_2,y,t)$,
+ where $\gamma=\sum_i \gamma_i$.
+
 \item the  {\it JK residue formulae} \cite{Hori:2014tda} (see also \cite{Cordova:2014oxa,Benini:2013xpa}) is based on localization, and evaluates the $\chi$-index
 $\Omega(\gamma,\zeta,y,y)$ as a suitable sum of residues of a certain rational or trigonometric function; when $\gamma$ is not primitive, the residue formula computes the value at $y=t$ of the rational invariant
 \eqref{defbOm}.
 
 \item the  {\it flow tree formula} \cite{Alexandrov:2018iao} is based on 
  the attractor flow tree conjecture, and expresses the total index in terms of attractor indices
- $\Omatt(\gamma_i)$ which are also independent of stability conditions, but may depend on both 
- $y$ and $t$; they are supposed to be equal to $\Omega(\gamma_i,\zeta_*,y,t)$ evaluated at
- the attractor point $\zeta_a=-\kappa_{ab} N_b^i$;  
+ $\Omatt(\gamma_i,y,t)$ which are also independent of stability conditions, but may depend on both 
+ $y$ and $t$; the attractor index is defined by  $\Omatt(\gamma,y,t)=\Omega(\gamma,\zeta_*,y,t)$ 
+ where $\zeta_*$ is 
+ a generic perturbation of the attractor point $\zeta_a=-\kappa_{ab} N_b$;  
 
-\item the Joyce-Song formula \cite{JoyceConfig}  the rational invariants $\bOm(\gamma,\zeta,y,t)$ for two stability conditions $\zeta_1$ and $\zeta_2$. 
+\item the {\it attractor tree formula} \cite{BPMozgovoy} (based on ideas in \cite{Alexandrov:2019rth})
+is (believed to be) equivalent
+to the  {\it flow tree formula}, but it does not rely on perturbing the DSZ matrix $\gamma_{ij}$
+in intermediate steps.
+
+
+\item the {\it Quiver Yangian algorithm} \cite{BPinprogress}, based on ideas in \cite{Li:2020rij},  computes unrefined NCDT invariants for brane tilings.  
 
 \end{itemize}
 
@@ -203,12 +223,12 @@ can be obtained from the author's webpage,
 Assuming that the file {\tt CoulombHiggs.m} is present in the user's {\sc Mathematica} Application 
 directory, the package is loaded by entering 
 
-\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs 5.0 - A package for evaluating quiver invariants. }
+\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs 5.2.5 - A package for evaluating quiver invariants. }
 
 If the file  {\tt CoulombHiggs.m} has not yet been copied in the user's {\sc Mathematica} Application 
 directory but is in the same directory as the notebook, evaluate instead
 
-\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs 5.0 - A package for evaluating quiver invariants.}
+\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs 5.2- A package for evaluating quiver invariants.}
 
 \subsubsection{Coulomb branch formula}
 
@@ -266,6 +286,10 @@ Note that the result is a symmetric Laurent polynomial with integer coefficients
 
 \subsubsection{Jeffrey-Kirwan residue  formula}
 
+\begin{center}
+{\bf Beware: the routine \fun{JKIndex} appears to have become corrupted due to changes in v5. Please use \fun{JKIndexSplit} or revert to v4.} 
+\end{center}
+
 The third main routine {\tt \color{functioncolor} JKIndex} implements the Jeffrey-Kirwan residue formula. 
 Its first argument \var{ChargeMatrix} is an extended charge matrix, where the rows encode the charges of the chiral
 multiplets under $U(1)^{\sum N_i}$, along with the R-charges and the multiplicity. 
@@ -281,6 +305,7 @@ JKInitialize[\{\{0, 3\}, \{-3, 0\}\}, \{\{0, 0\}, \{0, 0\}\}, \{1, 2\}, \{1, -1/
 JKIndex[ JKChargeMatrix, \{1, 2\},JKEtavec]
 }{$\{y^2+1+\frac{1}{y^2} \}$}   
 
+\noindent 
 The result produces a list of contributions from each contributing stable flag, which consists of a single flag in this case. The routine first determines the stable flags which give a non-zero contribution to the Euler number $\Omega(\gamma,\zeta,1,1)$, and then uses the same flags to compute the $\chi$-genus $\Omega(\gamma,\zeta,y,y)$, which is more time-consuming. The result for the Euler number can be accessed from the global variable \var{JKEuler}. Note that flavor fugacities
 can be switched on by using  the routine \fun{FlavoredRMatrix} to construct  the matrix of R-charges (which was chosen to vanish in the previous example).
 
@@ -289,7 +314,7 @@ can be switched on by using  the routine \fun{FlavoredRMatrix} to construct  the
 
 \medskip
 
-A variant {\tt \color{functioncolor} JKIndexSplit} of the same routine is provided, which computes the same index by first splitting the vector multiplet determinants as a sum over (equivalence classes of) permutations, using Cauchy's determinant formula, and computes the Jeffrey-Kirwan residue of each term separately (the two procedures are of course identical for Abelian quivers). This simplifies both the enumeration of stable flags (as the number of singular hyperplanes due to vector multiplets is reduced from $N_i(N_i-1)$ to $\mathcal{O}(N_i)$) and the computation of the residues. Moreover, for quivers with loops this splitting appears to match the sum over decompositions $\gamma=\sum\alpha_i$ in the Coulomb branch formula \cite{Pioline2019}. For example, applying this splitting procedure on the second node for the previous example gives
+A variant {\tt \color{functioncolor} JKIndexSplit} of the same routine is provided, which computes the same index by first splitting the vector multiplet determinants as a sum over (equivalence classes of) permutations, using Cauchy's determinant formula, and computes the Jeffrey-Kirwan residue of each term separately (the two procedures are of course identical for Abelian quivers). This simplifies both the enumeration of stable flags (as the number of singular hyperplanes due to vector multiplets is reduced from $N_i(N_i-1)$ to $\mathcal{O}(N_i)$) and the computation of the residues. Moreover, for quivers with loops this splitting appears to match the sum over decompositions $\gamma=\sum\alpha_i$ in the Coulomb branch formula \cite{Beaujard:2019pkn}. For example, applying this splitting procedure on the second node for the previous example gives
 
 \mathematica{1.0}{
 JKInitialize[\{\{0, 3\}, \{-3, 0\}\}, \{\{0, 0\}, \{0, 0\}\}, \{1, 2\}, \{1, -1/2\}];
@@ -297,7 +322,7 @@ JKIndexSplit[ JKChargeMatrix, \{1, 2\},JKEta,\{2\}];
 }{$\{ \{ \frac{-y^8-y^4-1}{2 y^4} \} , \{ 
  \frac{\left(y^4+y^2+1\right)^2}{2 y^4}\} \}$}   
 
-which sums up to the same result as before $y^2+1+1/y^2$. 
+\noindent which sums up to the same result as before $y^2+1+1/y^2$. 
 Each entry in the result corresponds to the contribution
 of a given multi-partition of the dimension vector, the list of which  is stored (along with respective multiplicities) in the global variable ${\tt \color{varcolor} JKListAllPerms}$. Again, the intermediate 
 results for the Euler number can be retrieved from the global variable \var{JKEuler}.
@@ -322,7 +347,62 @@ The arguments for \fun{\tt FlowTreeFormula} are the same as for {\tt \color{func
    {$  \text{OmAtt}(\{1,1,1\},y) $
 }
 
-In this case, the sum over tree vanishes. Comparing with the result from the Coulomb branch formula above, one concludes that the attractor index  $\Omega_*(\gamma)=\OmS(\gamma)+y^2+2+1/y^2$, corresponding to the sum of the contributions of single centered and scaling solutions.
+\noindent In this case, the sum over tree vanishes. Comparing with the result from the Coulomb branch formula above, one concludes that the attractor index  $\Omega_*(\gamma)=\OmS(\gamma)+y^2+2+1/y^2$, corresponding to the sum of the contributions of single centered and scaling solutions.
+
+\subsubsection{Attractor tree  formula}
+
+As of version 5.2, the package contains an implementation of a formula implicit in \cite{Alexandrov:2019rth}, which allows to express the index $\Omega(\gamma,\zeta,y,t)$ in terms of 
+attractor indices  $\Omega_\star(\gamma,\zeta,y,t)$, without perturbing the DSZ matrix at any stage.
+The syntax is identical to the flow tree formula, 
+
+\mathematica{1.0}{Simplify[AttractorTreeFormula[4\{\{0, 1, -1\},\{-1, 0, 
+   1\}, \{1, -1, 0\}\}, \{1/2, 1/6, -2/3\}, \{1, 1, 1\}]]  
+     }
+   {$  \text{OmAtt}(\{1,1,1\},y) $
+}
+
+\subsubsection{Quiver Yangian algorithm}
+
+The algorithm relies on a matrix $\var{hMat}$ whose entry $(i,j)$ lists the heights $h_a$ of arrows
+$a:i\to j$. These heights are linear combinations of three parameters $h_1,h_2,h_3$ such that, for all vertices $i\in Q_0$
+\be
+\label{vertexc}
+\forall i: \quad 
+ \sum_{a:i\to j} h(a) -  \sum_{a:j\to i}  h(a)= 0
+\ee
+and for all monomials $F\in Q_2$ in the superpotential $W=W_+-W_-$,
+\be
+\label{loopcr}
+\forall F:\quad \sum_{a\in F} h'(a) = h_3
+\ee
+These heights, as well as the bipartite potential $W=W_+-W_-$,  are pre-computed for a number of common brane tilings, listed by 
+
+\mathematica{1.0}{Simplify[ListKnownBraneTilings]  
+     }
+   {$\begin{array}{l} 1:C^3 \\
+2:{\rm Conifold}\\
+3:C^2\times C/2\\
+4:C^2\times C/3\\
+5:C^3/2\times 2\\
+6:SPP\\
+7:P2=C^3/(1,1,1)\\
+8:F0.1=P1\times P1\\
+\dots
+\end{array}$
+}
+For computing unrefined NCDT invariants for the conifold up to order $x^5$, you may use
+
+\mathematica{1.0}{
+\{Tiling, Fan, hMat, Wp, Wm, v1, v2\} = BraneTilingsData[[2]];
+NCDTSeriesFromCrystal[hMat, \{1, 0\}, 5] }
+   {
+   $1 + x[1] + 2 y^3 x[1] x[2] + 4 y^5 x[1]^2 x[2] + 2 y^5 x[1]^3 x[2] + 
+ y^4 x[1] x[2]^2 + 8 y^{10} x[1]^2 x[2]^2 + 14 y^{14} x[1]^3 x[2]^2 + 
+ 4 y^{13} x[1]^2 x[2]^3$
+}
+and set $y=-1$ in the final result. Setting $y=1$ instead gives the number of molten crystals
+at each order. 
+
 
 \subsection{Online documentation}
 
@@ -334,9 +414,18 @@ The package contains many more routines, documented below, which can be used ind
    
 \subsection{History}   
    
-The first version of this package was released together with the preprint \cite{Manschot:2013rx} where a general algorithm for computing the index of the quantum mechanics of multi-centered BPS black holes (the Coulomb index) was outlined. The second version 2.0, released along with the preprint \cite{Manschot:2013}, allowed to compute the Dolbeault-Laurent polynomial, relax assumptions on single-centered indices for basis vectors, study the effect of generalized mutations, and more. Version 2.1, released along with the review \cite{Manschot:2014fua}, was optimized to speed up the evaluation of Coulomb indices.  The Jeffrey-Kirwan residue formula has been available since beta version 3.0,
-but is  released in alpha form in version 5.0, along with \cite{Pioline2019}. 
-The flow tree formula is available since version 4.0, released along with \cite{Alexandrov:2018iao}.    
+The first version of this package was released together with the preprint \cite{Manschot:2013sya} where a general algorithm for computing the index of the quantum mechanics of multi-centered BPS black holes (the Coulomb index) was outlined. The version 2.0, released along with the preprint \cite{Manschot:2012rx}, allowed to compute the Dolbeault-Laurent polynomial, relax assumptions on single-centered indices for basis vectors, study the effect of generalized mutations, and more. Version 2.1, released along with the review \cite{Manschot:2014fua}, was optimized to speed up the evaluation of Coulomb indices.  Version 3.0 introduced 
+an early version of the Jeffrey-Kirwan residue formula. Version 4.0, released along with \cite{Alexandrov:2018iao}, introduced  the flow tree formula. Version 5.0, released along with \cite{Beaujard:2019pkn},
+introduced  more robust implementation of the Jeffrey-Kirwan residue formula.
+Version 6.0, released along with \cite{BPMozgovoy}, introduces the attractor tree formula and the Quiver Yangian algorithm, along with many routines for dealing with brane tilings. 
+
+
+
+\subsection{Usage in literature}
+The following papers by other authors have acknowledged using this package for part of their computations (non exhaustive list): 
+\cite{Cordova:2013bza,Gaddam:2016xum,Messamah:2020ldn,Duan:2020qjy,Banerjee:2020moh}
+
+
 
 \section{Variables and Symbols}
 
@@ -409,6 +498,9 @@ exponentiated version $e^{2\pi i u_{i,s}}$ of the same when a rational represent
 
 \defvar{Eta}{Dedekind Eta series $\eta(\tau)=q^{1/24} \prod_{k\geq 1} (1-q^k)$}
 
+\defvar{h1,h2,h3}{Parameters for the heights $h(a)$ used by the Quiver Yangian algorithm}
+
+
 \subsection{Global variables}
 
 
@@ -445,8 +537,10 @@ exponentiated version $e^{2\pi i u_{i,s}}$ of the same when a rational represent
 
 \defvar{JKVertexCoordinates}{Coordinates of vertices for \fun{DisplayFlagTree}, set by \fun{JKInitialize}}
 
-\defvar{JKVertexLabels}{Labels of vertices for \fun{DisplayFlagTree}, set by \fun{JKInitialize}
+\defvar{JKVertexLabels}{Labels of vertices for \fun{DisplayFlagTree}, set by \fun{JKInitialize}}
 
+\defvar{BraneTilingsData}{List of \{Name, Fan, hMat, Wp, Wm, v1,v2 \} for known brane tilings,
+where \var{Fan} is the toric fan (see \fun{PlotToricFan}), \var{hMat} the height matrix (see \fun{NCDTSeriesFromCrystal}), $W=\var{Wp}-\var{Wm}$ the superpotential (see \fun{ListPerfectMatchings}) and $\var{v1},\var{v2}$ the two basis vectors used by \fun{PlotTiling} to display the tiling.}
 
 
 \subsection{Environment variables}
@@ -464,8 +558,11 @@ Set to True by default.
 Determining whether a subquiver has loops is time-consuming, so for large quivers it may be advisable to disable this feature. Note that 
 \var{{\tt \$QuiverNoLoop}} takes precedence over this variable.}
 
-\defvar{{\tt \$QuiverMultiplier}}{Overall scaling factor of the DSZ matrix in any evaluation of 
-\var{\tt Coulombg} or \var{\tt HiggsG}. Set to 1 by default, could be a formal variable.}
+\defvar{{\tt \$QuiverMultiplier}}{Set to 1 by default. If $m=\var{\$QuiverMultiplier}$ is a positive scalar  (possibly a formal variable), then all entries of the DSZ matrix $\var{Mat}$ 
+used in evaluations of \var{\tt Coulombg}, \var{\tt Treeg}, or \var{\tt HiggsG}
+are effectively multiplied 
+by $m$. If $m$ is a matrix, then entries $\var{Mat}[[i,j]]$ are multiplied by $m_{ij}$.}
+
 
 \defvar{{\tt \$QuiverVerbose}}{If set to False, all consistency tests on data and corresponding error messages will be skipped. Set to True by default.}
 
@@ -480,9 +577,9 @@ tend to grow quickly.}
 
 
 \defvar{{\tt \$QuiverRecursion}}{If set to 1 (default value), then the new recursion relations 
-from \cite[v2]{Manschot:2013rx} are used for computing
+from \cite[v2]{Manschot:2013sya} are used for computing
 \fun{\tt CoulombF};  if set to 0  the recursion relation
-from \cite[v1]{Manschot:2013rx}  is used instead. } 
+from \cite[v1]{Manschot:2013sya}  is used instead. } 
 
 \defvar{{\tt \$QuiverOmSbasis}}{Set to 1 by default. If set to 0,  the routines 
 \fun{\tt SimplifyOmSbasis} and \fun{\tt SimplifyOmSbasismult} are deactivated, so that 
@@ -509,11 +606,11 @@ for the residue computation in \fun{JKIndex} and \fun{JKIndexSplit}.}
 
 \defvar{\$QuiverMaxPower}{Maximal power in the $q$-expansion of the elliptic genus. Set to 0 by default.}
 
-\defvar{{\tt \$QuiverMutationMult}}{Equal to 1 by default. Set to $M$, defined in Eq. (1.8) of
-  \cite{Manschot:2013} when dealing with generalized quivers.}  
+\defvar{\$QuiverMutationMult}{Equal to 1 by default. Set to $M$, defined in Eq. (1.8) of
+  \cite{Manschot:2013dua} when dealing with generalized quivers.}  
 
-
-}
+\defvar{\$QuiverVertexLabels}{specifies the vertex labels to be used by \fun{PlotQuiver} and
+\fun{PlotTiling}.}  
 
 
 %\end{itemize}
@@ -555,11 +652,12 @@ for the residue computation in \fun{JKIndex} and \fun{JKIndexSplit}.}
 \defn{OmbToOm}{\vardef{f}}{expresses  any $\bar\Omega(\gamma,y)$ in $f$
  in terms of $\Omega(\gamma,y)$'s;}
 
-\defn{OmbToHiggsG}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) rational refined index $\bar\Omega(\gamma,y)$ in terms of the (unevaluated) 
-stack invariants $\gR(\gamma,y)$  using \cite[(4.1)]{Manschot:2013rx};}
+\defn{OmbToHiggsG}{\vardef{Cvec},\vardef{f} }{expresses  any $\bar\Omega(\gamma,y)$ in $\var{f}$
+in terms of the (unevaluated) stack invariants $\gR(\gamma,y)$  using \cite[(4.1)]{Manschot:2013sya};
+if the first argument is omitted, a generic stability condition is assumed.}
 
-\defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{Returns the (unevaluated) HN invariant
-$\gR(\gamma,y)$ in terms of the rational refined indices $\bar\Omega(\gamma,y)$  by inverting \cite[(4.1)]{Manschot:2013rx};}
+\defn{HiggsGToOmb}{\vardef{Nvec},\newdefy }{expresses  any
+$\gR(\gamma,y)$ in $\var{f}$ in terms of the rational refined indices $\bar\Omega(\gamma,y)$ using \cite[(4.5)]{Manschot:2013sya}; if the first argument is omitted, a generic stability condition is assumed.}
 
 \defn{EvalReinekeIndex}{\vardef{Mat},\vardef{Cvec},\vardef{f} }{evaluates
 any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as \fun{ReinekeIndex}[\var{Mat2},\var{Cvec2},\var{y}], where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{Cvec}$. }
@@ -779,7 +877,7 @@ at $y=0$ is unknown, which happens if  \var{{\tt \$QuiverMultiplier}} is a forma
 \subsection{Mutations}  
 
 The following routines and environment variables were introduced in  {\tt CoulombHiggs.m} v1.1,
-to allow investigation of mutations of generalized quivers \cite{Manschot:2013}:
+to allow investigation of mutations of generalized quivers \cite{Manschot:2013dua}:
 
 \defn{Mutate}{\vardef{Mat},\vardef{k}}{
 Computes the  DSZ matrix of the quiver obtained
@@ -805,12 +903,12 @@ quiver from those of the original one.}
 \defn{MutateRightOmS}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS[gam,y,t]}$ of the original quiver with DSZ matrix \var{Mat} in terms of the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ of the quiver obtained by right-mutation with respect to node $k$,
-using Eq. 1.13 in \cite{Manschot:2013}.}
+using Eq. 1.13 in \cite{Manschot:2013dua}.}
 
 \defn{MutateLeftOmS}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS[gam,y,t]}$ of the original quiver with DSZ matrix \var{Mat} in terms of the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ of the quiver obtained by left-mutation with respect to node $k$,
-using Eq. 1.13 in \cite{Manschot:2013}.}
+using Eq. 1.13 in \cite{Manschot:2013dua}.}
 
 \defn{MutateRightOmS2}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ a quiver with DSZ matrix \var{Mat} in terms of the single-centered
@@ -831,6 +929,10 @@ vector associated to $\gamma$ has negative components.}
 
 \section{Jeffrey-Kirwan residue formula}
 
+\begin{center}
+{\bf Beware: the routine \fun{JKIndex} appears to have become corrupted due to changes in v5. Please use \fun{JKIndexSplit} or revert to v4.} 
+\end{center}
+
 \newnotea
 
 \defn{JKInitialize}{\vardef{Mat},\vardef{RMat},\vardef{Cvec},\vardef{Nvec}}{initializes the internal variables \var{JKFrozenMask}, \var{JKFrozenRuleEuler}, \var{JKFrozenRuleRat}, \var{JKListu},   \var{JKListuAll},  \var{JKListuDisplay},  \var{JKListut}, \var{Etavec}, \fun{JKVertexCoordinates}, \fun{JKVertexLabels}. To be run before \fun{JKIndex} or \fun{JKIndexSplit}.}
@@ -838,7 +940,7 @@ vector associated to $\gamma$ has negative components.}
 
 \defn{JKIndex}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter. The list of stable flags whose contributions are non-zero is stored in \fun{JKRelevantFlags}, and the list of the corresponding contributions to the $\chi_y$ genus is stored in \fun{JKChiGenus}.}
 
-\defn{JKIndexSplit}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec},\vardef{SplitNodes}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinants associated to the nodes listed in \var{SplitNodes}. \cite{Pioline2019}.}
+\defn{JKIndexSplit}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec},\vardef{SplitNodes}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinants associated to the nodes listed in \var{SplitNodes}. \cite{Beaujard:2019pkn}.}
 
 \subsection{Constructing the integrand and extracting the residue}
 
@@ -1001,7 +1103,7 @@ used by \fun{TreeIndex} if  \var{\$QuiverOpt} is set to 2.}
 
 \defn{SubDSZAbelian}{\vardef{Mat},\vardef{Li}}{computes the DSZ matrix $\gamma_{ij}$ for the subquiver labelled by a list of vertices}
 
-\defn{SubCvecAbelian}{\vardef{Mat},\vardef{Li}}{computes the stability parameters $c_i$ for the subquiver labelled by a list of vertices}
+\defn{SubFIAbelian}{\vardef{Mat},\vardef{Li}}{computes the stability parameters $c_i$ for the subquiver labelled by a list of vertices (formerly called \fun{SubCvecAbelian})}
 
 \defn{OmAttToOmAttb}{\vardef{f}}{expresses any $\Omega_*(\gamma,y)$ in $f$
  in terms of $\bar\Omega_*(\gamma,y)$'s} 
@@ -1013,10 +1115,50 @@ used by \fun{TreeIndex} if  \var{\$QuiverOpt} is set to 2.}
 
 \defn{ToPrimitive}{\vardef{Nvec}}{gives the pair $\{\gamma', d\}$ such that $\gamma'$ is primitive, $d\geq 1$ and $\gamma=d \gamma'$.}
 
+\section{Attractor Tree formula}
+%This implements the Attractor Tree formula from \cite{BPMozgovoy}. Just like the Flow Tree formula,
+%this computes the index for any stability parameters in terms of attractor indices, but it does not rely on perturbing the DSZ matrix.
+
+\defn{AttractorTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of attractor indices.}
+
+\defn{AttractorTreeFormulaRat}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices}
+
+\defn{AttractorIndex}{\vardef{Mat},\vardef{Cvec},\newdefy }{evaluates the Attractor index $g_{Sch}(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
+                   with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled by an overall factor of 
+                   \var{{\tt \$QuiverMultiplier}}, 
+                   FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y}, as a sum over rooted  trees with valency greater or equal to 3.
+                   }
+
+\defn{EvalAttractorIndex}{\vardef{Mat},\vardef{Cvec},\vardef{f} }{evaluates
+any $\var{Treeg[Li,y]}$ appearing in $\var{f}$ as $\var{AttractorIndex[\var{Mat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{Cvec}$. }
+
+\defn{AttractorF}{\vardef{Li},\vardef{Mat},\vardef{Cvec}}{computes the partial Attractor index by summing over Attractor trees; the first argument supplies the list of vertices in each Attractor tree, constructed once and for all by \fun{AttractorIndex} using \fun{AttractorTreeVertices}.}
+
+\defn{Attractorg}{\vardef{Mat},\vardef{Cvec}}{computes the sign factor assigned to a given
+vertex in a Attractor tree, using the prescription from  \cite[(3.23)]{Alexandrov:2019rth}, $({\rm sign}(0))^m \to 1/(m+1)$ if $m$ is even, or zero if $m$ is odd. If second argument missing, uses
+attractor stability condition instead.}
+
+\defn{AttractorTreeList}{\vardef{n}}{constructs the list of rooted planar trees with valency greater or equal to 3, as a list of groupings (parenthesizings) of $\{1,\dots, n\}$.}
+
+\defn{AttractorTreeVertices}{\vardef{t}}{For a given Attractor tree represented as
+a grouping $\var{t}$ of the list $\{1,\dots, n\}$, constructs the list of $\{ {\rm vertex}, \{ {\rm children} \} \}$, with the last one in the list being for the root vertex. }
 
 
-\section{Joyce-Song formula}
-The Joyce-Song formula relates  rational invariants for two stability conditions:
+\defn{AttractorTreeTriples}{\vardef{t}}{For a given Attractor tree represented as
+a grouping $\var{t}$ of the list $\{1,\dots, n\}$, constructs the list of $\{ {\rm left vertex},  {\rm right vertex},  {\rm parent} \}$. Used by \fun{AttractorTreeVertices} to construct the list of vertices. }
+
+\defn{OmAttNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\Omega_*$  
+                  factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
+                  $\alpha_{ij}=\var{Mat}[[i,j]]$
+                  ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
+                  }
+
+\defn{SimplifyOmAttbasis}{\vardef{f}}{replaces  $\Omega_*(\gamma,y)\to 1$ when $\gamma$ is a basis vector, and $\Omega_*(\gamma,y)\to 0$ is $\gamma$ is a multiple of a basis vector; 
+}  
+
+
+\section{Joyce formula}
+The Joyce formula relates  rational invariants for two stability conditions:
 \be
 \label{JSformula}
 \bOm(\gamma,\zeta_2,y,t) = 
@@ -1035,45 +1177,134 @@ The extent of the validity of this formula, beyond the simple wall-crossing case
 
 \medskip
 
-\defn{JoyceSongFormula}{\vardef{Mat},\vardef{Cvec1},\vardef{Cvec2},\vardef{f}}{
+\defn{JoyceFormula}{\vardef{Mat},\vardef{Cvec1},\vardef{Cvec2},\vardef{f}}{
 replaces all $\bOm(\gamma,y)$ and $\gR(\gamma,y)$ in \var{f}, all assumed to refer to stability 
 \var{Cvec1}, with their corresponding values at \var{Cvec2}, using the formula \eqref{JSformula}
-or its analogue for stack invariants;
+or its analogue for stack invariants (formerly called \fun{JoyceSongFormula});
 }
 
 
 \defn{JoyceIndex}{\vardef{Mat},\vardef{Li},\vardef{Cvec1},\vardef{Cvec2},\vardef{y}}
-{Computes the index 
+{computes the index 
 $g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2) $ defined in 
 \eqref{defgJoyce}.}
 
 
-\defn{UFactor}{\vardef{Li},\vardef{Cvec1},\vardef{Cvec2}}{Computes the factor $U(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{JoyceConfig}, using stability condition defined by \fun{Slope}
+\defn{UFactor}{\vardef{Li},\vardef{Cvec1},\vardef{Cvec2}}{computes the factor $U(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{joyce2008configurations}, using stability condition defined by \fun{Slope}
 }
 
-\defn{SFactor}{\vardef{Li},\vardef{Cvec1},\vardef{Cvec2}}{Computes the  factor $S(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{JoyceConfig}, using stability condition defined by \fun{Slope}
+\defn{SFactor}{\vardef{Li},\vardef{Cvec1},\vardef{Cvec2}}{computes the  factor $S(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{joyce2008configurations}, using stability condition defined by \fun{Slope}
 }
 
-\defn{LFactor}{\vardef{Mat},\vardef{Li},\vardef{y}}{Computes the  factor $\mathcal{L}(\{\gamma_i\})$ defined in \cite[(5.4)]{Manschot:2010qz}
+\defn{LFactor}{\vardef{Mat},\vardef{Li},\vardef{y}}{computes the  factor $\mathcal{L}(\{\gamma_i\})$ defined in \cite[(5.4)]{Manschot:2010qz}
 }
 
 \defn{JoyceIndexAlt}{\vardef{Mat},\vardef{Li},\vardef{Cvec1},\vardef{Cvec2},\vardef{y}}
-{Computes the index 
+{computes the index 
 $g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2,y) $ defined using the naive extension
 of  \cite[(5.5)]{Manschot:2010qz} to $y\neq 1$}
 
 
-\defn{Slope}{\vardef{Nvec}, \vardef{Cvec}}{Computes the slope $\sum N_i \zeta_i$.}
+\defn{Slope}{\vardef{Nvec}, \vardef{Cvec}}{computes the slope $\sum N_i \zeta_i$.}
 
-\defn{PartitionToInvervals}{\vardef{pa}}{Maps an ordered integer partition of $N$ into a set $0<a_1<\dots <a_m=N$ such that $(a_{j-1}+1,\dots,a_{j})$ label the $j$-th part.}
+\defn{PartitionToInvervals}{\vardef{pa}}{maps an ordered integer partition of $N$ into a set $0<a_1<\dots <a_m=N$ such that $(a_{j-1}+1,\dots,a_{j})$ label the $j$-th part.}
 
 \defn{CodeToLabeledTreeAlt}{\vardef{li}}{constructs the labelled tree with Pr\"ufer code \var{li},
 substitute for \fun{CodeToLabeledTree} in Combinatorica package}
 
+\defn{DTSpectrumFromOmAtt}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes all rational invariants with dimension vector less or equal to \var{Nvec}; the result is a list of replacement rules 
+$\{\var{Omb[gam_,y_]} :> \bOm(\gamma,\zeta,y) \}$}
+
+\defn{TrivialStackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the stack invariant
+$G_{\rm Higgs}(\gamma,0,y,t)$ for dimension vector $\gamma=\var{Nvec}$ and 
+trivial stability condition, in terms of the rational invariants 
+$\bOm(\alpha_i,\zeta,y)$ for stability $\zeta=\var{Cvec}$}
+
+
+\defn{GaugeMotive}{\vardef{Nvec},\vardef{y}}{computes the motive $\prod_i \left( y^{2N_i^2} \prod_{j=1}^{N_i} (1-y^{-2j})\right)$
+of the gauge group $\prod_i GL(N_i,\mathbb{C})$}
+
+
+
+\section{Non-commutative Donaldson-Thomas invariants}
+
+\defn{NCDTSeriesFromOmS}{\vardef{Mat}, \vardef{Framing}, \vardef{Nmin},\vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with DSZ matrix 
+$\var{Mat}$ and framing $\var{Framing}$ using the  Coulomb branch formula, for dimension
+vectors with height from $\var{Nmin}$ up to $\var{NMax}$.} 
+
+\defn{NCDTSeriesFromOmAtt}{\vardef{Mat}, \vardef{Framing}, \vardef{Nmin},\vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with DSZ matrix 
+$\var{Mat}$ and framing $\var{Framing}$ using the Flow Tree formula, for dimension
+vectors with height from $\var{Nmin}$ up to $\var{NMax}$.} 
+
+\defn{NCDTSeriesFromCrystal}{\vardef{hMat}, \vardef{Framing},\vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with height matrix 
+$\var{hMat}$ and framing $\var{Framing}$ using the Quiver Yangian algorithm, for dimension
+vectors with height up to $\var{NMax}$.} 
+
+\defn{FramedDSZ}{\vardef{Mat},\vardef{Framing}}{starting from a quiver with DSZ matrix $\var{Mat}$, constructs the DSZ matrix of the framed quiver with $f_i$ arrows from the framing node (labelled 0) to the node $i$.} 
+
+\defn{FramedFI}{\vardef{Nvec}}{constructs a random FI parameter for a framed quiver with dimension vector $[1;\var{Nvec}]$, with first entry much larger than the other ones.}
+
+\defn{BondFactor}{\vardef{hMat},\vardef{i},\vardef{j},\vardef{z}}{evaluates the bond factor $\varphi^{i\Rightarrow j}(z)$ in the notations of \cite{Li:2020rij}, where $\var{hMat}$ is a matrix
+whose $(i,j)$-entry is the list of heights of the arrows from node $i$ to node $j$. The heights
+are in turn linear combinations of parameters $h_1,h_2,h_3$.}
+
+
+\defn{ChargeFunction}{\vardef{hMat},\vardef{Framing}, \vardef{Crys}, \vardef{i}, \vardef{z}}
+{constructs the charge function $\Psi_{\cC}^i(z)$ for the molten crystal $\cC=\var{Crys}$ in the notations of \cite{Li:2020rij}. The crystal $\cC$ is encoded in a list of $\{ {\rm color}, {\rm height} \}$ 
+for each atom.}
+
+\defn{VacuumChargeFunction}{\vardef{Framing}, \vardef{i}, \vardef{z}}
+{provides the charge function $\Psi_{\emptyset}^i(z)=1+f_i/z$ for the full crystal, where $f_i$ is the
+$i$-th entry of $\var{Framing}$. Can be redefined to accommodate non-standard vacuum 
+charge functions.}
+
+
+\defn{AddToCrystal}{\vardef{hMat}, \vardef{Framing}, \vardef{i}, \vardef{Crys}}{
+Starting from the molten crystal $\var{Crys}$, apply the Quiver Yangian algorithm
+to construct the  list of molten crystals with one additional atom of color $i$.}
+
+\defn{GrowCrystalList}{\vardef{hMat}, \vardef{Framing}, \vardef{CrysList}}{
+starting from the list of molten crystals $\var{CrysList}$, apply the Quiver Yangian algorithm
+to construct the larger list of molten crystals with up to one additional atom of any color.}
+
+\defn{CrystalDim}{\vardef{r},\vardef{Crys}}{computes the dimension vector of the
+crystal $\var{Crys}$, assuming that the colors can take values $1$ up to $r$.}
+
+\defn{EulerNorm}{\vardef{hMat},\vardef{Nvec}}{Computes the Ringel-Tits norm of the dimension
+vector $\var{Nvec}$ from the matrix $\var{hMat}$}
+
+\defn{PlotTiling}{\vardef{hMat},\vardef{Nn}, \vardef{v}, \vardef{Range},\vardef{Shor},\vardef{Perf}}{produces a 2D plot of the brane tiling defined by the matrix $\var{hMat}$, by iterating the arrows $\var{Nn}$ times, removing those which belong to the perfect matching $\var{Perf}$. The 
+argument \var{v} should be a list of 
+2D vectors $\{\var{v1},\var{v2}\}$ determining the vector $v$ associated to an 
+arrow with weight $x_1 h_1 + x_2 h_2 + x_3 h_3$, according to $v=x_1 v_1+x_2 v_2$. The plot 
+range is set to \var{Range} and arrows are shortened by \var{Shor}. If the argument $\var{Perf}$ is omitted, all arrows are included. The vertices are labelled from $1$ to $K$, unless specified by 
+\var{\$QuiverVertexLabels} } 
+
+\defn{PlotTiling3D}{\vardef{hMat},\vardef{Nn}, \vardef{v},  \vardef{Range},\vardef{Perf}}{produces a 3D plot of the Calabi-Yau crystal defined by the matrix $\var{hMat}$, by iterating the arrows $\var{Nn}$ times, removing those which belong to the perfect matching $\var{Perf}$. The  argument \var{v} should be a list of 3D vectors $\{\var{v1},\var{v2},\var{v3}\}$ determining the vector $v$ associated to an 
+arrow with weight $x_1 h_1 + x_2 h_2 + x_3 h_3$, according to $v=x_1 v_1+x_2 v_2+x_3v_3$. 
+The plot range is set to \var{Range}. If the argument $\var{Perf}$ is omitted, all arrows are included.} 
+
+\defn{PlotToricFan}{\vardef{Fan}}{produces a produces a 2D plot of the polygon with vertices listed in \var{Fan}}
+
+\defn{ListPerfectMatchings}{\vardef{Wp},\vardef{Wm}}{produces the list of cuts for the potential $W=W_+-W_-=\var{Wp}-\var{Wm}$; each term in $W_\pm$ must be a sum of monomials in $\var{Phi[i,j,k]}$ with unit coefficient; each perfect matching is represented by a list of triplets $\{i,j,k\}$
+such that $W$ is linear in each $\var{Phi[i,j,k]}$}
+
+\defn{ListKnownBraneTilings}{}{lists the names of brane tilings already coded in the package. The data for each can be extracted from the corresponding item in the global variable \var{BraneTilingsData}}
+
+\defn{HeightMatrixToDSZ}{\vardef{hMat}}{computes the DSZ matrix associated to the height matrix \var{hMat}}
+
+\defn{HeightMatrixFromPotential}{\vardef{Wp},\vardef{Wm},\{\vardef{i1},\vardef{j1},\vardef{k1}\},
+\{\vardef{i2},\vardef{j2},\vardef{k2}\}}{construct the matrix of heights \var{hMat} 
+such that the arrow 
+$\Phi_{i_1,j_1}^{k_1}$ has height $h_1$,the arrow 
+$\Phi_{i_2,j_2}^{k_2}$ has height $h_2$  and all monomials in the potential $W=\var{Wp}-\var{Wm}$ have height $h_3$}
 
 \section{Utilities}
 
-\defn{QuiverPlot}{\vardef{Mat}}{Displays the quiver with DSZ matrix \var{Mat}.} 
+\defn{PlotQuiver}{\vardef{Mat}}{Displays the quiver with DSZ matrix \var{Mat}. If the entries in \var{Mat}  are lists of integers, then \var{Mat} is interpreted as the height matrix and the quiver is drawn accordingly. The vertices are labelled from $1$ to $K$, unless specified by 
+\var{\$QuiverVertexLabels} } 
+
+\defn{QuiverPlot}{\vardef{Mat}}{Displays the quiver with DSZ matrix \var{Mat} (obsolete).} 
 
 
 \defn{UnitStepWarn}{\vardef{x}}{gives 1 for $x>0$, 0 for $x<0$, and $1/2$ if $x=0$. Produces a warning in this latter case, irrespective of the value of \var{\tt \$QuiverVerbose}. If so, the user
@@ -1091,16 +1322,18 @@ $\OmS(\gamma_1,\dots, \gamma_K)$ associated
 to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$ via Eq
 (4.29) in \cite{Manschot:2012rx}.} 
 
+\defn{CyclicQuiverDSZ}{\vardef{avec},\vardef{t}}{constructs the DSZ matrix
+for a cyclic quiver with $a_i$ arrows from node $i$ to node $i+1$.} 
 
-\defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{Computes the FI parameters $\{\zeta_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $\zeta_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $\zeta_i$ are rounded up to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}.}
+\defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{computes the FI parameters $\{\zeta_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $\zeta_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $\zeta_i$ are rounded up to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}.}
 
-\defn{AttractorFI}{\vardef{Mat},\vardef{Nvec}}{Gives the attractor point $\zeta_i^*=-\sum_{j} \gamma_{ij} N_j$.}
+\defn{AttractorFI}{\vardef{Mat},\vardef{Nvec}}{gives the attractor point $\zeta_i^*=-\sum_{j} \gamma_{ij} N_j$.}
 
 \defn{QDeformedFactorial}{\vardef{n},\newdefy }{gives the $q$-deformed factorial $[n,y]!$}
 
 \defn{EvalQFact}{\vardef{f}}{evaluates any \var{QFact[n,y]} appearing in \var{f}}
 
-\defn{ExpandTheta}{\vardef{f}}{Replaces $\var{Theta}$ and $\var{Eta}$ by their $q$-expansions, truncated at order $\var{\$QuiverMaxPower}$}
+\defn{ExpandTheta}{\vardef{f}}{replaces $\var{Theta}$ and $\var{Eta}$ by their $q$-expansions, truncated at order $\var{\$QuiverMaxPower}$}
 
 \defn{qSeries}{\vardef{f}}{Replaces $\tau$ by $\log q/(2\pi i)$, and Taylor expand around $q=0$ up to order $\var{\$QuiverMaxPower}$}
 
@@ -1108,9 +1341,10 @@ to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$
 
 \defn{EulerForm}{\vardef{Mat}}{construct the antisymmetric Ringel-Tits form from the intersection matrix $\var{Mat}$ (coincides with the latter if $\var{Mat}$ is antisymmetric).}
 
+
 \defn{ListLoopRCharges}{\vardef{Mat},\vardef{RMat}}{Lists the oriented closed loops and corresponding R-charge.}
 
-\defn{TestNoLoop}{\vardef{Mat},\vardef{Li}}{Tests if the subquiver associated to the  charge vectors $\var{Li}$ has oriented closed loops.}
+\defn{TestNoLoop}{\vardef{Mat},\vardef{Li}}{tests if the subquiver associated to the  charge vectors $\var{Li}$ has oriented closed loops.}
 
 \defn{RandomDSZWithNoLoop}{\vardef{n},\vardef{kmax}}{generates a random antisymmetric $n\times n$ matrix with off-diagonal entries less than \var{kmax} in absolute value, ensuring that the quiver has no loop}
 
@@ -1118,122 +1352,28 @@ to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,j+1}=\var{avec}[[i,i+1]]$
 
 
 
-\defn{RandomCvec}{\vardef{Nvec}}{generates a random set of FI parameters $\zeta_i$ between -1 and 1, such that $\sum \zeta_i\, \var{Nvec}[[i]]=0$;}
+\defn{RandomFI}{\vardef{Nvec}}{generates a random set of FI parameters $\zeta_i$ between -1 and 1, such that $\sum \zeta_i\, \var{Nvec}[[i]]=0$; (previously called \fun{RandomCvec})}
 
-\defn{FastResidue}{\vardef{f},\{ \vardef{x}, \vardef{x0} \}}{Computes the residue of $f$ at $x=x_0$.}
-
-
-\defn{DSZProd}{\vardef{Mat},\vardef{Nvec1}, \vardef{Nvec2}}{Computes the Dirac product $\sum \alpha_{ij} N_i^1 N_j^2$.}
-
-\defn{ReduceDSZMatrix}{\vardef{Mat},\vardef{Li}}{Sets $\var{Mat}[[i,j]]=\var{Mat}[[j,i]]=0$ for all elements $\{i,j\}$ in \var{Li}, and returns the resulting matrix. If $i=j$, then the $i$-th row and column of $\var{Mat}$ are set to 0.}
+\defn{FastResidue}{\vardef{f},\{ \vardef{x}, \vardef{x0} \}}{computes the residue of $f$ at $x=x_0$.}
 
 
-\begin{thebibliography}{9}
+\defn{DSZProd}{\vardef{Mat},\vardef{Nvec1}, \vardef{Nvec2}}{computes the Dirac product $\sum \alpha_{ij} N_i^1 N_j^2$.}
 
-\bibitem{MR1974891}
-M.~Reineke, ``The {H}arder-{N}arasimhan system in quantum groups and cohomology
-  of quiver moduli,'' {\em Invent. Math.} {\bf 152} (2003), no.~2, 349--368.
+\defn{ReduceDSZMatrix}{\vardef{Mat},\vardef{Li}}{sets $\var{Mat}[[i,j]]=\var{Mat}[[j,i]]=0$ for all elements $\{i,j\}$ in \var{Li}, and returns the resulting matrix. If $i=j$, then the $i$-th row and column of $\var{Mat}$ are set to 0.}
 
-\bibitem{1011.1258} 
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``Wall Crossing from Boltzmann Black Hole Halos,''
-  JHEP {\bf 1107}, 059 (2011)
-  [arXiv:1011.1258 [hep-th]].
-  %%CITATION = ARXIV:1011.1258;%%
+\defn{HiggsedDSZ}{\vardef{Mat},\vardef{i},\vardef{j}}{starting from a quiver with DSZ matrix 
+$\var{Mat}$, constructs the DSZ matrix of the quiver where the node $j$ has been merged with the node $i$. }
 
-\bibitem{1103.1887} 
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``A Fixed point formula for the index of multi-centered N=2 black holes,''
-  JHEP {\bf 1105}, 057 (2011)
-  [arXiv:1103.1887 [hep-th]].
-  %%CITATION = ARXIV:1103.1887;%%
+\defn{ConnectedQuiverQ}{\vardef{Mat},\vardef{Nvec}}{returns True is the restriction of the quiver 
+with DSZ matrix $\var{Mat}$ to the nodes where $\var{Nvec}$ has non-trivial support is connected.}
 
-%\cite{Manschot:2012rx}
-\bibitem{Manschot:2012rx}
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``From Black Holes to Quivers,''
-  JHEP {\bf 1211} (2012) 023
-  [arXiv:1207.2230 [hep-th]].
-  %%CITATION = ARXIV:1207.2230;%%
+\defn{PlethysticExp}{\vardef{f},\vardef{Nmax}}{computes the plethystic exponential of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only, keeping the first \var{Nmax} terms in the sum.}
 
-\bibitem{Manschot:2013rx}
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``On the Coulomb and Higgs branch formulae for multi-centered black holes and quiver invariants,''
-  JHEP {\bf 1305} (2013) 166
-  [arXiv:1302.5498 [hep-th]].
-  %%CITATION = ARXIV:1302.5498;%%
-  %3 citations counted in INSPIRE as of 26 Sep 2013
-  
-\bibitem{Manschot:2013}
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``Generalized quiver mutations and single-centered indices,''
-  JHEP {\bf 1401} (2014) 050
-  [arXiv:1309.7053 [hep-th]].
-  %%CITATION = ARXIV:1309.7053;%%
-  %3 citations counted in INSPIRE as of 26 Apr 2014
+\defn{PlethysticLog}{\vardef{f},\vardef{Nmax}}{computes the plethystic logarythm of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only,  keeping the first \var{Nmax} terms in the sum.}
 
-    
-%\cite{Manschot:2014fua}
-\bibitem{Manschot:2014fua}
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``The Coulomb Branch Formula for Quiver Moduli Spaces,''
-  arXiv:1404.7154 [hep-th].
-  %%CITATION = ARXIV:1404.7154;%%
-  %6 citations counted in INSPIRE as of 21 sept. 2015
+\bibliography{combined}
+\bibliographystyle{utphys}
 
-%\cite{Hori:2014tda}
-\bibitem{Hori:2014tda}
-  K.~Hori, H.~Kim and P.~Yi,
-  ``Witten Index and Wall Crossing,''
-  JHEP {\bf 1501} (2015) 124
-  [arXiv:1407.2567 [hep-th]].
-  %%CITATION = ARXIV:1407.2567;%%
-  %19 citations counted in INSPIRE as of 21 sept. 2015
-  
-  %\cite{Benini:2013xpa}
-\bibitem{Benini:2013xpa}
-  F.~Benini, R.~Eager, K.~Hori and Y.~Tachikawa,
-  ``Elliptic Genera of 2d ${\mathcal{N}}$ = 2 Gauge Theories,''
-  Commun.\ Math.\ Phys.\  {\bf 333} (2015) 3,  1241
-  [arXiv:1308.4896 [hep-th]].
-  %%CITATION = ARXIV:1308.4896;%%
-  %59 citations counted in INSPIRE as of 21 sept. 2015
-
- %\cite{Cordova:2014oxa}
-\bibitem{Cordova:2014oxa}
-  C.~Cordova and S.~H.~Shao,
-  ``An Index Formula for Supersymmetric Quantum Mechanics,''
-  arXiv:1406.7853 [hep-th].
-  %%CITATION = ARXIV:1406.7853;%%
-  %16 citations counted in INSPIRE as of 21 sept. 2015
-     
-
-%\cite{Alexandrov:2018iao}
-\bibitem{Alexandrov:2018iao}
-  S.~Alexandrov and B.~Pioline,
-  ``Attractor flow trees, BPS indices and quivers,''
-  arXiv:1804.06928 [hep-th].
-  %%CITATION = ARXIV:1804.06928;%%
-
-\bibitem{JoyceConfig}
-D. Joyce, ``Configurations in abelian categories. IV. Invariants and changing stability conditions'',
-Advances in Mathematics 217 (2008), no. 1, 125–204.
-arXiv: math/0410268v5 [math.AG]
-
-%\cite{Manschot:2010qz}
-\bibitem{Manschot:2010qz}
-  J.~Manschot, B.~Pioline and A.~Sen,
-  ``Wall Crossing from Boltzmann Black Hole Halos,''
-  JHEP {\bf 1107} (2011) 059
-  doi:10.1007/JHEP07(2011)059
-  [arXiv:1011.1258 [hep-th]].
-  %%CITATION = doi:10.1007/JHEP07(2011)059;%%
-  %87 citations counted in INSPIRE as of 20 Jun 2019
-
-\bibitem{Pioline2019}
-G. Beaujard, B. Pioline and S. Mondal, "Quiver invariants from Jeffrey-Kirwan residues", to appear (2019).    
-
-
-\end{thebibliography}
 
 \end{document}
+
