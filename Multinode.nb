@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     66519,       1916]
-NotebookOptionsPosition[     62645,       1787]
-NotebookOutlinePosition[     63022,       1804]
-CellTagsIndexPosition[     62979,       1801]
+NotebookDataLength[     50725,       1474]
+NotebookOptionsPosition[     46164,       1354]
+NotebookOutlinePosition[     46540,       1371]
+CellTagsIndexPosition[     46497,       1368]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -25,13 +25,17 @@ Cell["4-node and 5-node and cyclic quivers", "Title",
   3.566325401650366*^9, 3.5663254061910458`*^9}, {3.5663281662237787`*^9, 
   3.566328167637095*^9}, {3.566364982636116*^9, 3.566364986555542*^9}, {
   3.566411545686633*^9, 3.566411550243651*^9}, {3.569930160027919*^9, 
-  3.569930161800126*^9}}],
+  3.569930161800126*^9}},ExpressionUUID->"0cbe3f88-306a-458f-9780-\
+136457a310f2"],
 
 Cell["\<\
 J. Manschot, B. Pioline, A.Sen, Feb 2013. Updated for CoulombHiggs 2.0, Sep \
-2013\
+2013, for CoulombHiggs 6.0, Dec 2020\
 \>", "Text",
- CellChangeTimes->{{3.589518029136827*^9, 3.5895180464931192`*^9}}],
+ CellChangeTimes->{{3.589518029136827*^9, 3.5895180464931192`*^9}, {
+  3.8182247727192373`*^9, 
+  3.81822478264432*^9}},ExpressionUUID->"827c5ca8-b3f0-40a0-ad48-\
+62c200152a36"],
 
 Cell[CellGroupData[{
 
@@ -44,10 +48,12 @@ Cell[BoxData[{
  CellChangeTimes->{{3.566324560202894*^9, 3.566324565919025*^9}, {
   3.56632532246786*^9, 3.566325344994219*^9}, {3.569475307695706*^9, 
   3.569475310347427*^9}, {3.585325098988615*^9, 3.5853250998730717`*^9}, {
-  3.58532633128971*^9, 3.5853263321592827`*^9}}],
+  3.58532633128971*^9, 
+  3.5853263321592827`*^9}},ExpressionUUID->"2836f210-6709-4c56-a068-\
+0b816a381ae3"],
 
-Cell[BoxData["\<\"CoulombHiggs v 2.0 - A package for evaluating quiver \
-invariants using the Coulomb and Higgs branch formulae.\"\>"], "Print",
+Cell[BoxData["\<\"CoulombHiggs 6.0 - A package for evaluating quiver \
+invariants\"\>"], "Print",
  CellChangeTimes->{
   3.568725923336866*^9, 3.569475310801095*^9, 3.569647522433566*^9, {
    3.569647666690927*^9, 3.5696476789632387`*^9}, 3.569648085252981*^9, 
@@ -56,21 +62,25 @@ invariants using the Coulomb and Higgs branch formulae.\"\>"], "Print",
    3.5853251012947683`*^9, 3.585325136210238*^9, 3.58532601646873*^9, 
    3.585326332600651*^9, 3.585328270760222*^9, 3.585328485200646*^9, 
    3.5854505978833*^9, 3.5895182084727087`*^9, 3.5895183040539703`*^9, 
-   3.589518356698628*^9}]
+   3.589518356698628*^9, 
+   3.818224784081552*^9},ExpressionUUID->"83305012-c843-4106-ab3d-\
+d1264c7c21df"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
- CellChangeTimes->{3.5687249295813227`*^9}],
+ CellChangeTimes->{
+  3.5687249295813227`*^9},ExpressionUUID->"b819ca79-db30-4767-ad7a-\
+0ad175b9d035"],
 
 Cell[CellGroupData[{
 
-Cell["\<\
-Example 5.1.1 in \[OpenCurlyDoubleQuote]From Black holes to quivers\
-\[CloseCurlyDoubleQuote]\
-\>", "Subtitle",
+Cell["Example 5.1.1 in \[OpenCurlyDoubleQuote]From Black holes to quivers\
+\[CloseCurlyDoubleQuote]", "Subtitle",
  CellChangeTimes->{{3.566157570424822*^9, 3.566157574278225*^9}, {
   3.566157659163938*^9, 3.566157659388249*^9}, {3.56641161829279*^9, 
-  3.5664116397933197`*^9}, {3.589518509624219*^9, 3.5895185127037067`*^9}}],
+  3.5664116397933197`*^9}, {3.589518509624219*^9, 
+  3.5895185127037067`*^9}},ExpressionUUID->"d0c0662d-e6d8-4ab3-ae5e-\
+a759f0f64c9f"],
 
 Cell[BoxData[{
  RowBox[{
@@ -159,13 +169,21 @@ Cell[BoxData[{
    3.569647728837858*^9, {3.5853251927608423`*^9, 3.585325195321991*^9}, {
    3.5854506217601833`*^9, 3.5854506218357143`*^9}, {3.58545065478706*^9, 
    3.5854506569618483`*^9}, {3.589518285477586*^9, 3.5895182890350437`*^9}, {
-   3.589518444201682*^9, 3.589518444417425*^9}}],
+   3.589518444201682*^9, 
+   3.589518444417425*^9}},ExpressionUUID->"7569cacc-4d6d-43bf-9295-\
+9267183560cf"],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"$QuiverMultiplier", "=", "kk"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$QuiverMultiplierAssumption", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"kk", "\[Element]", "Integers"}], ",", 
+     RowBox[{"kk", ">", "0"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"$QuiverNoLoop", "=", "False"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{"QPoinca", "=", 
@@ -182,86 +200,10 @@ Cell[BoxData[{
    3.5696481165697737`*^9, 3.569648117960438*^9}, {3.569648158542841*^9, 
    3.569648159582551*^9}, {3.585325148969751*^9, 3.585325149176833*^9}, {
    3.58532603857831*^9, 3.585326038873698*^9}, {3.5853281760750628`*^9, 
-   3.585328176398394*^9}, {3.589518324844631*^9, 3.589518331092905*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData["\<\"CoulombBranchFormula: Constructing Poincar\[EAcute] \
-polynomial...\"\>"], "Print",
- CellChangeTimes->{
-  3.585325149681726*^9, 3.585325196404222*^9, {3.585326028511445*^9, 
-   3.585326039233917*^9}, 3.585326335691484*^9, 3.585450608714203*^9, 
-   3.589518212702289*^9, {3.589518290022498*^9, 3.589518359389635*^9}, 
-   3.589518445547542*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.585325149681726*^9, 3.585325196404222*^9, {3.585326028511445*^9, 
-   3.585326039233917*^9}, 3.585326335691484*^9, 3.585450608714203*^9, 
-   3.589518212702289*^9, {3.589518290022498*^9, 3.589518359389635*^9}, 
-   3.58951844562004*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.585325149681726*^9, 3.585325196404222*^9, {3.585326028511445*^9, 
-   3.585326039233917*^9}, 3.585326335691484*^9, 3.585450608714203*^9, 
-   3.589518212702289*^9, {3.589518290022498*^9, 3.589518359389635*^9}, 
-   3.5895184456513367`*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.585325149681726*^9, 3.585325196404222*^9, {3.585326028511445*^9, 
-   3.585326039233917*^9}, 3.585326335691484*^9, 3.585450608714203*^9, 
-   3.589518212702289*^9, {3.589518290022498*^9, 3.589518359389635*^9}, 
-   3.589518445654314*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.585325149681726*^9, 3.585325196404222*^9, {3.585326028511445*^9, 
-   3.585326039233917*^9}, 3.585326335691484*^9, 3.585450608714203*^9, 
-   3.589518212702289*^9, {3.589518290022498*^9, 3.589518359389635*^9}, 
-   3.589518445776479*^9}],
-
-Cell[BoxData["\<\"CoulombBranchFormula: Substituting CoulombH \
-factors...\"\>"], "Print",
- CellChangeTimes->{
-  3.585325149681726*^9, 3.585325196404222*^9, {3.585326028511445*^9, 
-   3.585326039233917*^9}, 3.585326335691484*^9, 3.585450608714203*^9, 
-   3.589518212702289*^9, {3.589518290022498*^9, 3.589518359389635*^9}, 
-   3.589518446056222*^9}]
-}, Open  ]],
+   3.585328176398394*^9}, {3.589518324844631*^9, 3.589518331092905*^9}, {
+   3.81822478929134*^9, 
+   3.818224805076561*^9}},ExpressionUUID->"113dc49e-d656-404a-bd27-\
+409f6fe9096a"],
 
 Cell[BoxData[
  RowBox[{
@@ -307,15 +249,35 @@ Cell[BoxData[
        RowBox[{"7", " ", "kk"}]]}], ")"}], " ", 
     RowBox[{"(", 
      RowBox[{
-      RowBox[{"-", 
-       FractionBox[
-        RowBox[{"2", " ", 
-         SuperscriptBox["y", "2"]}], 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{"-", "1"}], "+", 
-           SuperscriptBox["y", "2"]}], ")"}], "2"]]}], "+", 
+      RowBox[{
+       FractionBox["1", "4"], " ", 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{"-", "1"}], ")"}], 
+        RowBox[{
+         RowBox[{"-", "4"}], " ", "kk"}]], " ", "y", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"-", 
+          FractionBox[
+           RowBox[{"2", " ", 
+            SuperscriptBox[
+             RowBox[{"(", 
+              RowBox[{"-", "1"}], ")"}], 
+             RowBox[{"2", " ", "kk"}]]}], 
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"-", "1"}], "+", "y"}], ")"}], "2"]]}], "+", 
+         FractionBox[
+          RowBox[{"1", "+", 
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{"-", "1"}], ")"}], 
+            RowBox[{"4", " ", "kk"}]]}], 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"1", "+", "y"}], ")"}], "2"]]}], ")"}]}], "+", 
       RowBox[{"OmS", "[", 
        RowBox[{
         RowBox[{"{", 
@@ -351,7 +313,9 @@ Cell[BoxData[
    3.5853251502080584`*^9}, 3.58532519688174*^9, {3.5853260289488087`*^9, 
    3.5853260396948233`*^9}, 3.585326336129911*^9, 3.5854506170490847`*^9, 
    3.589518213230645*^9, {3.589518290542554*^9, 3.589518359928372*^9}, 
-   3.589518446059392*^9}]
+   3.589518446059392*^9, {3.818224806780609*^9, 
+   3.818224827130825*^9}},ExpressionUUID->"ecba986e-9e4c-4c9e-8b02-\
+3d943bc93390"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -375,7 +339,9 @@ Cell[BoxData[
    3.566673935869011*^9, 3.5666739392465076`*^9}, 3.5671475394564857`*^9, 
    3.569647731706892*^9, {3.585450660579591*^9, 3.585450664662714*^9}, {
    3.589518293513042*^9, 3.589518293640641*^9}, {3.5895183742039537`*^9, 
-   3.589518374370551*^9}, {3.5895184490399017`*^9, 3.58951845223251*^9}}],
+   3.589518374370551*^9}, {3.5895184490399017`*^9, 
+   3.58951845223251*^9}},ExpressionUUID->"2d869add-da23-460e-b9c0-\
+d10452301250"],
 
 Cell[BoxData[
  RowBox[{"{", 
@@ -400,22 +366,26 @@ Cell[BoxData[
    3.585325197534074*^9}, {3.585326036290448*^9, 3.585326040998481*^9}, 
    3.5853263378943233`*^9, 3.585450627097539*^9, 3.585450666067977*^9, 
    3.5895182163229*^9, {3.5895182938578043`*^9, 3.58951837465134*^9}, {
-   3.589518449563363*^9, 3.5895184526042967`*^9}}]
+   3.589518449563363*^9, 3.5895184526042967`*^9}, {3.818224809828764*^9, 
+   3.81822482844263*^9}},ExpressionUUID->"48211d17-ace6-4547-904f-\
+6ef047254985"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.566412169896308*^9, 3.5664121706528187`*^9}}]
+ CellChangeTimes->{{3.566412169896308*^9, 
+  3.5664121706528187`*^9}},ExpressionUUID->"fe1ddf03-ebbe-454e-bf4c-\
+5386f51011d6"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["\<\
-Example 5.1.2 in \[OpenCurlyDoubleQuote]From Black holes to quivers\
-\[CloseCurlyDoubleQuote]\
-\>", "Subtitle",
+Cell["Example 5.1.2 in \[OpenCurlyDoubleQuote]From Black holes to quivers\
+\[CloseCurlyDoubleQuote]", "Subtitle",
  CellChangeTimes->{{3.566157570424822*^9, 3.566157574278225*^9}, {
   3.566157659163938*^9, 3.566157659388249*^9}, {3.56641161829279*^9, 
-  3.5664116268263273`*^9}, {3.58951850406433*^9, 3.589518506881019*^9}}],
+  3.5664116268263273`*^9}, {3.58951850406433*^9, 
+  3.589518506881019*^9}},ExpressionUUID->"b754f826-badc-4655-9a51-\
+ff7e37ec94a9"],
 
 Cell[BoxData[{
  RowBox[{
@@ -517,13 +487,21 @@ Cell[BoxData[{
    3.56865580510509*^9, 3.568655823550243*^9}, {3.56865588370214*^9, 
    3.568655885088292*^9}, 3.569647744255961*^9, {3.5853252136896152`*^9, 
    3.5853252142749023`*^9}, {3.585450676990079*^9, 3.5854506772667027`*^9}, {
-   3.589518465633655*^9, 3.589518465718857*^9}}],
+   3.589518465633655*^9, 
+   3.589518465718857*^9}},ExpressionUUID->"7de568cd-c78a-4fa5-8dd4-\
+9a1935bb223d"],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"$QuiverMultiplier", "=", "kk"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$QuiverMultiplierAssumption", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"kk", "\[Element]", "Integers"}], ",", 
+     RowBox[{"kk", ">", "0"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{"QPoinca", "=", 
   RowBox[{"CoulombBranchFormula", "[", 
    RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}]}]}], "Input",
@@ -533,68 +511,10 @@ Cell[BoxData[{
   3.569648361972547*^9, 3.569648362541222*^9}, {3.585325202223032*^9, 
   3.585325202414817*^9}, {3.585325904215228*^9, 3.585325904509614*^9}, {
   3.585326103936998*^9, 3.5853261065113707`*^9}, {3.585326207293638*^9, 
-  3.585326207947874*^9}, {3.585328183760324*^9, 3.585328186231743*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData["\<\"CoulombBranchFormula: Constructing Poincar\[EAcute] \
-polynomial...\"\>"], "Print",
- CellChangeTimes->{3.5853260449262133`*^9, 3.585326106786941*^9, 
-  3.585326208245453*^9, 3.585450678807776*^9, 3.589518467353388*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{3.5853260449262133`*^9, 3.585326106786941*^9, 
-  3.585326208245453*^9, 3.585450678807776*^9, 3.5895184674295273`*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{3.5853260449262133`*^9, 3.585326106786941*^9, 
-  3.585326208245453*^9, 3.585450678807776*^9, 3.5895184674577208`*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{3.5853260449262133`*^9, 3.585326106786941*^9, 
-  3.585326208245453*^9, 3.585450678807776*^9, 3.589518467460128*^9}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{3.5853260449262133`*^9, 3.585326106786941*^9, 
-  3.585326208245453*^9, 3.585450678807776*^9, 3.589518467610444*^9}],
-
-Cell[BoxData["\<\"CoulombBranchFormula: Substituting CoulombH \
-factors...\"\>"], "Print",
- CellChangeTimes->{3.5853260449262133`*^9, 3.585326106786941*^9, 
-  3.585326208245453*^9, 3.585450678807776*^9, 3.589518467875918*^9}]
-}, Open  ]],
+  3.585326207947874*^9}, {3.585328183760324*^9, 3.585328186231743*^9}, {
+  3.818224842840303*^9, 
+  3.818224843218191*^9}},ExpressionUUID->"3744ef02-18d3-47b3-9aa9-\
+f3dd918007bb"],
 
 Cell[BoxData[
  RowBox[{
@@ -644,7 +564,9 @@ Cell[BoxData[
    3.5853252031939917`*^9, 3.585325215994947*^9}, {3.585325857188507*^9, 
    3.585325869279983*^9}, {3.5853259018946123`*^9, 3.585325904895546*^9}, 
    3.585326045304029*^9, 3.585326107470899*^9, 3.585326208485136*^9, 
-   3.5854506797553387`*^9, 3.589518467878188*^9}]
+   3.5854506797553387`*^9, 3.589518467878188*^9, 
+   3.8182248470106697`*^9},ExpressionUUID->"10022434-5919-48e1-8de3-\
+4f6b8003f464"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -665,7 +587,8 @@ Cell[BoxData[
  CellChangeTimes->{{3.5666714066422033`*^9, 3.566671408954912*^9}, {
    3.566671441921707*^9, 3.566671442416285*^9}, 3.56714781048252*^9, {
    3.5696477600741777`*^9, 3.5696477617779493`*^9}, {3.5854506823020372`*^9, 
-   3.585450685844702*^9}}],
+   3.585450685844702*^9}},ExpressionUUID->"800650e5-ca08-411a-b135-\
+d8ac4eaa7186"],
 
 Cell[BoxData[
  RowBox[{"{", 
@@ -726,23 +649,27 @@ Cell[BoxData[
    3.5666714429409437`*^9}, 3.56714781105982*^9, 3.567703874435834*^9, 
    3.568655847390478*^9, 3.568725373648385*^9, 3.569648171947299*^9, 
    3.585325217777616*^9, 3.58532604832174*^9, 3.585450686271049*^9, 
-   3.58951847100042*^9}]
+   3.58951847100042*^9, 
+   3.818224848076033*^9},ExpressionUUID->"1567ad9f-8e63-4d3a-968a-\
+842735f8987f"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.566412407346059*^9, 3.5664124080456963`*^9}}]
+ CellChangeTimes->{{3.566412407346059*^9, 
+  3.5664124080456963`*^9}},ExpressionUUID->"9683c337-100e-41ad-b3f2-\
+44ed7f949ce3"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["\<\
-Example 5.2 in \[OpenCurlyDoubleQuote]From Black holes to quivers\
-\[CloseCurlyDoubleQuote]\
-\>", "Subtitle",
+Cell["Example 5.2 in \[OpenCurlyDoubleQuote]From Black holes to quivers\
+\[CloseCurlyDoubleQuote]", "Subtitle",
  CellChangeTimes->{{3.566157570424822*^9, 3.566157574278225*^9}, {
   3.566157659163938*^9, 3.566157659388249*^9}, {3.56641161829279*^9, 
   3.5664116268263273`*^9}, {3.5664124059989977`*^9, 3.566412406316493*^9}, {
-  3.589518497427039*^9, 3.58951850070465*^9}}],
+  3.589518497427039*^9, 
+  3.58951850070465*^9}},ExpressionUUID->"1baffb7d-43de-4459-8c9d-\
+768302b35a41"],
 
 Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", 
@@ -924,246 +851,29 @@ Cell[BoxData[
    3.567147839811308*^9}, 3.568655878536274*^9, 3.56964775819777*^9, {
    3.58532522735896*^9, 3.585325245072352*^9}, {3.585450689946064*^9, 
    3.585450690136725*^9}, {3.585450735844433*^9, 3.585450739532132*^9}, {
-   3.589518475803503*^9, 3.5895184846483593`*^9}}],
+   3.589518475803503*^9, 
+   3.5895184846483593`*^9}},ExpressionUUID->"29e7245b-953c-45fc-9fba-\
+979eaac30a4a"],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"$QuiverMultiplier", "=", "kk"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$QuiverMultiplierAssumption", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"kk", "\[Element]", "Integers"}], ",", 
+     RowBox[{"kk", ">", "0"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{"QPoinca", "=", 
   RowBox[{"CoulombBranchFormula", "[", 
    RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}]}]}], "Input",
  CellChangeTimes->{{3.569648183093707*^9, 3.569648184638535*^9}, {
   3.569648365011571*^9, 3.5696483653548*^9}, {3.585325230827416*^9, 
-  3.585325230974101*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData["\<\"CoulombBranchFormula: Constructing Poincar\[EAcute] \
-polynomial...\"\>"], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450740986252*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "0", ",", "1", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 0, 1, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742558724*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "0", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 0, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742684616*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "1", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 1, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742718684*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "1", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 1, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.5854507427223053`*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "0", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 0, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742725833*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "1", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 1, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.5854507427283697`*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "1", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 1, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742768524*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 0, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742771089*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 0, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742773446*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "0", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 1, 0, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742775342*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "1", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 1, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450742777432*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "1", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 1, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450743106711*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 0, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.5854507434039993`*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 1, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.585450743512107*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 1, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.5854507438324203`*^9}}],
-
-Cell[BoxData["\<\"CoulombBranchFormula: Substituting CoulombH \
-factors...\"\>"], "Print",
- CellChangeTimes->{
-  3.568655896062512*^9, 3.5687253794415503`*^9, 3.5696481850368853`*^9, {
-   3.585325231240468*^9, 3.585325246422402*^9}, {3.585450725389319*^9, 
-   3.5854507448237123`*^9}}]
-}, Open  ]],
+  3.585325230974101*^9}, {3.8182248527395973`*^9, 
+  3.818224853070855*^9}},ExpressionUUID->"a5ab633a-bc40-44fb-ac2a-\
+ddc60b3da487"],
 
 Cell[BoxData[
  RowBox[{
@@ -1172,130 +882,48 @@ Cell[BoxData[
     SuperscriptBox[
      RowBox[{"(", 
       RowBox[{"-", "1"}], ")"}], 
-     RowBox[{"4", "-", 
-      RowBox[{"2", " ", "kk"}]}]], " ", 
+     RowBox[{"3", "-", 
+      RowBox[{"57", " ", "kk"}]}]], " ", 
     RowBox[{"(", 
      RowBox[{
+      RowBox[{"-", 
+       SuperscriptBox["y", 
+        RowBox[{
+         RowBox[{"-", "3"}], " ", "kk"}]]}], "+", 
       SuperscriptBox["y", 
-       RowBox[{
-        RowBox[{"-", "2"}], " ", "kk"}]], "+", 
-      SuperscriptBox["y", 
-       RowBox[{"2", " ", "kk"}]]}], ")"}]}], 
+       RowBox[{"3", " ", "kk"}]]}], ")"}]}], 
    SuperscriptBox[
     RowBox[{"(", 
      RowBox[{
       RowBox[{"-", 
-       FractionBox["1", "y"]}], "+", "y"}], ")"}], "4"]], "-", 
-  FractionBox[
-   RowBox[{
-    SuperscriptBox["y", "2"], " ", 
-    RowBox[{"(", 
-     RowBox[{
-      RowBox[{"-", "1"}], "+", 
-      SuperscriptBox[
-       RowBox[{"(", 
-        RowBox[{"-", "1"}], ")"}], "kk"], "-", 
-      RowBox[{"2", " ", 
-       RowBox[{"(", 
-        RowBox[{"3", "+", 
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{"-", "1"}], ")"}], "kk"]}], ")"}], " ", 
-       SuperscriptBox["y", "2"]}], "+", 
-      RowBox[{
-       RowBox[{"(", 
-        RowBox[{
-         RowBox[{"-", "1"}], "+", 
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{"-", "1"}], ")"}], "kk"]}], ")"}], " ", 
-       SuperscriptBox["y", "4"]}], "+", 
-      RowBox[{"2", " ", 
-       SuperscriptBox["kk", "2"], " ", 
-       SuperscriptBox[
-        RowBox[{"(", 
-         RowBox[{
-          RowBox[{"-", "1"}], "+", 
-          SuperscriptBox["y", "2"]}], ")"}], "2"]}]}], ")"}]}], 
-   RowBox[{"4", " ", 
-    SuperscriptBox[
-     RowBox[{"(", 
-      RowBox[{
-       RowBox[{"-", "1"}], "+", 
-       SuperscriptBox["y", "2"]}], ")"}], "4"]}]], "+", 
+       FractionBox["1", "y"]}], "+", "y"}], ")"}], "3"]], "+", 
   RowBox[{
-   FractionBox["1", "4"], " ", "y", " ", 
+   FractionBox["3", "4"], " ", "kk", " ", "y", " ", 
    RowBox[{"(", 
     RowBox[{
-     RowBox[{"-", 
-      FractionBox[
-       RowBox[{"2", " ", 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{"-", "1"}], ")"}], "kk"]}], 
-       SuperscriptBox[
-        RowBox[{"(", 
-         RowBox[{
-          RowBox[{"-", "1"}], "+", "y"}], ")"}], "2"]]}], "+", 
-     FractionBox["2", 
+     FractionBox[
       SuperscriptBox[
        RowBox[{"(", 
-        RowBox[{"1", "+", "y"}], ")"}], "2"]]}], ")"}], " ", 
-   RowBox[{"OmS", "[", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{"0", ",", "0", ",", "1", ",", "1", ",", "1"}], "}"}], ",", "y", 
-     ",", "t"}], "]"}]}], "+", 
-  FractionBox[
-   RowBox[{
-    SuperscriptBox[
-     RowBox[{"(", 
-      RowBox[{"-", "1"}], ")"}], 
-     RowBox[{"2", "-", "kk"}]], " ", 
-    RowBox[{"(", 
-     RowBox[{
-      SuperscriptBox["y", 
-       RowBox[{"-", "kk"}]], "+", 
-      SuperscriptBox["y", "kk"]}], ")"}], " ", 
-    RowBox[{"(", 
-     RowBox[{
-      RowBox[{
-       FractionBox["1", "4"], " ", "y", " ", 
+        RowBox[{"-", "1"}], ")"}], "kk"], 
+      SuperscriptBox[
        RowBox[{"(", 
         RowBox[{
-         RowBox[{"-", 
-          FractionBox[
-           RowBox[{"2", " ", 
-            SuperscriptBox[
-             RowBox[{"(", 
-              RowBox[{"-", "1"}], ")"}], "kk"]}], 
-           SuperscriptBox[
-            RowBox[{"(", 
-             RowBox[{
-              RowBox[{"-", "1"}], "+", "y"}], ")"}], "2"]]}], "+", 
-         FractionBox["2", 
-          SuperscriptBox[
-           RowBox[{"(", 
-            RowBox[{"1", "+", "y"}], ")"}], "2"]]}], ")"}]}], "+", 
-      RowBox[{"OmS", "[", 
-       RowBox[{
-        RowBox[{"{", 
-         RowBox[{"0", ",", "0", ",", "1", ",", "1", ",", "1"}], "}"}], ",", 
-        "y", ",", "t"}], "]"}]}], ")"}]}], 
-   SuperscriptBox[
-    RowBox[{"(", 
-     RowBox[{
-      RowBox[{"-", 
-       FractionBox["1", "y"]}], "+", "y"}], ")"}], "2"]], "+", 
+         RowBox[{"-", "1"}], "+", "y"}], ")"}], "2"]], "+", 
+     FractionBox["1", 
+      SuperscriptBox[
+       RowBox[{"(", 
+        RowBox[{"1", "+", "y"}], ")"}], "2"]]}], ")"}]}], "+", 
   RowBox[{"OmS", "[", 
    RowBox[{
     RowBox[{"{", 
-     RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "1"}], "}"}], ",", "y", 
-    ",", "t"}], "]"}]}]], "Output",
+     RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}], ",", "y", ",", "t"}],
+    "]"}]}]], "Output",
  CellChangeTimes->{
   3.568655899231566*^9, 3.5687253824357767`*^9, 3.569648188198127*^9, {
    3.58532523417743*^9, 3.585325249282387*^9}, {3.585450730243813*^9, 
-   3.5854507448408327`*^9}}]
+   3.5854507448408327`*^9}, 
+   3.818224854362855*^9},ExpressionUUID->"d6664c4c-3a47-4bcd-a259-\
+356bbd29b5a3"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1316,7 +944,8 @@ Cell[BoxData[
  CellChangeTimes->{{3.566413206570631*^9, 3.566413230848445*^9}, 
    3.5664993517623577`*^9, {3.5666716192378902`*^9, 3.566671621314489*^9}, 
    3.567147958474238*^9, 3.569648192998103*^9, {3.585450695773335*^9, 
-   3.585450699798313*^9}}],
+   3.585450699798313*^9}},ExpressionUUID->"6b38b15a-dad4-4589-8e92-\
+532b0f1860ba"],
 
 Cell[BoxData[
  RowBox[{"{", 
@@ -1366,7 +995,9 @@ Cell[BoxData[
    3.5666716237277718`*^9, 3.5671479587967043`*^9, 3.567704067876618*^9, 
    3.568655901341814*^9, 3.5687253844394493`*^9, {3.569648189555175*^9, 
    3.5696481931242437`*^9}, {3.58532523683838*^9, 3.585325249340186*^9}, {
-   3.5854507306370087`*^9, 3.585450752972745*^9}}]
+   3.5854507306370087`*^9, 3.585450752972745*^9}, 
+   3.818224855730021*^9},ExpressionUUID->"61297359-0f7e-479d-a8a3-\
+ff306b68ce49"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
@@ -1375,7 +1006,9 @@ Cell[CellGroupData[{
 
 Cell[TextData[StyleBox["Cyclic Abelian quivers", "Subtitle"]], "Title",
  CellChangeTimes->{{3.569647051273575*^9, 3.569647053304009*^9}, {
-  3.5699301907941303`*^9, 3.56993019167275*^9}}],
+  3.5699301907941303`*^9, 
+  3.56993019167275*^9}},ExpressionUUID->"7525d360-0f15-45b4-a4ac-\
+667dea56ec1b"],
 
 Cell[BoxData[{
  RowBox[{
@@ -1390,7 +1023,9 @@ Cell[BoxData[{
      RowBox[{"-", "3"}]}], "}"}]}], ";"}]}], "Input",
  CellChangeTimes->{{3.569647298810657*^9, 3.569647396297826*^9}, {
    3.569647431077497*^9, 3.56964751025758*^9}, {3.569647613885127*^9, 
-   3.569647618687839*^9}, 3.569648412983985*^9}],
+   3.569647618687839*^9}, 
+   3.569648412983985*^9},ExpressionUUID->"267878be-0484-4f55-9966-\
+0d56c0cc44e0"],
 
 Cell[BoxData[{
  RowBox[{
@@ -1403,173 +1038,41 @@ Cell[BoxData[{
    RowBox[{"{", 
     RowBox[{"1", ",", "8", ",", "27", ",", "64", ",", "125", ",", 
      RowBox[{"-", "225"}]}], "}"}]}], ";"}]}], "Input",
- CellChangeTimes->{{3.569648642101964*^9, 3.56964867014157*^9}}],
-
-Cell[CellGroupData[{
+ CellChangeTimes->{{3.569648642101964*^9, 
+  3.56964867014157*^9}},ExpressionUUID->"291774f4-0913-49f8-939d-\
+7ad58f4088a6"],
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"n", "=", 
    RowBox[{"Length", "[", "Avec", "]"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"Nvec", "=", 
-   RowBox[{"Table", "[", 
-    RowBox[{"1", ",", 
-     RowBox[{"{", 
-      RowBox[{"i", ",", "n"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{"Mat", "=", 
-  RowBox[{"Table", "[", 
-   RowBox[{
-    RowBox[{"Which", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"Mod", "[", 
-        RowBox[{
-         RowBox[{"j", "-", "i"}], ",", "n"}], "]"}], "\[Equal]", "1"}], ",", 
-      RowBox[{"Avec", "[", 
-       RowBox[{"[", "i", "]"}], "]"}], ",", 
-      RowBox[{
-       RowBox[{"Mod", "[", 
-        RowBox[{
-         RowBox[{"j", "-", "i"}], ",", "n"}], "]"}], "\[Equal]", 
-       RowBox[{"n", "-", "1"}]}], ",", 
-      RowBox[{"-", 
-       RowBox[{"Avec", "[", 
-        RowBox[{"[", 
-         RowBox[{
-          RowBox[{"Mod", "[", 
-           RowBox[{
-            RowBox[{"j", "-", "1"}], ",", "n"}], "]"}], "+", "1"}], "]"}], 
-        "]"}]}], ",", "True", ",", "0"}], "]"}], ",", 
-    RowBox[{"{", 
-     RowBox[{"i", ",", "n"}], "}"}], ",", 
-    RowBox[{"{", 
-     RowBox[{"j", ",", "n"}], "}"}]}], "]"}]}]}], "Input",
- CellChangeTimes->{{3.569647298810657*^9, 3.569647396297826*^9}, {
-  3.569647431077497*^9, 3.56964751025758*^9}, {3.569647613885127*^9, 
-  3.569647618687839*^9}, {3.569648412983985*^9, 3.569648415103978*^9}, {
-  3.569648766217349*^9, 3.5696488227684793`*^9}}],
-
-Cell[BoxData[
- RowBox[{"{", 
-  RowBox[{
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "0", ",", 
-     RowBox[{"-", "1"}]}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"-", "1"}], ",", "0", ",", "1", ",", "0"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", 
-     RowBox[{"-", "1"}], ",", "0", ",", "1"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", 
-     RowBox[{"-", "1"}], ",", "0"}], "}"}]}], "}"}]], "Output",
- CellChangeTimes->{{3.569647384230816*^9, 3.569647396810316*^9}, {
-   3.56964743205525*^9, 3.569647477919179*^9}, 3.56964751057696*^9, 
-   3.569647619209606*^9, 3.569648197587462*^9, 3.569648417590003*^9, 
-   3.569648684723692*^9, {3.5696487715853567`*^9, 3.569648848987751*^9}, 
-   3.570208318234704*^9, 3.58532526114095*^9, 3.5854507589115553`*^9, 
-   3.589518531538602*^9, {3.589518596780463*^9, 3.589518616117364*^9}}]
-}, Open  ]],
+  RowBox[{"Mat", "=", 
+   RowBox[{"CyclicQuiverDSZ", "[", "Avec", "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.8182248695193644`*^9, 
+  3.818224910700006*^9}},ExpressionUUID->"a401b9da-8715-4488-9f9a-\
+4cc43587465a"],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"$QuiverMultiplier", "=", "kk"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$QuiverMultiplierAssumption", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"kk", "\[Element]", "Integers"}], ",", 
+     RowBox[{"kk", ">", "0"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{"QPoinca", "=", 
   RowBox[{"CoulombBranchFormula", "[", 
    RowBox[{"Mat", ",", "Cvec", ",", "Nvec"}], "]"}]}]}], "Input",
  CellChangeTimes->{{3.569647480195785*^9, 3.569647513454808*^9}, {
   3.569647588278508*^9, 3.569647594620179*^9}, {3.56964820185925*^9, 
   3.569648202997754*^9}, {3.569648369060012*^9, 3.56964836983296*^9}, {
-  3.5853252630522203`*^9, 3.585325263211812*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData["\<\"CoulombBranchFormula: Constructing Poincar\[EAcute] \
-polynomial...\"\>"], "Print",
- CellChangeTimes->{
-  3.569647526240881*^9, {3.569647589430483*^9, 3.5696476198748083`*^9}, {
-   3.569648198285774*^9, 3.569648203594768*^9}, 3.569648373691146*^9, 
-   3.5696484185869017`*^9, 3.5696488505364723`*^9, 3.570208319534617*^9, 
-   3.585325263504305*^9, 3.5854507595445833`*^9, 3.589518533138233*^9, {
-   3.589518597775299*^9, 3.5895186169173727`*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"0", ",", "1", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {0, 1, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.569647526240881*^9, {3.569647589430483*^9, 3.5696476198748083`*^9}, {
-   3.569648198285774*^9, 3.569648203594768*^9}, 3.569648373691146*^9, 
-   3.5696484185869017`*^9, 3.5696488505364723`*^9, 3.570208319534617*^9, 
-   3.585325263504305*^9, 3.5854507595445833`*^9, 3.589518533138233*^9, {
-   3.589518597775299*^9, 3.5895186169897738`*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "1", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 0, 1, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.569647526240881*^9, {3.569647589430483*^9, 3.5696476198748083`*^9}, {
-   3.569648198285774*^9, 3.569648203594768*^9}, 3.569648373691146*^9, 
-   3.5696484185869017`*^9, 3.5696488505364723`*^9, 3.570208319534617*^9, 
-   3.585325263504305*^9, 3.5854507595445833`*^9, 3.589518533138233*^9, {
-   3.589518597775299*^9, 3.589518617033284*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "1"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 0, 1}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.569647526240881*^9, {3.569647589430483*^9, 3.5696476198748083`*^9}, {
-   3.569648198285774*^9, 3.569648203594768*^9}, 3.569648373691146*^9, 
-   3.5696484185869017`*^9, 3.5696488505364723`*^9, 3.570208319534617*^9, 
-   3.585325263504305*^9, 3.5854507595445833`*^9, 3.589518533138233*^9, {
-   3.589518597775299*^9, 3.589518617038006*^9}}],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Evaluating CoulombH factors for dimension vector \"\>", 
-   "\[InvisibleSpace]", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "0"}], "}"}]}],
-  SequenceForm[
-  "Evaluating CoulombH factors for dimension vector ", {1, 1, 1, 0}],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.569647526240881*^9, {3.569647589430483*^9, 3.5696476198748083`*^9}, {
-   3.569648198285774*^9, 3.569648203594768*^9}, 3.569648373691146*^9, 
-   3.5696484185869017`*^9, 3.5696488505364723`*^9, 3.570208319534617*^9, 
-   3.585325263504305*^9, 3.5854507595445833`*^9, 3.589518533138233*^9, {
-   3.589518597775299*^9, 3.5895186170414867`*^9}}],
-
-Cell[BoxData["\<\"CoulombBranchFormula: Substituting CoulombH \
-factors...\"\>"], "Print",
- CellChangeTimes->{
-  3.569647526240881*^9, {3.569647589430483*^9, 3.5696476198748083`*^9}, {
-   3.569648198285774*^9, 3.569648203594768*^9}, 3.569648373691146*^9, 
-   3.5696484185869017`*^9, 3.5696488505364723`*^9, 3.570208319534617*^9, 
-   3.585325263504305*^9, 3.5854507595445833`*^9, 3.589518533138233*^9, {
-   3.589518597775299*^9, 3.589518617196124*^9}}]
-}, Open  ]],
+  3.5853252630522203`*^9, 3.585325263211812*^9}, {3.8182248664099483`*^9, 
+  3.818224866649744*^9}},ExpressionUUID->"0851c9aa-2dd2-4dcd-af6e-\
+4c6db8110b3f"],
 
 Cell[BoxData[
  RowBox[{
@@ -1613,7 +1116,9 @@ Cell[BoxData[
    3.569648198415784*^9, 3.56964820362986*^9}, 3.5696483737707453`*^9, 
    3.5696484187921467`*^9, 3.569648922258732*^9, 3.570208319781983*^9, 
    3.5853252637138*^9, 3.585450759957934*^9, 3.589518533455927*^9, {
-   3.589518611985811*^9, 3.589518617198782*^9}}]
+   3.589518611985811*^9, 3.589518617198782*^9}, 
+   3.818224885543749*^9},ExpressionUUID->"fd34b5dd-643c-4c1a-905c-\
+88d2e4ed4dd7"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1658,7 +1163,9 @@ Cell[BoxData[
  CellChangeTimes->{{3.569648217012298*^9, 3.569648324386239*^9}, {
   3.569648397169664*^9, 3.569648406634107*^9}, {3.585325270310329*^9, 
   3.585325270477302*^9}, {3.5854507095431223`*^9, 3.5854507097104*^9}, {
-  3.5895185499861097`*^9, 3.589518550070428*^9}}],
+  3.5895185499861097`*^9, 
+  3.589518550070428*^9}},ExpressionUUID->"6ea85743-7b85-47b3-972c-\
+a73c32eda1eb"],
 
 Cell[BoxData[
  RowBox[{
@@ -1690,7 +1197,10 @@ Cell[BoxData[
   3.5696482946528788`*^9, 3.5696483249861383`*^9, 3.5696483747597218`*^9, {
    3.569648407017671*^9, 3.569648420437529*^9}, 3.569648961505476*^9, 
    3.570208321099077*^9, 3.585325270889806*^9, 3.5854507613130608`*^9, {
-   3.589518534869691*^9, 3.589518550601132*^9}, 3.5895186177159853`*^9}]
+   3.589518534869691*^9, 3.589518550601132*^9}, 3.5895186177159853`*^9, {
+   3.818224894177813*^9, 
+   3.818224913562248*^9}},ExpressionUUID->"84e0ffe5-1855-486f-9360-\
+8d80d2a4271e"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1711,65 +1221,118 @@ Cell[BoxData[
    RowBox[{"OmS", "[", "gam_", "]"}], "\[Rule]", "0"}]}]], "Input",
  CellChangeTimes->{{3.569648328245929*^9, 3.5696483896971607`*^9}, {
   3.569648969625252*^9, 3.569649033640553*^9}, {3.570208332871848*^9, 
-  3.570208333151132*^9}, {3.585450714996492*^9, 3.585450719431079*^9}}],
+  3.570208333151132*^9}, {3.585450714996492*^9, 
+  3.585450719431079*^9}},ExpressionUUID->"2ec19954-d692-4b38-b758-\
+15d9e275ab71"],
 
 Cell[BoxData[
  RowBox[{"{", 
   RowBox[{
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{"y", "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {1}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"2", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {2}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"3", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {3}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"4", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {4}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"5", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {5}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"6", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {6}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"7", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {7}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"8", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {8}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"9", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {9}, 1, 2, 1],
     Editable->False], ",", 
    InterpretationBox[
-    SuperscriptBox[
-     RowBox[{"O", "[", "y", "]"}], "1"],
-    SeriesData[CoulombHiggs`y, 0, {}, 1, 1, 1],
+    RowBox[{
+     RowBox[{"10", " ", "y"}], "+", 
+     InterpretationBox[
+      SuperscriptBox[
+       RowBox[{"O", "[", "y", "]"}], "2"],
+      SeriesData[CoulombHiggs`y, 0, {}, 1, 2, 1],
+      Editable->False]}],
+    SeriesData[CoulombHiggs`y, 0, {10}, 1, 2, 1],
     Editable->False]}], "}"}]], "Output",
  CellChangeTimes->{{3.5696483506901007`*^9, 3.569648421631452*^9}, {
    3.569648970414415*^9, 3.569649034175864*^9}, {3.57020832302739*^9, 
    3.570208333516238*^9}, 3.5853252737424307`*^9, 3.58545076252743*^9, {
-   3.5895185364993668`*^9, 3.589518551330532*^9}, 3.5895186189031677`*^9}]
+   3.5895185364993668`*^9, 3.589518551330532*^9}, 3.5895186189031677`*^9, 
+   3.8182249169449167`*^9},ExpressionUUID->"eb19a8c1-dc23-4298-9a47-\
+abf3f3a10af1"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1778,18 +1341,22 @@ Cell[BoxData[
  RowBox[{"Simplify", "[", 
   RowBox[{"CyclicQuiverOmS", "[", 
    RowBox[{"Avec", ",", "y"}], "]"}], "]"}]], "Input",
- CellChangeTimes->{{3.5895185573736773`*^9, 3.589518587916296*^9}}],
+ CellChangeTimes->{{3.5895185573736773`*^9, 
+  3.589518587916296*^9}},ExpressionUUID->"785119d8-2c36-47b4-98dc-\
+758669dc2929"],
 
 Cell[BoxData["0"], "Output",
- CellChangeTimes->{3.589518588620903*^9, 3.589518619841734*^9}]
+ CellChangeTimes->{3.589518588620903*^9, 3.589518619841734*^9, 
+  3.818224929850088*^9},ExpressionUUID->"6f07e502-f1a9-4ddd-a540-\
+953e24356e8d"]
 }, Open  ]]
 }, Open  ]]
 },
 WindowSize->{740, 607},
 WindowMargins->{{Automatic, 63}, {Automatic, 14}},
 ShowSelection->True,
-FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
-2013)",
+FrontEndVersion->"11.1 for Mac OS X x86 (32-bit, 64-bit Kernel) (March 16, \
+2017)",
 StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
@@ -1804,122 +1371,112 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[579, 22, 367, 5, 77, "Title"],
-Cell[949, 29, 174, 4, 26, "Text"],
+Cell[579, 22, 424, 6, 77, "Title", "ExpressionUUID" -> \
+"0cbe3f88-306a-458f-9780-136457a310f2"],
+Cell[1006, 30, 316, 7, 26, "Text", "ExpressionUUID" -> \
+"827c5ca8-b3f0-40a0-ad48-62c200152a36"],
 Cell[CellGroupData[{
-Cell[1148, 37, 447, 9, 45, "Input"],
-Cell[1598, 48, 692, 10, 38, "Print"]
+Cell[1347, 41, 507, 11, 51, "Input", "ExpressionUUID" -> \
+"2836f210-6709-4c56-a068-0b816a381ae3"],
+Cell[1857, 54, 728, 12, 24, "Print", "ExpressionUUID" -> \
+"83305012-c843-4106-ab3d-d1264c7c21df"]
 }, Open  ]],
-Cell[2305, 61, 70, 1, 28, "Input"],
+Cell[2600, 69, 130, 3, 31, "Input", "ExpressionUUID" -> \
+"b819ca79-db30-4767-ad7a-0ad175b9d035"],
 Cell[CellGroupData[{
-Cell[2400, 66, 334, 6, 47, "Subtitle"],
-Cell[2737, 74, 2878, 87, 106, "Input"],
+Cell[2755, 76, 386, 6, 47, "Subtitle", "ExpressionUUID" -> \
+"d0c0662d-e6d8-4ab3-ae5e-a759f0f64c9f"],
+Cell[3144, 84, 2939, 89, 127, "Input", "ExpressionUUID" -> \
+"7569cacc-4d6d-43bf-9295-9267183560cf"],
 Cell[CellGroupData[{
-Cell[5640, 165, 1194, 19, 61, "Input"],
-Cell[CellGroupData[{
-Cell[6859, 188, 360, 6, 22, "Print"],
-Cell[7222, 196, 579, 13, 22, "Print"],
-Cell[7804, 211, 582, 13, 22, "Print"],
-Cell[8389, 226, 580, 13, 22, "Print"],
-Cell[8972, 241, 580, 13, 22, "Print"],
-Cell[9555, 256, 349, 6, 22, "Print"]
-}, Open  ]],
-Cell[9919, 265, 3432, 88, 143, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[13388, 358, 868, 19, 29, "Input"],
-Cell[14259, 379, 890, 23, 33, "Output"]
-}, Open  ]],
-Cell[15164, 405, 94, 1, 28, "Input"]
+Cell[6108, 177, 1517, 28, 89, "Input", "ExpressionUUID" -> \
+"113dc49e-d656-404a-bd27-409f6fe9096a"],
+Cell[7628, 207, 4182, 110, 159, "Output", "ExpressionUUID" -> \
+"ecba986e-9e4c-4c9e-8b02-3d943bc93390"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[15295, 411, 331, 6, 47, "Subtitle"],
-Cell[15629, 419, 3185, 100, 137, "Input"],
-Cell[CellGroupData[{
-Cell[18839, 523, 735, 12, 45, "Input"],
-Cell[CellGroupData[{
-Cell[19599, 539, 236, 3, 22, "Print"],
-Cell[19838, 544, 458, 10, 22, "Print"],
-Cell[20299, 556, 458, 10, 22, "Print"],
-Cell[20760, 568, 456, 10, 22, "Print"],
-Cell[21219, 580, 456, 10, 22, "Print"],
-Cell[21678, 592, 225, 3, 22, "Print"]
+Cell[11847, 322, 929, 21, 31, "Input", "ExpressionUUID" -> \
+"2d869add-da23-460e-b9c0-d10452301250"],
+Cell[12779, 345, 996, 25, 34, "Output", "ExpressionUUID" -> \
+"48211d17-ace6-4547-904f-6ef047254985"]
 }, Open  ]],
-Cell[21918, 598, 1507, 48, 65, "Output"]
+Cell[13790, 373, 154, 3, 31, "Input", "ExpressionUUID" -> \
+"fe1ddf03-ebbe-454e-bf4c-5386f51011d6"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[23462, 651, 666, 16, 29, "Input"],
-Cell[24131, 669, 2040, 59, 33, "Output"]
-}, Open  ]],
-Cell[26186, 731, 94, 1, 28, "Input"]
-}, Open  ]],
+Cell[13981, 381, 383, 6, 47, "Subtitle", "ExpressionUUID" -> \
+"b754f826-badc-4655-9a51-ff7e37ec94a9"],
+Cell[14367, 389, 3246, 102, 165, "Input", "ExpressionUUID" -> \
+"7de568cd-c78a-4fa5-8dd4-9a1935bb223d"],
 Cell[CellGroupData[{
-Cell[26317, 737, 380, 7, 47, "Subtitle"],
-Cell[26700, 746, 6216, 180, 264, "Input"],
-Cell[CellGroupData[{
-Cell[32941, 930, 393, 8, 45, "Input"],
-Cell[CellGroupData[{
-Cell[33359, 942, 294, 5, 22, "Print"],
-Cell[33656, 949, 527, 12, 22, "Print"],
-Cell[34186, 963, 527, 12, 22, "Print"],
-Cell[34716, 977, 527, 12, 22, "Print"],
-Cell[35246, 991, 529, 12, 22, "Print"],
-Cell[35778, 1005, 527, 12, 22, "Print"],
-Cell[36308, 1019, 529, 12, 22, "Print"],
-Cell[36840, 1033, 527, 12, 22, "Print"],
-Cell[37370, 1047, 527, 12, 22, "Print"],
-Cell[37900, 1061, 527, 12, 22, "Print"],
-Cell[38430, 1075, 527, 12, 22, "Print"],
-Cell[38960, 1089, 527, 12, 22, "Print"],
-Cell[39490, 1103, 527, 12, 22, "Print"],
-Cell[40020, 1117, 529, 12, 22, "Print"],
-Cell[40552, 1131, 527, 12, 22, "Print"],
-Cell[41082, 1145, 529, 12, 22, "Print"],
-Cell[41614, 1159, 285, 5, 22, "Print"]
-}, Open  ]],
-Cell[41914, 1167, 3818, 130, 203, "Output"]
+Cell[17638, 495, 1057, 21, 70, "Input", "ExpressionUUID" -> \
+"3744ef02-18d3-47b3-9aa9-f3dd918007bb"],
+Cell[18698, 518, 1592, 50, 65, "Output", "ExpressionUUID" -> \
+"10022434-5919-48e1-8de3-4f6b8003f464"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[45769, 1302, 660, 16, 29, "Input"],
-Cell[46432, 1320, 1742, 48, 33, "Output"]
+Cell[20327, 573, 723, 17, 31, "Input", "ExpressionUUID" -> \
+"800650e5-ca08-411a-b135-d8ac4eaa7186"],
+Cell[21053, 592, 2123, 61, 34, "Output", "ExpressionUUID" -> \
+"1567ad9f-8e63-4d3a-968a-842735f8987f"]
+}, Open  ]],
+Cell[23191, 656, 154, 3, 31, "Input", "ExpressionUUID" -> \
+"9683c337-100e-41ad-b3f2-44ed7f949ce3"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23382, 664, 432, 7, 47, "Subtitle", "ExpressionUUID" -> \
+"1baffb7d-43de-4459-8c9d-768302b35a41"],
+Cell[23817, 673, 6277, 182, 297, "Input", "ExpressionUUID" -> \
+"29e7245b-953c-45fc-9fba-979eaac30a4a"],
+Cell[CellGroupData[{
+Cell[30119, 859, 714, 16, 70, "Input", "ExpressionUUID" -> \
+"a5ab633a-bc40-44fb-ac2a-ddc60b3da487"],
+Cell[30836, 877, 1425, 48, 65, "Output", "ExpressionUUID" -> \
+"d6664c4c-3a47-4bcd-a259-356bbd29b5a3"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[32298, 930, 717, 17, 31, "Input", "ExpressionUUID" -> \
+"6b38b15a-dad4-4589-8e92-532b0f1860ba"],
+Cell[33018, 949, 1825, 50, 34, "Output", "ExpressionUUID" -> \
+"61297359-0f7e-479d-a8a3-ff306b68ce49"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[48235, 1375, 187, 2, 65, "Title"],
-Cell[48425, 1379, 492, 13, 44, "Input"],
-Cell[48920, 1394, 424, 11, 44, "Input"],
+Cell[34904, 1006, 247, 4, 65, "Title", "ExpressionUUID" -> \
+"7525d360-0f15-45b4-a4ac-667dea56ec1b"],
+Cell[35154, 1012, 553, 15, 51, "Input", "ExpressionUUID" -> \
+"267878be-0484-4f55-9966-0d56c0cc44e0"],
+Cell[35710, 1029, 484, 13, 51, "Input", "ExpressionUUID" -> \
+"291774f4-0913-49f8-939d-7ad58f4088a6"],
+Cell[36197, 1044, 350, 9, 51, "Input", "ExpressionUUID" -> \
+"a401b9da-8715-4488-9f9a-4cc43587465a"],
 Cell[CellGroupData[{
-Cell[49369, 1409, 1447, 41, 77, "Input"],
-Cell[50819, 1452, 876, 20, 28, "Output"]
+Cell[36572, 1057, 811, 17, 70, "Input", "ExpressionUUID" -> \
+"0851c9aa-2dd2-4dcd-af6e-4c6db8110b3f"],
+Cell[37386, 1076, 1410, 44, 65, "Output", "ExpressionUUID" -> \
+"fd34b5dd-643c-4c1a-905c-88d2e4ed4dd7"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[51732, 1477, 490, 9, 45, "Input"],
-Cell[CellGroupData[{
-Cell[52247, 1490, 464, 7, 22, "Print"],
-Cell[52714, 1499, 684, 14, 22, "Print"],
-Cell[53401, 1515, 682, 14, 22, "Print"],
-Cell[54086, 1531, 682, 14, 22, "Print"],
-Cell[54771, 1547, 684, 14, 22, "Print"],
-Cell[55458, 1563, 451, 7, 22, "Print"]
-}, Open  ]],
-Cell[55924, 1573, 1327, 42, 65, "Output"]
+Cell[38833, 1125, 1448, 42, 70, "Input", "ExpressionUUID" -> \
+"6ea85743-7b85-47b3-972c-a73c32eda1eb"],
+Cell[40284, 1169, 1096, 33, 65, "Output", "ExpressionUUID" -> \
+"84e0ffe5-1855-486f-9360-8d80d2a4271e"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[57288, 1620, 1388, 40, 61, "Input"],
-Cell[58679, 1662, 985, 30, 66, "Output"]
+Cell[41417, 1207, 712, 18, 51, "Input", "ExpressionUUID" -> \
+"2ec19954-d692-4b38-b758-15d9e275ab71"],
+Cell[42132, 1227, 3532, 107, 56, "Output", "ExpressionUUID" -> \
+"eb19a8c1-dc23-4298-9a47-abf3f3a10af1"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[59701, 1697, 652, 16, 45, "Input"],
-Cell[60356, 1715, 1931, 56, 33, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[62324, 1776, 198, 4, 29, "Input"],
-Cell[62525, 1782, 92, 1, 62, "Output"]
+Cell[45701, 1339, 258, 6, 31, "Input", "ExpressionUUID" -> \
+"785119d8-2c36-47b4-98dc-758669dc2929"],
+Cell[45962, 1347, 174, 3, 31, "Output", "ExpressionUUID" -> \
+"6f07e502-f1a9-4ddd-a540-953e24356e8d"]
 }, Open  ]]
 }, Open  ]]
 }
 ]
 *)
 
-(* End of internal cache information *)
