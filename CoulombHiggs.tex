@@ -110,13 +110,13 @@
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v5.2}
+\title{CoulombHiggs.m v6.0}
  
 \author{Boris Pioline}
 
 \abstract{Basic documentation for the Mathematica package {\tt CoulombHiggs.m}
 available from {\tt http://www.lpthe.jussieu.fr/$\sim$\,pioline/computing.html}
-%and from  {\tt https://github.com/bpioline/CoulombHiggs}
+and from  {\tt https://github.com/bpioline/CoulombHiggs}
  }
 
 \begin{document}
@@ -223,12 +223,12 @@ can be obtained from the author's webpage,
 Assuming that the file {\tt CoulombHiggs.m} is present in the user's {\sc Mathematica} Application 
 directory, the package is loaded by entering 
 
-\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs 5.2.5 - A package for evaluating quiver invariants. }
+\mathematica{1.0}{ <<CoulombHiggs`}{CoulombHiggs 6.0 - A package for evaluating quiver invariants. }
 
 If the file  {\tt CoulombHiggs.m} has not yet been copied in the user's {\sc Mathematica} Application 
 directory but is in the same directory as the notebook, evaluate instead
 
-\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs 5.2- A package for evaluating quiver invariants.}
+\mathematica{1.0}{SetDirectory[NotebookDirectory[]]; <<CoulombHiggs`}{CoulombHiggs 6.0- A package for evaluating quiver invariants.}
 
 \subsubsection{Coulomb branch formula}
 
@@ -385,8 +385,9 @@ These heights, as well as the bipartite potential $W=W_+-W_-$,  are pre-computed
 4:C^2\times C/3\\
 5:C^3/2\times 2\\
 6:SPP\\
-7:P2=C^3/(1,1,1)\\
-8:F0.1=P1\times P1\\
+7:L131\\
+8:P2=C^3/(1,1,1)\\
+9:F0.1=P1\times P1\\
 \dots
 \end{array}$
 }
@@ -563,6 +564,8 @@ used in evaluations of \var{\tt Coulombg}, \var{\tt Treeg}, or \var{\tt HiggsG}
 are effectively multiplied 
 by $m$. If $m$ is a matrix, then entries $\var{Mat}[[i,j]]$ are multiplied by $m_{ij}$.}
 
+\defvar{{\tt \$QuiverMultiplierAssumption}}{Specifies assumptions about formal variables used in 
+\var{\$QuiverMultiplier}, for example $m\in {\rm Integers}$}
 
 \defvar{{\tt \$QuiverVerbose}}{If set to False, all consistency tests on data and corresponding error messages will be skipped. Set to True by default.}
 
@@ -1370,6 +1373,10 @@ with DSZ matrix $\var{Mat}$ to the nodes where $\var{Nvec}$ has non-trivial supp
 \defn{PlethysticExp}{\vardef{f},\vardef{Nmax}}{computes the plethystic exponential of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only, keeping the first \var{Nmax} terms in the sum.}
 
 \defn{PlethysticLog}{\vardef{f},\vardef{Nmax}}{computes the plethystic logarythm of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only,  keeping the first \var{Nmax} terms in the sum.}
+
+\defn{QuiverMultiplierMat}{\vardef{i},\vardef{j}}{Returns $\var{\$QuiverMultiplier}$ if it is a scalar,
+or $\var{\$QuiverMultiplier}[[i,j]]$ if $\var{\$QuiverMultiplier}$ is a matrix.} 
+
 
 \bibliography{combined}
 \bibliographystyle{utphys}
