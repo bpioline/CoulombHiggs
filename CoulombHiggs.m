@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 6.0               
+ *  CoulombHiggs.m 6.1            
  *                                                          
- *  Copyright B. Pioline, Dec 2020
+ *  Copyright B. Pioline, Jan 2021
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -106,9 +106,15 @@
  *
  * Release notes for 6.0:
  * - Added QuiverMultiplierMat, $QuiverMultiplierAssumption
+ * 
+ * Release notes for 6.1:
+ * - Added TreeIndexOpt
+ * - Removed PMat argument from TreeIndex
+ 
+ 
  
  *********************************************************************)
-Print["CoulombHiggs 6.0 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 6.1 - A package for evaluating quiver invariants"];
 
 
 
@@ -235,7 +241,7 @@ $QuiverVerbose::usage = "Default=True, set to False to skip data consistency tes
 
 $QuiverMultiplier::usage = "Overall multiplier of DSZ matrix, default=1, could be matrix-valued";
 
-$QuiverMultiplierAssumption::usage = "Specifies assumptions about entries in $QuiverMultiplier";
+$QuiverMultiplierAssumption::usage = "Default={}, specifies assumptions about entries in $QuiverMultiplier";
 
 $QuiverDisplayCoulombH::usage = "Default=False, set to True in order that CoulombBranchFormula returns both Poincare polynomial and replacement rules for CoulombH ";
 
@@ -418,13 +424,17 @@ FlowTreeFormulaRat::usage = "FlowTreeFormulaRat[Mat_,Cvec_,Nvec_] computes the r
 
 TreePoincarePolynomialRat::usage = "TreePoincarePolynomialRat[gam_,y_] expresses the rational BPS index in terms of terms of attractor indices and tree index ";
 
-EvalTreeIndex::usage="EvalTreeIndex[Mat_,PMat_,Cvec_,f_] evaluates any Treeg[Li,y] appearing in f using TreeIndex[] with arguments computed from the full DSZ matrix Mat, its perturbation PMat and the stability parameters Cvec ";
+EvalTreeIndex::usage="EvalTreeIndex[Mat_,Cvec_,f_] evaluates any Treeg[Li,y] appearing in f using TreeIndex[] with arguments computed from the full DSZ matrix Mat and the stability parameters Cvec ";
+
+TreeIndex::"TreeIndex[Mat_,Cvec_,y_] computes the tree index by summing all partial tree indices computed using TreeF[]";
+
+TreeIndexOpt::"TreeIndexOpt[Mat_,Cvec_,y_] computes the tree index by summing all planar binary trees using TreeIndexRecursive[]";
+
+TreeIndexRecursive::"TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_] recursively constructs the sum over planar binary trees with leaves decorated by basis vectors summing up to Nvec";
 
 TreeF::usage="TreeF[Mat_,Cvec_] computes the partial tree index by summing over stable planar trees using PlaneTreeSign[]";
 
 PlaneTreeSign::"PlaneTreeSign[Mat_,Cvec_,Li_] computes the contribution to the partial tree index from the grouping Li recursively ";
-
-TreeIndex::"TreeIndex[Mat_,PMat_,Cvec_,y_] computes the tree index by summing all partial tree indices computed using TreeF[]";
 
 TreeFAlt1::usage="TreeFAlt1[Mat_,Cvec_] computes the partial tree index by summing over stable planar trees using the first alternative recursion ";
 
@@ -671,9 +681,9 @@ CyclicQuiverOmS::usage = "CyclicQuiverOmS[Vec_,t_] gives the single-centered deg
 
 CyclicQuiverDSZ::usage = "CyclicQuiverDSZ[avec_] constructs the DSZ matrix for a cyclic quiver with avec[[i]] arrows from node i to node i+1";
 
-EulerForm::usage = "EulerForm[Mat_] gives the Ringel-Tits form ";
+EulerForm::usage = "EulerForm[Mat_] gives the Ringel-Tits form";
 
-SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors strictly less than Nvec ";
+SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors less than Nvec";
 
 ListLoopRCharges::usage = "ListLoopRCharges[Mat_,RMat_] computes the R-charge of the primitive loops in a quiver with DSZ matrix Mat ";
 
@@ -717,13 +727,13 @@ $QuiverNoLoop=False;
 $QuiverTestLoop=True;
 $QuiverVerbose=True;
 $QuiverMultiplier=1;
-$QuiverMultiplierAssumption=True;
+$QuiverMultiplierAssumption={};
 $QuiverDisplayCoulombH=False;
 $QuiverRecursion=1;
 $QuiverOmSbasis=1;
 $QuiverMutationMult=1;
 $QuiverCoulombOpt=1;
-$QuiverFlowTreeOpt=0;
+$QuiverFlowTreeOpt=4;
 $QuiverNoVM=False;
 $QuiverTrig=False;
 $QuiverMaxPower=0;
@@ -2214,9 +2224,9 @@ JKChiGenus
 
 FlowTreeFormula[Mat_,Cvec_,Nvec_]:=OmAttbToOmAtt[FlowTreeFormulaRat[Mat,Cvec,Nvec]];
 
-FlowTreeFormulaRat[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,Cvec0},
+FlowTreeFormulaRat[Mat_,Cvec_,Nvec_]:=Module[{QPoinca,Cvec0},
   If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1,      
-  Print["FlowTreeFormula: Length of DSZ matrices, FI and dimension vectors do not match !"]];
+ Print["FlowTreeFormula: Length of DSZ matrices, FI and dimension vectors do not match !"]];
   If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
 		Print["FlowTreeFormulaRat: DSZ matrix is not antisymmetric !"]];
   If[Max[Nvec]<0,Print["FlowTreeFormulaRat: The dimension vector must be positive !"]];
@@ -2225,10 +2235,8 @@ FlowTreeFormulaRat[Mat_,Cvec_,Nvec_]:=Module[{RMat,QPoinca,Cvec0},
 Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
   If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,       
 		Print["FlowTreeFormula: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0]] ;
-RMat=Table[Random[Integer,{1,1000}],{i,Length[Mat]},{j,Length[Mat]}];
-RMat=1/1000/$QuiverPerturb1 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,Length[Mat]},{j,Length[Mat]}];
   If[$QuiverVerbose,PrintTemporary["FlowTreeFormulaRat: Evaluating tree indices..."]]; 
-  QPoinca=EvalTreeIndex[Mat,Mat+RMat,Cvec0,TreePoincarePolynomialRat[Nvec,y]] 
+  QPoinca=EvalTreeIndex[Mat,Cvec0,TreePoincarePolynomialRat[Nvec,y]] 
 ];
 
 TreePoincarePolynomialRat[gam_,y_]:=Module[{JKListAllPart},
@@ -2236,14 +2244,71 @@ TreePoincarePolynomialRat[gam_,y_]:=Module[{JKListAllPart},
     OmAttb[gam,y]+Sum[Treeg[JKListAllPart[[i]],y]SymmetryFactor[JKListAllPart[[i]]]
 		Product[OmAttb[JKListAllPart[[i,j]],y],{j,Length[JKListAllPart[[i]]]}],{i,Length[JKListAllPart]}]];
 
-EvalTreeIndex[Mat_,PMat_,Cvec_,f_]:=f/.{Treeg[Li_,y_]:>
-  TreeIndex[
+EvalTreeIndex[Mat_,Cvec_,f_]:=If[$QuiverFlowTreeOpt==3,
+f/.{Treeg[Li_,y_]:>
+  TreeIndexOpt[
 	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
-	Table[Sum[Li[[i,k]]Li[[j,l]]PMat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
+	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]},
+	f/.{Treeg[Li_,y_]:>TreeIndex[
+	Table[Sum[Li[[i,k]]Li[[j,l]]Mat[[k,l]],{k,Length[Mat]},{l,Length[Mat]}],
       {i,Length[Li]},{j,Length[Li]}],
-	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]};
+	Table[Sum[Li[[i,k]] Cvec[[k]],{k,Length[Mat]}],{i,Length[Li]}],y]}];
 	
+TreeIndexOpt[Mat_,Cvec_,y_]:=Module[{m,RCvec},
+m=Length[Cvec];
+RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
+	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
+If[$QuiverVerbose&&m>3,PrintTemporary["TreeIndexOpt: evaluating for ",m," centers"]];
+TreeIndexRecursive[Mat,Cvec+RCvec,ConstantArray[1,m],y]];
+
+TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_]:=Module[{Li,gLR,Cvec2},
+If [Plus@@Nvec==1,1,
+(*Print["TreeIndexRecursive: evaluating for ",Nvec]; *)
+(* list of subvectors, except 0 and Nvec *)
+Li=Drop[Drop[SubVectors[Nvec],1],-1];
+Sum[gLR=DSZProd[Mat,gL,Nvec-gL];
+If[gLR<=0|| Sum[Cvec[[i]]gL[[i]],{i,Length[Cvec]}]<=0,0,
+ Cvec2=Cvec+Table[Sum[Nvec[[j]]Mat[[j,i]],{j,Length[Nvec]}],{i,Length[Nvec]}]Sum[gL[[i]]Cvec[[i]],{i,Length[Nvec]}]/gLR;
+(-1)^(gLR+1)(y^gLR-y^(-gLR))/(y-1/y)TreeIndexRecursive[Mat,Cvec2,gL,y]TreeIndexRecursive[Mat,Cvec2,Nvec-gL,y]
+],{gL,Li}]]];	
+
+TreeIndex[Mat_,Cvec_,y_]:=Module[{m,ListPerm,i,j,k,RCvec},
+	m=Length[Cvec];
+	 If[$QuiverVerbose,
+        If[Abs[Plus@@Cvec]>$QuiverPrecision,Print["TreeIndex: Cvec does not sum to zero !"]];
+	];
+	ListPerm=Permutations[Range[m]];
+If[$QuiverVerbose,
+        Do[ If[Abs[Sum[Cvec[[ListPerm[[j,i]]]],{i,k}]]<=$QuiverPrecision, 
+           If[Abs[Sum[Mat[[ListPerm[[j,i1]],ListPerm[[j,i2]]]],
+                {i1,k},{i2,k+1,m}]]>$QuiverPrecision,
+               Print["CoulombIndex: FI sit on wall of marginal stability"];Break[]];
+          ],{k,1,IntegerPart[m/2]},{j,Length[ListPerm]}
+       ]];
+	RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
+	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
+	If[$QuiverVerbose&&m>3,PrintTemporary["TreeIndex: evaluating for ",m," centers"]];
+    (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
+ Which[$QuiverFlowTreeOpt==0,
+        Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] 
+        Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
+		TreeF[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
+                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
+       {k,Length[ListPerm]}],
+       $QuiverFlowTreeOpt==1,
+Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
+		TreeFAlt1[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
+                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
+       {k,Length[ListPerm]}],
+       $QuiverFlowTreeOpt==2,
+Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
+		TreeFAlt2[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
+                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]], 
+       {k,Length[ListPerm]}]
+       ]
+];
+		
 TreeF[Mat_,Cvec_]:=Module[{ListPlaneTrees},
   ListPlaneTrees=Groupings[Range[Length[Mat]],2];
   Sum[PlaneTreeSign[Mat,Cvec,ListPlaneTrees[[i]]],{i,Length[ListPlaneTrees]}]
@@ -2266,47 +2331,6 @@ Cvec2=Cvec+Sum[Cvec[[Li1[[j]]]],{j,Length[Li1]}]/g12
    PlaneTreeSign[Mat,Cvec2,Li[[1]]]*PlaneTreeSign[Mat,Cvec2,Li[[2]]]
   ]]]];
 	
-TreeIndex[Mat_,PMat_,Cvec_,y_]:=Module[{m,ListPerm,i,j,k,RMat,RCvec},
-	m=Length[Cvec];
-	If[$QuiverVerbose,
-		If[Max[Flatten[PMat-Mat]]>1/2,Print["TreeIndex: PMat is not close to Mat !"]];
-        If[Abs[Plus@@Cvec]>$QuiverPrecision,Print["TreeIndex: Cvec does not sum to zero !"]];
-	];
-	ListPerm=Permutations[Range[m]];
-        Do[ If[Abs[Sum[Cvec[[ListPerm[[j,i]]]],{i,k}]]<=$QuiverPrecision, 
-           If[Abs[Sum[Mat[[ListPerm[[j,i1]],ListPerm[[j,i2]]]],
-                {i1,k},{i2,k+1,m}]]>$QuiverPrecision,
-               Print["CoulombIndex: FI sit on wall of marginal stability"];Break[]];
-          ],{k,1,IntegerPart[m/2]},{j,Length[ListPerm]}
-       ];
-	(* RMat is a further eps_ 2 perturbation *)
-	RMat=Table[Random[Integer,{1,100000}],{i,m},{j,m}];	
-	RMat=1/100000/$QuiverPerturb2 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,m},{j,m}];
-	RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
-	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
-	If[$QuiverVerbose&&m>3,PrintTemporary["TreeIndex: evaluating for ",m," centers"]];
-    (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
-Which[$QuiverFlowTreeOpt==0,
-        Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] 
-        Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
-		TreeF[Table[PMat[[ListPerm[[k,i]],ListPerm[[k,j]]]]+
-					   RMat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
-                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
-       {k,Length[ListPerm]}],
-       $QuiverFlowTreeOpt==1,
-  Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
-		TreeFAlt1[Table[PMat[[ListPerm[[k,i]],ListPerm[[k,j]]]]+
-					   RMat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
-                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
-       {k,Length[ListPerm]}],
-       $QuiverFlowTreeOpt==2,
-  Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
-		TreeFAlt2[Table[PMat[[ListPerm[[k,i]],ListPerm[[k,j]]]]+
-					   RMat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
-                 Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]], 
-       {k,Length[ListPerm]}]
-       ]
-];
 	
 TreeFAlt1[Mat_,Cvec_]:=Module[{Li,n},
   n=Length[Mat];
@@ -2625,7 +2649,7 @@ Simplify[Ind]Product[x[i]^n[i],{i,Length[Mat]}],0],
 NCDTSeriesFromOmAtt[Mat_,Framing_,Nmin_,Nmax_]:=Module[{n,Cvec,Cvec0,Ind,Mat1,Nvec,Dim},
 Mat1=FramedDSZ[Mat,Framing];Dim=1;
 Sum[Nvec=Flatten[{Dim,Table[n[i],{i,Length[Mat]}]}];
-If[(Plus@@Nvec<=Nmax+Dim)&&(Plus@@Nvec>=Nmin)+1&&ConnectedQuiverQ[Mat1,Nvec],
+If[(Plus@@Nvec<=Nmax+Dim)&&(Plus@@Nvec>=Nmin+1)&&ConnectedQuiverQ[Mat1,Nvec],
 PrintTemporary[Nvec];
 Cvec0=Flatten[{$QuiverPerturb1,Table[RandomInteger[{-$QuiverPerturb1,$QuiverPerturb1}]/$QuiverPerturb1,{i,Length[Mat]}]}];
 Cvec=Cvec0-Plus@@(Cvec0 Nvec)/Plus@@Nvec;
