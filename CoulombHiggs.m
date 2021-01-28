@@ -110,11 +110,14 @@
  * Release notes for 6.1:
  * - Added TreeIndexOpt
  * - Removed PMat argument from TreeIndex
+ * - Added D6Framing, D4Framing, CohomologicalWeight, CohomologicalSign, UnrefinedSeriesFromCrystal
+ * - Merged ChargeFunction and VacuumChargeFunction
+ * - Added data for Y30, Y31 
  
  
  
  *********************************************************************)
-Print["CoulombHiggs 6.1 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 6.1.2 - A package for evaluating quiver invariants"];
 
 
 
@@ -554,11 +557,17 @@ TrivialStackInvariant::usage="TrivialStackInvariant[Mat_,Cvec_,Nvec_] computes t
 
 (* for framed invariants *)
 
-NCDTSeriesFromOmS::usage="NCDTSeriesFromOmS[Mat_, Framing_, Nmin_,Nmax_] constructs the gener- ating function of NCDT invariants for the quiver with DSZ matrix Mat and framing Framing using the Coulomb branch formula, for dimension vectors with height from Nmin up to NMax.";
+NCDTSeriesFromOmS::usage="NCDTSeriesFromOmS[Mat_, Framing_, Nmin_,Nmax_] constructs the gener- ating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Coulomb branch formula, for dimension vectors with height from Nmin up to NMax.";
 
-NCDTSeriesFromOmAtt::usage="NCDTSeriesFromOmAtt[Mat_, Framing_, Nmin_,Nmax_] constructs the gen- erating function of NCDT invariants for the quiver with DSZ matrix Mat and framing Framing using the Flow Tree formula, for dimension vectors with height from Nmin up to NMax.";
+NCDTSeriesFromOmAtt::usage="NCDTSeriesFromOmAtt[Mat_, Framing_, Nmin_,Nmax_] constructs the gen- erating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Flow Tree formula, for dimension vectors with height from Nmin up to NMax.";
 
-NCDTSeriesFromCrystal::usage="NCDTSeriesFromCrystal[hMat_, Framing_,Nmax_] constructs the generating function of NCDT invariants for the quiver with height matrix hMat and framing Framing using the Quiver Yangian algorithm, for dimension vectors with height up to NMax.";
+NCDTSeriesFromCrystal::usage="NCDTSeriesFromCrystal[hMat_, fMat_, theta_,phi_, Nmax_] constructs the generating function of refined NCDT invariants for the quiver with height matrix hMat and framing data Framing using the refined Quiver Yangian algorithm with C^*_{theta,phi} action, for dimension vectors with height up to NMax.";
+
+UnrefinedSeriesFromCrystal::usage="UnrefinedSeriesFromCrystal[hMat_,fMat_,Nn_] constructs the generating function of unrefined NCDT invariants (y=1) or molten crystals (y=1) and framing data fMat using the Quiver Yangian algorithm, for dimension vectors with height up to NMax.";
+
+D6Framing::usage="D6Framing[hMat_,i_] constructs the framing data fMat for a D6-brane associated to node i";
+
+D4Framing::usage="D4Framing[hMat_,i_,j_,k_] constructs the framing data for a D4-brane associated to arrow Phi_{ij}^k";
 
 FramedDSZ::usage="FramedDSZ[Mat_,Framing_] constructs the DSZ matrix of the framed quiver obtained by attaching arrows from the framing node (labelled 0) to the node i of the original quiver with DSZ matrix Mat.";
 
@@ -566,15 +575,17 @@ FramedFI::usage="FramedFI[Nvec_]constructs a random FI parameter for a framed qu
 
 BondFactor::usage="BondFactor[hMat_,i_,j_,z_] evaluates the bond factor \[CurlyPhi]^{i->j(z), where hMat is a matrix whose (i, j)-entry is the list of heights of the arrows from node i to node j. The heights are in turn linear combinations of parameters h1, h2, h3";
 
-ChargeFunction::usage="[ChargeFunction[hMat_,Framing_,Crys_,i_,z_] constructs the charge function Phi^i_C(z) for the molten crystal C = Crys. The crystal is encoded in a list of {color, height} for each atom.";
+ChargeFunction::usage="[ChargeFunction[hMat_,fMat_,Crys_,i_,z_] constructs the charge function Phi^i_C(z) for the molten crystal C = Crys. The crystal is encoded in a list of {color, height} for each atom.";
 
-VacuumChargeFunction::usage="VacuumChargeFunction[Framing_,i_,z_] provides the chargefunction Phi^i_0(z)= 1 + Framing[i]/z for the full crystal. Can be redefined to accommodate non-standard vacuum charge functions.";
+AddToCrystal::usage="AddToCrystal[hMat_,fMat_,i_,Crys_]constructs the list of molten crystals obtained by attaching one atom of color i to the molten crystal Crys.";
 
-AddToCrystal::usage="AddToCrystal[hMat_,Framing_,i_,Crys_]constructs the list of molten crystals obtained by attaching one atom of color i to the molten crystal Crys.";
-
-GrowCrystalList::usage="GrowCrystalList[hMat_,Framing_,CrysList_] constructs the molten crystals obtained from the list Crysli by attaching one additional atom of any color, or none at all";
+GrowCrystalList::usage="GrowCrystalList[hMat_,fMat_,CrysList_] constructs the molten crystals obtained from the list Crysli by attaching one additional atom of any color, or none at all";
 
 CrystalDim::usage="CrystalDim[r_,Crys_] computes the dimension vector for the crystal Crys, assuming that the colors can take values 1 up to r";
+
+CrystalWeight::usage="CrystalWeight[hMat_,fMat_,theta_,phi_,Crys_] computes the power of y associated to the molten crystal Crys using the C^x_{theta,phi} action. Set $theta=0$ for action preserving the superpotential";
+
+DirectedSign::usage="DirectedSign[theta_,phi_,lambda_] computes the sign for an atom with weight lambda, with respect to C^x_{x,y} action";
 
 EulerNorm::usage="EulerNorm[hMat_,Nvec_] computes the Ringel-Tits norm of the dimension vector Nvec from the matrix of heights hMat";
 
@@ -733,7 +744,7 @@ $QuiverRecursion=1;
 $QuiverOmSbasis=1;
 $QuiverMutationMult=1;
 $QuiverCoulombOpt=1;
-$QuiverFlowTreeOpt=4;
+$QuiverFlowTreeOpt=3;
 $QuiverNoVM=False;
 $QuiverTrig=False;
 $QuiverMaxPower=0;
@@ -1016,7 +1027,7 @@ CoulombIndexOpt[Mat_,PMat_,Cvec_,y_]:=Module[{m,ListPerm,i,j,k,RMat,RCvec},
 	RMat=1/100000/$QuiverPerturb2 Table[Which[i<j,RMat[[i,j]],i>j,-RMat[[j,i]],i==j,0],{i,m},{j,m}];
 	RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
 	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
-	If[$QuiverVerbose && m>3,PrintTemporary["CoulombIndexOpt: evaluating for ",m," centers"]];
+	If[$QuiverVerbose && m>5,PrintTemporary["CoulombIndexOpt: evaluating for ",m," centers"]];
 	(y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)	   
 	Sum[y^(Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
 		CoulombFOpt[Table[PMat[[ListPerm[[k,i]],ListPerm[[k,j]]]]+
@@ -2241,7 +2252,7 @@ Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
 
 TreePoincarePolynomialRat[gam_,y_]:=Module[{JKListAllPart},
 	JKListAllPart=ListAllPartitions[gam];
-    OmAttb[gam,y]+Sum[Treeg[JKListAllPart[[i]],y]SymmetryFactor[JKListAllPart[[i]]]
+    Sum[Treeg[JKListAllPart[[i]],y]SymmetryFactor[JKListAllPart[[i]]]
 		Product[OmAttb[JKListAllPart[[i,j]],y],{j,Length[JKListAllPart[[i]]]}],{i,Length[JKListAllPart]}]];
 
 EvalTreeIndex[Mat_,Cvec_,f_]:=If[$QuiverFlowTreeOpt==3,
@@ -2257,10 +2268,11 @@ f/.{Treeg[Li_,y_]:>
 	
 TreeIndexOpt[Mat_,Cvec_,y_]:=Module[{m,RCvec},
 m=Length[Cvec];
+If[m==1,1,
 RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
 	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
-If[$QuiverVerbose&&m>3,PrintTemporary["TreeIndexOpt: evaluating for ",m," centers"]];
-TreeIndexRecursive[Mat,Cvec+RCvec,ConstantArray[1,m],y]];
+If[$QuiverVerbose&&m>5,PrintTemporary["TreeIndexOpt: evaluating for ",m," centers"]];
+TreeIndexRecursive[Mat,Cvec+RCvec,ConstantArray[1,m],y]]];
 
 TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_]:=Module[{Li,gLR,Cvec2},
 If [Plus@@Nvec==1,1,
@@ -2275,6 +2287,7 @@ If[gLR<=0|| Sum[Cvec[[i]]gL[[i]],{i,Length[Cvec]}]<=0,0,
 
 TreeIndex[Mat_,Cvec_,y_]:=Module[{m,ListPerm,i,j,k,RCvec},
 	m=Length[Cvec];
+	If[m==1,1,
 	 If[$QuiverVerbose,
         If[Abs[Plus@@Cvec]>$QuiverPrecision,Print["TreeIndex: Cvec does not sum to zero !"]];
 	];
@@ -2288,7 +2301,7 @@ If[$QuiverVerbose,
        ]];
 	RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
 	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
-	If[$QuiverVerbose&&m>3,PrintTemporary["TreeIndex: evaluating for ",m," centers"]];
+	If[$QuiverVerbose&&m>5,PrintTemporary["TreeIndex: evaluating for ",m," centers"]];
     (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
  Which[$QuiverFlowTreeOpt==0,
         Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] 
@@ -2306,7 +2319,7 @@ Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[
 		TreeFAlt2[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
                  Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]], 
        {k,Length[ListPerm]}]
-       ]
+       ]]
 ];
 		
 TreeF[Mat_,Cvec_]:=Module[{ListPlaneTrees},
@@ -2441,7 +2454,7 @@ Cvec0=Cvec-(Plus@@(Nvec Cvec))/(Plus@@Nvec);
 
 AttractorIndex[Mat_,Cvec_,y_]:=Module[{m,ListPerm,ListVertices},
 m=Length[Mat];
-If[$QuiverVerbose&&m>3,PrintTemporary["AttractorIndex: evaluating for ",m," centers"]];
+If[$QuiverVerbose&&m>5,PrintTemporary["AttractorIndex: evaluating for ",m," centers"]];
 ListPerm=Permutations[Range[m]];
 ListVertices=Map[AttractorTreeVertices,AttractorTreeList[m]];
 Sum[(-y)^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])AttractorF[ListVertices,Mat[[ListPerm[[k]],ListPerm[[k]]]],Cvec[[ListPerm[[k]]]]],{k,Length[ListPerm]}]/(y-1/y)^(m-1)];
@@ -2621,19 +2634,28 @@ FramedFI[Nvec_]:=Module[{Cvec0,Nvec0},
 Nvec0=Flatten[{1,Nvec}];Cvec0=Flatten[{$QuiverPerturb1,Table[RandomInteger[{-$QuiverPerturb1,$QuiverPerturb1}]/$QuiverPerturb1,{i,Length[Nvec]}]}];
 Cvec0-(Plus@@(Cvec0 Nvec0)/Plus@@Nvec0)ConstantArray[1,Length[Nvec0]]];
 
+D6Framing[hMat_,i_]:={Table[If[c==i,{0},{}],{c,Length[hMat]}],Table[{},{c,Length[hMat]}]};
+
+D4Framing[hMat_,i_,j_,k_]:={Table[If[c==i,{0},{}],{c,Length[hMat]}],Table[If[c==j,{hMat[[i,j,k]]},{}],{c,Length[hMat]}]};
+
 EulerNorm[hMat_,Nvec_]:=Sum[Nvec[[i]]^2,{i,Length[hMat]}]-Sum[Length[hMat[[i,j]]]Nvec[[i]]Nvec[[j]],{i,Length[hMat]},{j,Length[hMat]}];
 
-NCDTSeriesFromCrystal[hMat_,Framing_,Nn_]:=Module[{A,A1,Z,CrysLi,Nvec},
+NCDTSeriesFromCrystal[hMat_,fMat_,theta_,phi_,Nn_]:=Module[{A,A1,Z,CrysLi,Crys,Nvec},
 Z=1;CrysLi={{}};
-Do[A=GrowCrystalList[hMat,Framing,CrysLi];
-Z+=Sum[Nvec=CrystalDim[Length[hMat],A[[i]]];
-y^(Sum[Framing[[k]] Nvec[[k]],{k,Length[hMat]}]-EulerNorm[hMat,Nvec])
-Product[x[k]^Nvec[[k]],{k,Length[hMat]}],{i,Length[A]}];
-CrysLi=A; PrintTemporary[l,":",Length[CrysLi]];
-A1=Simplify[Table[A[[j,k,2]],{j,Length[A]},{k,Length[A[[j]]]}]/.h3->0];
-Print[Tally[Table[Transpose[Tally[A1[[j]]]][[2]],{j,Length[A1]}]]]
-,{l,Nn}];
-If[$QuiverDisplayCrystal,{Z,A},Z]];
+Do[A=GrowCrystalList[hMat,fMat,CrysLi];
+Z+=Sum[Nvec=CrystalDim[Length[hMat],Crys];(-y)^CrystalWeight[hMat,fMat,theta,phi,Crys]
+Product[Subscript[x,k]^Nvec[[k]],{k,Length[hMat]}],{Crys,A}];
+CrysLi=A,{l,Nn}];
+Plus@@MonomialList[Expand[Z],Table[Subscript[x,k],{k,Length[hMat]}]]];
+
+UnrefinedSeriesFromCrystal[hMat_,fMat_,Nn_]:=Module[{A,A1,Z,CrysLi,Crys,Framing,Nvec},
+Framing=Table[Length[fMat[[1,i]]]-Length[fMat[[2,i]]],{i,Length[hMat]}];
+Z=1;CrysLi={{}};
+Do[A=GrowCrystalList[hMat,fMat,CrysLi];
+Z+=Sum[Nvec=CrystalDim[Length[hMat],Crys];(-y)^(Sum[Framing[[k]] Nvec[[k]],{k,Length[hMat]}]-EulerNorm[hMat,Nvec])
+Product[Subscript[x,k]^Nvec[[k]],{k,Length[hMat]}],{Crys,A}];
+CrysLi=A,{l,Nn}];
+Plus@@MonomialList[Expand[Z],Table[Subscript[x,k],{k,Length[hMat]}]]];
 
 NCDTSeriesFromOmS[Mat_,Framing_,Nmin_,Nmax_]:=Module[{n,Cvec,Cvec0,Ind,Mat1,Nvec,Dim},
 Mat1=FramedDSZ[Mat,Framing];Dim=1;
@@ -2643,7 +2665,7 @@ PrintTemporary[Nvec];
 Cvec0=Flatten[{$QuiverPerturb1,Table[RandomInteger[{-$QuiverPerturb1,$QuiverPerturb1}]/$QuiverPerturb1,{i,Length[Mat]}]}];
 Cvec=Cvec0-Plus@@(Cvec0 Nvec)/Plus@@Nvec;
 Ind=CoulombBranchFormula[Mat1,Cvec,Nvec];
-Simplify[Ind]Product[x[i]^n[i],{i,Length[Mat]}],0],
+Simplify[Ind]Product[Subscript[x,i]^n[i],{i,Length[Mat]}],0],
 ##]&@@ ({n[#],0,Nmax}&/@Range[Length[Mat]])];
               
 NCDTSeriesFromOmAtt[Mat_,Framing_,Nmin_,Nmax_]:=Module[{n,Cvec,Cvec0,Ind,Mat1,Nvec,Dim},
@@ -2654,28 +2676,39 @@ PrintTemporary[Nvec];
 Cvec0=Flatten[{$QuiverPerturb1,Table[RandomInteger[{-$QuiverPerturb1,$QuiverPerturb1}]/$QuiverPerturb1,{i,Length[Mat]}]}];
 Cvec=Cvec0-Plus@@(Cvec0 Nvec)/Plus@@Nvec;
 Ind=FlowTreeFormula[Mat1,Cvec,Nvec];
-Simplify[Ind]Product[x[i]^n[i],{i,Length[Mat]}],0],
+Simplify[Ind]Product[Subscript[x,i]^n[i],{i,Length[Mat]}],0],
 ##]&@@ ({n[#],0,Nmax}&/@Range[Length[Mat]])];
 
-(* from list of Crystals with n atomes, construct list of Crystals with n+1 atomes *)
 BondFactor[hMat_,i_,j_,z_]:=Product[z+hMat[[j,i,k]],{k,Length[hMat[[j,i]]]}]/Product[z-hMat[[i,j,k]],{k,Length[hMat[[i,j]]]}];
 
-ChargeFunction[hMat_,Framing_,Crys_,i_,z_]:=VacuumChargeFunction[Framing,i,z]Product[BondFactor[hMat,Crys[[k,1]],i,z-Crys[[k,2]]],{k,Length[Crys]}];
-(* standard vacuum charge function *)
+ChargeFunction[hMat_,fMat_,Crys_,i_,z_]:=Product[z-r,{r,fMat[[2,i]]}]/Product[z-f,{f,fMat[[1,i]]}]Product[BondFactor[hMat,Crys[[k,1]],i,z-Crys[[k,2]]],{k,Length[Crys]}];
 
-VacuumChargeFunction[Framing_,i_,z_]:=(1+Framing[[i]]/z);
-(* List allowed atomes to be added *)
+AddToCrystal[hMat_,fMat_,i_,Crys_]:=Module[{Psi,FListDen,FList,ResidueList},
+Psi=Factor[ChargeFunction[hMat,fMat,Crys,i,z]];
+FListDen=Table[{i,z}/.Solve[f[[1]]==0,z][[1]],{f,Drop[FactorList[Denominator[Psi]],1]}];
+FList=Table[z/.Simplify[Solve[f[[1]]==0,z][[1]]],{f,Select[Drop[FactorList[Psi/.h3->0],1],#[[2]]==-1&]}];
+ResidueList=Select[FListDen,MemberQ[FList,Simplify[#[[2]]/.h3->0]]&];
+Complement[ResidueList,Crys]
+];
 
-AddToCrystal[hMat_,Framing_,i_,Crys_]:=Module[{Psi,FList,RootList,ResidueList},
+(*AddToCrystal[hMat_,Framing_,i_,Crys_]:=Module[{Psi,FList,RootList,ResidueList},
 Psi=Factor[ChargeFunction[hMat,Framing,Crys,i,z]];
 FList=Drop[FactorList[Denominator[Psi]],1];
 RootList=Table[{i,z}/.Solve[FList[[j,1]]==0,z][[1]],{j,1,Length[FList]}];
 ResidueList=Table[!(Residue[Simplify[Psi/.h3->0],{z,(RootList[[j,2]]/.h3->0)}]===0),{j,Length[FList]}]/.h3->0;
 Complement[Pick[RootList,ResidueList],Crys]
-];
+];*)
 
-(* List all crystals obtained by adding one atom of any color to crystals in list CrysList *)
-GrowCrystalList[hMat_,Framing_,CrysList_]:=Module[{Li,CrysList2,k},
+GrowCrystalList[hMat_,fMat_,CrysList_]:=Module[{Li,CrysList2},
+CrysList2={};
+Do[PrintTemporary["Adding atoms of type ",i];Do[
+Li=AddToCrystal[hMat,fMat,i,Crys];
+Do[AppendTo[CrysList2,Union[Append[Crys,atom]]],{atom,Li}];
+,{Crys,CrysList}];
+,{i,Length[hMat]}];
+DeleteDuplicates[CrysList2]];
+
+(* GrowCrystalList[hMat_,Framing_,CrysList_]:=Module[{Li,CrysList2,k},
 CrysList2={};
 Do[PrintTemporary["Adding atoms of type ",i];
 Monitor[Do[(*PrintTemporary["Acting on crystal ",k];*)
@@ -2683,8 +2716,15 @@ Li=AddToCrystal[hMat,Framing,i,CrysList[[k]]];
 Do[AppendTo[CrysList2,Union[Append[CrysList[[k]],Li[[l]]]]],{l,Length[Li]}];
 ,{k,Length[CrysList]}],k];
 ,{i,Length[hMat]}];
-DeleteDuplicates[CrysList2]];
+DeleteDuplicates[CrysList2]]; *)
+
 CrystalDim[r_,Crys_]:=Module[{Li},Li=Table[Crys[[j,1]],{j,Length[Crys]}];Table[Count[Li,i],{i,r}]];
+
+CrystalWeight[hMat_,fMat_,theta_,phi_,Crys_]:= -Sum[Sum[If[lambda[[1]]==mu[[1]],DirectedSign[theta,phi,lambda[[2]]-mu[[2]]],0],{mu,Crys}],{lambda,Crys}]+Sum[Sum[Sum[DirectedSign[theta,phi,lambda[[2]]+a-mu[[2]]],{a,hMat[[lambda[[1]],mu[[1]]]]}],{mu,Crys}],{lambda,Crys}]+Sum[Sum[DirectedSign[theta,phi,f-lambda[[2]]],{f,fMat[[1,lambda[[1]]]]}],{lambda,Crys}]+Sum[Sum[DirectedSign[theta,phi,lambda[[2]]-r],{r,fMat[[2,lambda[[1]]]]}],{lambda,Crys}];
+
+DirectedSign[theta_,phi_,lambda_]:=If[Cos[theta]*(Cos[phi]*D[lambda,h1]+Sin[phi]*D[lambda,h2])+Sin[theta]*D[lambda,h3]>0,1,0]-If[Cos[theta]*(Cos[phi]*D[lambda,h1]+Sin[phi]*D[lambda,h2])+Sin[theta]*D[lambda-h3,h3]<0,1,0];
+
+
 
 PlotTiling[hMat_,Nn_,v_,Rang_,Shor_,Perf_:{}]:=Module[{ArrowList,ArrowList2,Labels,v1,v2},
 (* produces a list of (color of endpoint, starting point, endpoint, iterating N times excluding arrows in Perf *)
@@ -3079,6 +3119,8 @@ BraneTilingsData={
 {"PdP5c=C^3/4x2",{{1,0},{0,1},{-1,2},{-1,1},{-1,0},{-1,-1},{-1,-2},{0,-1}},{{{},{h1},{},{h2},{},{},{-h1-h2+h3},{}},{{h1},{},{h2},{},{},{},{},{-h1-h2+h3}},{{-h1-h2+h3},{},{},{h1},{},{h2},{},{}},{{},{-h1-h2+h3},{h1},{},{h2},{},{},{}},{{},{},{-h1-h2+h3},{},{},{h1},{},{h2}},{{},{},{},{-h1-h2+h3},{h1},{},{h2},{}},{{},{h2},{},{},{-h1-h2+h3},{},{},{h1}},{{h2},{},{},{},{},{-h1-h2+h3},{h1},{}}},Phi[2,3,1] Phi[3,4,1] Phi[4,2,1]+Phi[1,4,1] Phi[3,1,1] Phi[4,3,1]+Phi[4,5,1] Phi[5,6,1] Phi[6,4,1]+Phi[3,6,1] Phi[5,3,1] Phi[6,5,1]+Phi[1,7,1] Phi[2,1,1] Phi[7,2,1]+Phi[1,2,1] Phi[2,8,1] Phi[8,1,1]+Phi[6,7,1] Phi[7,8,1] Phi[8,6,1]+Phi[5,8,1] Phi[7,5,1] Phi[8,7,1],Phi[1,2,1] Phi[2,3,1] Phi[3,1,1]+Phi[1,4,1] Phi[2,1,1] Phi[4,2,1]+Phi[3,4,1] Phi[4,5,1] Phi[5,3,1]+Phi[3,6,1] Phi[4,3,1] Phi[6,4,1]+Phi[5,6,1] Phi[6,7,1] Phi[7,5,1]+Phi[1,7,1] Phi[7,8,1] Phi[8,1,1]+Phi[5,8,1] Phi[6,5,1] Phi[8,6,1]+Phi[2,8,1] Phi[7,2,1] Phi[8,7,1],{-(1/2),Sqrt[3]/2},{1,0}},
 {"PdP6=C^3/3x3",{{2,-1},{1,0},{0,1},{-1,2},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1}},{{{},{h1},{},{},{h2},{},{},{-h1-h2+h3},{}},{{},{},{-h1-h2+h3},{},{},{h1},{},{},{h2}},{{h2},{},{},{h1},{},{},{-h1-h2+h3},{},{}},{{},{h2},{},{},{-h1-h2+h3},{},{},{h1},{}},{{},{},{h2},{},{},{-h1-h2+h3},{},{},{h1}},{{h1},{},{},{-h1-h2+h3},{},{},{h2},{},{}},{{},{-h1-h2+h3},{},{},{h1},{},{},{h2},{}},{{},{},{h1},{},{},{h2},{},{},{-h1-h2+h3}},{{-h1-h2+h3},{},{},{h2},{},{},{h1},{},{}}},Phi[2,3,1] Phi[3,4,1] Phi[4,2,1]+Phi[1,5,1] Phi[5,6,1] Phi[6,1,1]+Phi[2,6,1] Phi[6,7,1] Phi[7,2,1]+Phi[3,7,1] Phi[5,3,1] Phi[7,5,1]+Phi[1,8,1] Phi[3,1,1] Phi[8,3,1]+Phi[4,8,1] Phi[6,4,1] Phi[8,6,1]+Phi[1,2,1] Phi[2,9,1] Phi[9,1,1]+Phi[4,5,1] Phi[5,9,1] Phi[9,4,1]+Phi[7,8,1] Phi[8,9,1] Phi[9,7,1],Phi[1,2,1] Phi[2,3,1] Phi[3,1,1]+Phi[3,4,1] Phi[4,5,1] Phi[5,3,1]+Phi[2,6,1] Phi[4,2,1] Phi[6,4,1]+Phi[5,6,1] Phi[6,7,1] Phi[7,5,1]+Phi[3,7,1] Phi[7,8,1] Phi[8,3,1]+Phi[1,8,1] Phi[6,1,1] Phi[8,6,1]+Phi[1,5,1] Phi[5,9,1] Phi[9,1,1]+Phi[4,8,1] Phi[8,9,1] Phi[9,4,1]+Phi[2,9,1] Phi[7,2,1] Phi[9,7,1],{-(1/2),Sqrt[3]/2},{1,0}},
 {"L152",{{-1,-1},{0,-1},{2,0},{0,1}},{{{},{h1,h2},{},{-((13 h1)/14)-h2+(27 h3)/28},{},{}},{{},{},{-(h1/7)+h2+h3/14,(6 h1)/7+h3/14},{},{},{-((4 h1)/7)-h2+(11 h3)/14}},{{-((6 h1)/7)-h2+(13 h3)/14},{},{},{h2,h1},{},{}},{{},{-((6 h1)/7)-h2+(13 h3)/14},{},{},{(4 h1)/7+(3 h3)/14},{(5 h1)/14+h2-(5 h3)/28}},{{(5 h1)/14+h2-(5 h3)/28},{},{-((4 h1)/7)-h2+(11 h3)/14},{},{},{}},{{(4 h1)/7+(3 h3)/14},{},{},{},{-((11 h1)/14)+(11 h3)/28},{}}},Phi[1,2,1] Phi[2,3,1] Phi[3,1,1]+Phi[2,3,2] Phi[3,4,1] Phi[4,2,1]+Phi[1,4,1] Phi[4,5,1] Phi[5,1,1]+Phi[1,2,2] Phi[2,6,1] Phi[6,1,1]+Phi[3,4,2] Phi[4,6,1] Phi[5,3,1] Phi[6,5,1],Phi[1,2,2] Phi[2,3,2] Phi[3,1,1]+Phi[2,3,1] Phi[3,4,2] Phi[4,2,1]+Phi[3,4,1] Phi[4,5,1] Phi[5,3,1]+Phi[1,4,1] Phi[4,6,1] Phi[6,1,1]+Phi[1,2,1] Phi[2,6,1] Phi[5,1,1] Phi[6,5,1],{-(1/2),Sqrt[3]/2},{1,0}},
+{"Y30",{{1,0},{0,2},{-1,1},{0,-1}},{{{},{h1,-h1+h3/2},{},{},{},{}},{{},{},{h2},{},{-h2+h3/2},{}},{{},{},{},{h1,-h1+h3/2},{},{}},{{-h2+h3/2},{},{},{},{h2},{}},{{},{},{},{},{},{h1,-h1+h3/2}},{{h2},{},{-h2+h3/2},{},{},{}}},Phi[1,2,1] Phi[2,3,1] Phi[3,4,2] Phi[4,1,1]+Phi[1,2,2] Phi[2,5,1] Phi[5,6,1] Phi[6,1,1]+Phi[3,4,1] Phi[4,5,1] Phi[5,6,2] Phi[6,3,1],Phi[1,2,2] Phi[2,3,1] Phi[3,4,1] Phi[4,1,1]+Phi[1,2,1] Phi[2,5,1] Phi[5,6,2] Phi[6,1,1]+Phi[3,4,2] Phi[4,5,1] Phi[5,6,1] Phi[6,3,1],{1,0},{0,1}},
+{"Y31",{{1,0},{0,2},{-1,0},{0,-1}},{{{},{h1,-h1-(3 h2)/5+(4 h3)/5},{},{},{h2},{}},{{},{},{-((8 h2)/5)+(4 h3)/5},{},{},{h2}},{{},{},{},{h1+(2 h2)/5-h3/5,-h1-h2/5+(3 h3)/5},{},{}},{{(9 h2)/5-(2 h3)/5},{},{},{},{-((8 h2)/5)+(4 h3)/5},{}},{{},{},{},{},{},{h1,-h1-(3 h2)/5+(4 h3)/5}},{{h1-(2 h2)/5+h3/5,-h1-h2+h3},{},{(9 h2)/5-(2 h3)/5},{},{},{}}},Phi[1,2,1] Phi[2,3,1] Phi[3,4,2] Phi[4,1,1]+Phi[1,2,2] Phi[2,6,1] Phi[6,1,1]+Phi[1,5,1] Phi[5,6,1] Phi[6,1,2]+Phi[3,4,1] Phi[4,5,1] Phi[5,6,2] Phi[6,3,1],Phi[1,2,2] Phi[2,3,1] Phi[3,4,1] Phi[4,1,1]+Phi[1,5,1] Phi[5,6,2] Phi[6,1,1]+Phi[1,2,1] Phi[2,6,1] Phi[6,1,2]+Phi[3,4,2] Phi[4,5,1] Phi[5,6,1] Phi[6,3,1],{1,0},{0,1}},
 {"Y32=L153",{{-1,0},{-1,-1},{0,-1},{2,2}},{{{},{h1,h2},{},{},{},{}},{{},{},{(7 h1)/4+(3 h2)/4-(3 h3)/8,(3 h1)/4+(7 h2)/4-(3 h3)/8},{},{-((15 h1)/4)-(15 h2)/4+(19 h3)/8},{}},{{-((7 h1)/4)-(7 h2)/4+(11 h3)/8},{},{},{(3 h1)/2+h2/2-h3/4,h1/2+(3 h2)/2-h3/4},{},{}},{{},{-((9 h1)/4)-(9 h2)/4+(13 h3)/8},{},{},{(7 h1)/4+(3 h2)/4-(3 h3)/8,(3 h1)/4+(7 h2)/4-(3 h3)/8},{}},{{},{},{-((9 h1)/4)-(9 h2)/4+(13 h3)/8},{},{},{h1,h2}},{{(11 h1)/4+(11 h2)/4-(11 h3)/8},{},{},{-((7 h1)/4)-(7 h2)/4+(11 h3)/8},{},{}}},Phi[1,2,1] Phi[2,3,2] Phi[3,1,1]+Phi[2,3,1] Phi[3,4,2] Phi[4,2,1]+Phi[3,4,1] Phi[4,5,2] Phi[5,3,1]+Phi[1,2,2] Phi[2,5,1] Phi[5,6,1] Phi[6,1,1]+Phi[4,5,1] Phi[5,6,2] Phi[6,4,1],Phi[1,2,2] Phi[2,3,1] Phi[3,1,1]+Phi[2,3,2] Phi[3,4,1] Phi[4,2,1]+Phi[3,4,2] Phi[4,5,1] Phi[5,3,1]+Phi[1,2,1] Phi[2,5,1] Phi[5,6,2] Phi[6,1,1]+Phi[4,5,2] Phi[5,6,1] Phi[6,4,1],{1/2,Sqrt[3]/2},{1,0}},
 {"C^3/(1,1,3)",{{-1,0},{0,-1},{2,2}},{{{},{h1,h2},{},{-h1-h2+h3},{}},{{},{},{h1,h2},{},{-h1-h2+h3}},{{-h1-h2+h3},{},{},{h1,h2},{}},{{},{-h1-h2+h3},{},{},{h1,h2}},{{h1,h2},{},{-h1-h2+h3},{},{}}},Phi[1,2,1] Phi[2,3,2] Phi[3,1,1]+Phi[2,3,1] Phi[3,4,2] Phi[4,2,1]+Phi[1,2,2] Phi[2,5,1] Phi[5,1,1]+Phi[1,4,1] Phi[4,5,1] Phi[5,1,2]+Phi[3,4,1] Phi[4,5,2] Phi[5,3,1],Phi[1,2,2] Phi[2,3,1] Phi[3,1,1]+Phi[2,3,2] Phi[3,4,1] Phi[4,2,1]+Phi[1,4,1] Phi[4,5,2] Phi[5,1,1]+Phi[1,2,1] Phi[2,5,1] Phi[5,1,2]+Phi[3,4,2] Phi[4,5,1] Phi[5,3,1],{-(1/2),Sqrt[3]/2},{1,0}},
 {"C^3/(1,1,4)",{{-1,0},{0,-1},{1,4}},{{{},{h1,h2},{},{},{-h1-h2+h3},{}},{{},{},{h1,h2},{},{},{-h1-h2+h3}},{{-h1-h2+h3},{},{},{h1,h2},{},{}},{{},{-h1-h2+h3},{},{},{h1,h2},{}},{{},{},{-h1-h2+h3},{},{},{h1,h2}},{{h1,h2},{},{},{-h1-h2+h3},{},{}}},Phi[1,2,1] Phi[2,3,2] Phi[3,1,1]+Phi[2,3,1] Phi[3,4,2] Phi[4,2,1]+Phi[3,4,1] Phi[4,5,2] Phi[5,3,1]+Phi[1,2,2] Phi[2,6,1] Phi[6,1,1]+Phi[1,5,1] Phi[5,6,1] Phi[6,1,2]+Phi[4,5,1] Phi[5,6,2] Phi[6,4,1],Phi[1,2,2] Phi[2,3,1] Phi[3,1,1]+Phi[2,3,2] Phi[3,4,1] Phi[4,2,1]+Phi[3,4,2] Phi[4,5,1] Phi[5,3,1]+Phi[1,5,1] Phi[5,6,2] Phi[6,1,1]+Phi[1,2,1] Phi[2,6,1] Phi[6,1,2]+Phi[4,5,2] Phi[5,6,1] Phi[6,4,1],{-(1/2),Sqrt[3]/2},{1,0}}
