@@ -113,6 +113,8 @@
  * - Added D6Framing, D4Framing, CohomologicalWeight, CohomologicalSign, UnrefinedSeriesFromCrystal
  * - Merged ChargeFunction and VacuumChargeFunction
  * - Added data for Y30, Y31 
+ * - Nmin and Nmax in NCDTSeriesFromOmAtt/OmS are now dimension vectors
+ * - Added CyclicQuiverOmAtt,CyclicQuiverOmAttUnrefined,CyclicQuiverTrivialStacky 
  
  
  
@@ -557,11 +559,11 @@ TrivialStackInvariant::usage="TrivialStackInvariant[Mat_,Cvec_,Nvec_] computes t
 
 (* for framed invariants *)
 
-NCDTSeriesFromOmS::usage="NCDTSeriesFromOmS[Mat_, Framing_, Nmin_,Nmax_] constructs the gener- ating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Coulomb branch formula, for dimension vectors with height from Nmin up to NMax.";
+NCDTSeriesFromOmS::usage="NCDTSeriesFromOmS[Mat_, Framing_, Nmin_,Nmax_] constructs the gener- ating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Coulomb branch formula, for dimension vectors from Nmin up to Nmax.";
 
-NCDTSeriesFromOmAtt::usage="NCDTSeriesFromOmAtt[Mat_, Framing_, Nmin_,Nmax_] constructs the gen- erating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Flow Tree formula, for dimension vectors with height from Nmin up to NMax.";
+NCDTSeriesFromOmAtt::usage="NCDTSeriesFromOmAtt[Mat_, Framing_, Nmin_,Nmax_] constructs the gen- erating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Flow Tree formula, for dimension vectors from Nmin up to Nmax.";
 
-NCDTSeriesFromCrystal::usage="NCDTSeriesFromCrystal[hMat_, fMat_, theta_,phi_, Nmax_] constructs the generating function of refined NCDT invariants for the quiver with height matrix hMat and framing data Framing using the refined Quiver Yangian algorithm with C^*_{theta,phi} action, for dimension vectors with height up to NMax.";
+NCDTSeriesFromCrystal::usage="NCDTSeriesFromCrystal[hMat_, fMat_, theta_,phi_, Nn_] constructs the generating function of refined NCDT invariants for the quiver with height matrix hMat and framing data Framing using the refined Quiver Yangian algorithm with C^*_{theta,phi} action, for dimension vectors with height up to Nn.";
 
 UnrefinedSeriesFromCrystal::usage="UnrefinedSeriesFromCrystal[hMat_,fMat_,Nn_] constructs the generating function of unrefined NCDT invariants (y=1) or molten crystals (y=1) and framing data fMat using the Quiver Yangian algorithm, for dimension vectors with height up to NMax.";
 
@@ -688,7 +690,13 @@ HirzebruchR::usage = "HirzebruchR[J_,v_] is the function R_v(J) entering in the 
 
 GrassmannianPoincare::usage = "GrassmannianPoincare[k_,n_,y_] gives the Poincar\[EAcute] polynomial of the Grassmannian G(k,n)";
 
-CyclicQuiverOmS::usage = "CyclicQuiverOmS[Vec_,t_] gives the single-centered degeneracy associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+CyclicQuiverOmS::usage = "CyclicQuiverOmS[Vec_,t_] computes the single-centered degeneracy associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+
+CyclicQuiverOmAtt::usage = "CyclicQuiverOmS[Vec_,t_] computes the refined attractor index to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+
+CyclicQuiverOmAttUnrefined::usage = "CyclicQuiverOmAttUnrefined[Vec_] computes the unrefined attractor index to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+
+CyclicQuiverTrivialStacky::usage = "CyclicQuiverTrivialStacky[Vec,y_] gives the stacky invariant associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
 
 CyclicQuiverDSZ::usage = "CyclicQuiverDSZ[avec_] constructs the DSZ matrix for a cyclic quiver with avec[[i]] arrows from node i to node i+1";
 
@@ -2660,24 +2668,22 @@ Plus@@MonomialList[Expand[Z],Table[Subscript[x,k],{k,Length[hMat]}]]];
 NCDTSeriesFromOmS[Mat_,Framing_,Nmin_,Nmax_]:=Module[{n,Cvec,Cvec0,Ind,Mat1,Nvec,Dim},
 Mat1=FramedDSZ[Mat,Framing];Dim=1;
 Sum[Nvec=Flatten[{Dim,Table[n[i],{i,Length[Mat]}]}];
-If[(Plus@@Nvec<=Nmax+Dim)&&(Plus@@Nvec>=Nmin+1)&&ConnectedQuiverQ[Mat1,Nvec],
-PrintTemporary[Nvec];
+If[ConnectedQuiverQ[Mat1,Nvec],
 Cvec0=Flatten[{$QuiverPerturb1,Table[RandomInteger[{-$QuiverPerturb1,$QuiverPerturb1}]/$QuiverPerturb1,{i,Length[Mat]}]}];
 Cvec=Cvec0-Plus@@(Cvec0 Nvec)/Plus@@Nvec;
 Ind=CoulombBranchFormula[Mat1,Cvec,Nvec];
 Simplify[Ind]Product[Subscript[x,i]^n[i],{i,Length[Mat]}],0],
-##]&@@ ({n[#],0,Nmax}&/@Range[Length[Mat]])];
-              
+##]&@@ ({n[#],Nmin[[#]],Nmax[[#]]}&/@Range[Length[Mat]])];
+
 NCDTSeriesFromOmAtt[Mat_,Framing_,Nmin_,Nmax_]:=Module[{n,Cvec,Cvec0,Ind,Mat1,Nvec,Dim},
 Mat1=FramedDSZ[Mat,Framing];Dim=1;
 Sum[Nvec=Flatten[{Dim,Table[n[i],{i,Length[Mat]}]}];
-If[(Plus@@Nvec<=Nmax+Dim)&&(Plus@@Nvec>=Nmin+1)&&ConnectedQuiverQ[Mat1,Nvec],
-PrintTemporary[Nvec];
+If[ConnectedQuiverQ[Mat1,Nvec],
 Cvec0=Flatten[{$QuiverPerturb1,Table[RandomInteger[{-$QuiverPerturb1,$QuiverPerturb1}]/$QuiverPerturb1,{i,Length[Mat]}]}];
 Cvec=Cvec0-Plus@@(Cvec0 Nvec)/Plus@@Nvec;
 Ind=FlowTreeFormula[Mat1,Cvec,Nvec];
 Simplify[Ind]Product[Subscript[x,i]^n[i],{i,Length[Mat]}],0],
-##]&@@ ({n[#],0,Nmax}&/@Range[Length[Mat]])];
+##]&@@ ({n[#],Nmin[[#]],Nmax[[#]]}&/@Range[Length[Mat]])];
 
 BondFactor[hMat_,i_,j_,z_]:=Product[z+hMat[[j,i,k]],{k,Length[hMat[[j,i]]]}]/Product[z-hMat[[i,j,k]],{k,Length[hMat[[i,j]]]}];
 
@@ -2984,13 +2990,6 @@ RandomFI[gam_]:=Module[{m,mnonzero,k,Cvec},
 
 RandomCvec[gam_]:=RandomFI[gam];
 
-CyclicQuiverOmS[avec_,t_]:=Module[{n,P,eps,Pexp,x},n=Length[avec]; P=-1/2(t-1/t)/(1/t Product[(1+x[i] t),{i,n}]-t Product[(1+x[i] /t),{i,n}])(t Product[x[i]/(1+x[i] t),{i,n}]+1/t Product[x[i]/(1+x[i]/ t),{i,n}])+ 1/2Sum[(1-x[k]^2)/(1+x[k] t)/(1+x[k]/t)Product[If[i==k,1,x[i]/(1-x[i]/x[k])/(1-x[i]x[k])],{i,n}],{k,n}];
-  Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
-PrintTemporary["Simplifying"];
-Pexp=Simplify[Pexp];
- Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
-
-CyclicQuiverDSZ[Li_]:=Map[RotateRight,DiagonalMatrix[Li]]-Transpose[Map[RotateRight,DiagonalMatrix[Li]]];
 
 HirzebruchR[J_,v_]:=1/((1-v)/(1-Exp[-(1-v)J])+v);
 
@@ -3081,6 +3080,38 @@ so=Solve[Flatten[{EqW,EqV,Phi[i1,j1,k1]==h1,Phi[i2,j2,k2]==h2}]][[1]];
 Table[Table[Phi[i,j,k],{k,Mat[[i,j]]}],{i,Length[Mat]},{j,Length[Mat]}]/.so]
 
 QuiverMultiplierMat[i_,j_]:=If[Depth[$QuiverMultiplier]==1,$QuiverMultiplier,$QuiverMultiplier[[i,j]]];
+
+
+
+CyclicQuiverDSZ[Li_]:=Map[RotateRight,DiagonalMatrix[Li]]-Transpose[Map[RotateRight,DiagonalMatrix[Li]]];
+
+CyclicQuiverOmS[avec_,t_]:=Module[{n,P,eps,Pexp,x},n=Length[avec]; P=-1/2(t-1/t)/(1/t Product[(1+x[i] t),{i,n}]-t Product[(1+x[i] /t),{i,n}])(t Product[x[i]/(1+x[i] t),{i,n}]+1/t Product[x[i]/(1+x[i]/ t),{i,n}])+ 1/2Sum[(1-x[k]^2)/(1+x[k] t)/(1+x[k]/t)Product[If[i==k,1,x[i]/(1-x[i]/x[k])/(1-x[i]x[k])],{i,n}],{k,n}];
+  Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
+PrintTemporary["Simplifying"];
+Pexp=Simplify[Pexp];
+ Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
+
+CyclicQuiverOmAtt[avec_,y_]:=Module[{n,P,eps,Pexp,x,avec2},
+n=Length[avec]; 
+avec2=Sort[avec];
+P=Product[x[i] /(1+y x[i])/(1+x[i]/y),{i,n-1}](1/y Product[(1+y x[i]),{i,n-1}]-y  Product[(1+x[i]/y),{i,n-1}])/(1/y Product[(1+y x[i]),{i,n}]-y  Product[(1+x[i]/y),{i,n}]);
+  Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
+PrintTemporary["Simplifying"];
+Pexp=Simplify[Pexp];
+ Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
+
+CyclicQuiverOmAttUnrefined[avec_]:=
+(-1)^(1+Plus@@avec)((Times@@avec)/Max[avec]-
+Integrate[Product[LaguerreL[avec[[i]]-1,1,s],{i,Length[avec]}]Exp[-s],{s,0,Infinity}]);
+  
+CyclicQuiverTrivialStacky[avec_,y_]:=Module[{n,P,eps,Pexp,x},
+n=Length[avec]; 
+P=Product[x[i] /(1-y x[i]),{i,n}](y^n/(y-1/y)^n+y /(1/y Product[(1-y x[i]),{i,n}]-y  Product[(1-x[i]/y),{i,n}]));
+  Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
+PrintTemporary["Simplifying"];
+Pexp=Simplify[Pexp];
+ Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
+ 
 
 
 
