@@ -106,4 +106,14 @@ History of changes:
  * Release notes for 6.0:
  * - Added QuiverMultiplierMat, $QuiverMultiplierAssumption
  * - Updated demo notebooks
+ * 
+ * Release notes for 6.1:
+ * - Added TreeIndexOpt
+ * - Removed PMat argument from TreeIndex
+ * - Added D6Framing, D4Framing, CohomologicalWeight, CohomologicalSign, UnrefinedSeriesFromCrystal
+ * - Merged ChargeFunction and VacuumChargeFunction
+ * - Added data for Y30, Y31 
+ * - Nmin and Nmax in NCDTSeriesFromOmAtt/OmS are now dimension vectors
+ * - Added CyclicQuiverOmAtt,CyclicQuiverOmAttUnrefined,CyclicQuiverTrivialStacky 
+ 
 
