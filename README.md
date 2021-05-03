@@ -1,7 +1,7 @@
 # CoulombHiggs
 A mathematica package for computing quiver invariants
 
-This project started in joint work with Jan Manschot and Ashoke Sen on the Coulomb branch formula for computing the Poincaré-Laurent polynomial of the moduli space of stable representations of quivers [1011.1258, 1103.1887, 1207.2230, 1302.5498,1309.7053]. The first version of the code was released along with [1302.5498] on arXiv. Since then it has been expanded in many directions, including the Reineke formula for quivers without relations, the Jeffrey-Kirwan residue formula, various versions of the flow tree formula, and most recently the Quiver Yangian algorithm for computing non-commutative DT invariants and various tools for dealing with brane tilings. See the documentation for more details. The various versions have been uploaded on Git in Dec 2020. This Git repository is not intended for collaborative use.
+This project started in joint work with Jan Manschot and Ashoke Sen on the Coulomb branch formula for computing the Poincaré-Laurent polynomial of the moduli space of stable representations of quivers [1011.1258, 1103.1887, 1207.2230, 1302.5498,1309.7053]. The first version of the code was released along with [1302.5498] on arXiv. Since then it has been expanded in many directions, including the Reineke formula for quivers without relations, the Jeffrey-Kirwan residue formula, various versions of the flow tree formula, and most recently the Quiver Yangian algorithm for computing non-commutative DT invariants and various tools for dealing with brane tilings. See the documentation for more details. The various versions have been uploaded on Git for the first time in Dec 2020. This Git repository is not intended for collaborative use.
 
 The code can be used freely, but should be acknowledged if used for published results. Please send queries or bug reports to pioline@lpthe.jussieu.fr 
 
@@ -115,5 +115,9 @@ History of changes:
  * - Added data for Y30, Y31 
  * - Nmin and Nmax in NCDTSeriesFromOmAtt/OmS are now dimension vectors
  * - Added CyclicQuiverOmAtt,CyclicQuiverOmAttUnrefined,CyclicQuiverTrivialStacky 
+ *  
+ * Release notes for 6.2:
+ * - Added ExtendedCoulombIndex, CoulombIndexResidue, FindCollinearSolutions
+ * - Added ListClusters,  CoulombBranchFormulaNum,  CoulombBranchResidue
  
 
