@@ -2,9 +2,9 @@
 
 (*********************************************************************
  *
- *  CoulombHiggs.m 6.1            
+ *  CoulombHiggs.m 6.2            
  *                                                          
- *  Copyright B. Pioline, Jan 2021
+ *  Copyright B. Pioline, April 2021
  *
  *  Distributed under the terms of the GNU General Public License 
  *
@@ -115,11 +115,16 @@
  * - Added data for Y30, Y31 
  * - Nmin and Nmax in NCDTSeriesFromOmAtt/OmS are now dimension vectors
  * - Added CyclicQuiverOmAtt,CyclicQuiverOmAttUnrefined,CyclicQuiverTrivialStacky 
+ * - Added RefinedDerangementIndex
+ *
+ * Release notes for 6.2:
+ * - Added ExtendedCoulombIndex, CoulombIndexResidue, FindCollinearSolutions
+ * - Added ListClusters,  CoulombBranchFormulaNum,  CoulombBranchResidue
  
  
  
  *********************************************************************)
-Print["CoulombHiggs 6.1.2 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 6.2 - A package for evaluating quiver invariants"];
 
 
 
@@ -605,6 +610,22 @@ PlethysticLog::usage="PlethysticLog[f_,Nn_] computes the plethystic logarythm of
 
 ListKnownBraneTilings::usage ="ListKnownBraneTilings lists the names known brane tilings. The data for each can be extracted from the global variable BraneTilingsData";
 
+(* Coulomb branch localization *)
+
+FindCollinearSolutions::usage="FindCollinearSolutions[Mat_,PMat_,RMat_,Cvec_,r_] numerically solves the deformed Denef equations with adjacency matrix Mat (perturbed to PMat), R-charges RMat, stability parameters Cvec and deformation parameter r = \[Pi] Im[z]/\[Beta]. The result is a list of solutions {{z[i] \[RightArrow] #}, \[Sigma]} where \[Sigma] is the sign of the Hessian around the corresponding solution.";
+
+ListClusters::usage="ListClusters[ListPos_,r_] produces a list of lists (or clusters) of indices i such that the positions ListPos[[i]] have relative square distances less than Abs[r] in each cluster.";
+
+CoulombIndexResidue::usage="CoulombIndexResidue[ListSol_,Mat_,RMat_,r_,y_] omputes the contribu- tions of each collinear solution in ListSol by evaluating the residues of ione- loop determinant of chiral fields at suitable poles.";
+
+ExtendedCoulombIndex::usage="ExtendedCoulombIndex[Mat_,PMat_,RMat_,Cvec_,r_,y_] computes the index of an Abelian quiver with (or without) oriented loops by summing over solutions to deformed Denef equations, and computing the contribution of each by residue calculus. The result is a list of contributions associated to the various cluster shapes.";
+
+CoulombBranchResidue::usage="CoulombBranchResidue[ListSol_,Mat_,RMat_,Nvec_,r_,y_] computes the index of a non-Abelian quiver with (or without) oriented loops by summing over solutions to deformed Denef equations, and computing the contribution of each by residue calculus. The result is a list of contributions associated to the various cluster shapes.";
+
+CoulombBranchFormulaNum::usage="CoulombBranchFormulaNum[Mat_,PMat_,RMat_,Cvec_,Nvec_,r_,y_] computes the index of a non-Abelian quiver with (or without) oriented loops by summing over solutions to deformed Denef equations, and computing the contribution of each by residue calculus. The result is a list of contributions associated to the various cluster shapes. ";
+
+
+
 
 (** Utilities **)
 
@@ -698,7 +719,9 @@ CyclicQuiverOmAttUnrefined::usage = "CyclicQuiverOmAttUnrefined[Vec_] computes t
 
 CyclicQuiverTrivialStacky::usage = "CyclicQuiverTrivialStacky[Vec,y_] gives the stacky invariant associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
 
-CyclicQuiverDSZ::usage = "CyclicQuiverDSZ[avec_] constructs the DSZ matrix for a cyclic quiver with avec[[i]] arrows from node i to node i+1";
+CyclicQuiverDSZ::usage = "CyclicQuiverDSZ[Vec_] constructs the DSZ matrix for a cyclic quiver with Vec[[i]] arrows from node i to node i+1";
+
+DerangementIndex::usage="DerangementIndex[Vec_,y_] computes the number of derangements of a set of Vec[i] objects of color i, weighted by y^(n_+-n_-) where n_+/n_- are the number of objects which are displaced forward/backward with respect to standard ordering";
 
 EulerForm::usage = "EulerForm[Mat_] gives the Ringel-Tits form";
 
@@ -1459,6 +1482,8 @@ MinimalModif[f_]:=Module[{A,ListZeros,u,so},
 ];
 
 MinimalModifFast[f_]:=Module[{u},Residue[(1/u-u)(f/.{y->u})/(1-u y)/(1-u/y),{u,0}]];
+
+
 
 
 (* ::Section:: *)
@@ -2793,6 +2818,156 @@ Table[Table[Phi[i,j,k],{k,Mat[[i,j]]}],{i,Length[Mat]},{j,Length[Mat]}]/.so]
 
 
 
+(* ::Subsection:: *)
+(*Coulomb branch localization (G. Beaujard)*)
+
+
+FindCollinearSolutions[Mat_,PMat_,RMat_,Cvec_,r_]:=Module[{Solution,m,RPMat,RCvec,Listvar,ListSign,eps,pa,CoulombHessian,MatSign,Eq,soN,Listimsol,Listrealsol,Listsign,Listcorrectsign},
+m=Length[Cvec];
+	If[Abs[Plus@@Cvec]>$QuiverPrecision,
+		Print["CoulombIndexNum: c_i do not sum up to zero"]];
+	RPMat=Table[Random[Integer,{1,1000}],{i,m},{j,m}];
+	RPMat=5r/1000 Table[Which[
+		i<j,RPMat[[i,j]],
+		i>j,-RPMat[[j,i]],
+		i==j,0],{i,m},{j,m}];
+	RCvec=r/1000 Table[Random[Integer,{1,1000}],{i,m}];
+	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];	
+Listvar=Select[Flatten[Table[If[Mat[[i,j]]>0,u[i,j],{}],{i,m},{j,m}],1],Length[#]>0&];
+ListSign=Flatten[Table[Table[eps[i],{i,Length[Listvar]}],##]&@@Table[{eps[j],-1,1,2},{j,Length[Listvar]}],Length[Listvar]-1];
+pa=1;
+PrintTemporary["Solving with assuming signs " ,Dynamic[pa],"/",Length[ListSign]];
+Solution=Select[Table[
+If[$QuiverVerbose,PrintTemporary["Solving with assuming signs " ,ListSign[[pa]]," for ",Listvar];];
+       CoulombHessian=Table[If[i==j,Sum[If[i==k,0,(Mat[[i,k]])(z[i]-z[k]+RMat[[i,k]]r)/Abs[z[i]-z[k]+RMat[[i,k]]r]^3],{k,1,m}],-(Mat[[i,j]])(z[i]-z[j]+RMat[[i,j]]r)/Abs[z[i]-z[j]+RMat[[i,j]]r]^3],{i,1,m-1},{j,1,m-1}];
+MatSign=Table[If[Mat[[i,j]]>0,ListSign[[pa]][[Position[Listvar,u[i,j]][[1,1]]]],If[Mat[[i,j]]<0,-ListSign[[pa]][[Position[Listvar,u[j,i]][[1,1]]]],0]],{i,m},{j,m}];
+	  Eq=Flatten[{Table[Sum[If[i==j,0,
+        (PMat[[i,j]]+RPMat[[i,j]])/(z[i]-z[j]+RMat[[i,j]]r) MatSign[[i,j]]],{j,Length[Cvec]}]
+        -Cvec[[i]]-RCvec[[i]],{i,m}]==0,z[m]==0}];
+	  soN=NSolve[Eq,Table[z[i],{i,m}],WorkingPrecision->20];
+	  Listimsol=Table[Chop[Im[Table[z[i],{i,m}]/.soN[[j]]]],{j,Length[soN]}];
+	  Listrealsol=Flatten[Position[Listimsol,Table[0,{i,m}]]];
+	  Listsign=Table[Table[MatSign[[i,j]](z[i]-z[j]+r RMat[[i,j]])>=0,{i,m},{j,m}]/.{z[i_]:>Re[z[i]]}/.soN[[Listrealsol[[k]]]],{k,Length[Listrealsol]}];
+	  Listcorrectsign=Flatten[Position[Listsign,Table[True,{i,m},{j,m}]]];
+	  If[Length[Listcorrectsign]>=1,
+	 If[$QuiverVerbose,Print["Sign: ",ListSign[[pa]]," gives ",Length[Listcorrectsign]," solutions " ,Table[Table[z[i],{i,m}]/.soN[[Listrealsol[[Listcorrectsign[[k]]]]]],{k,Length[Listcorrectsign]}]  ," with sign(det)=",
+		Table[Sign[Det[(CoulombHessian/.{z[i_]:>Re[z[i]]}/.
+			soN[[Listrealsol[[Listcorrectsign[[j]]]]]])]],{j,Length[Listcorrectsign]}]];];
+  {Table[Table[z[i],{i,m}]/.soN[[Listrealsol[[Listcorrectsign[[k]]]]]],{k,Length[Listcorrectsign]}],
+		Table[Sign[Det[(CoulombHessian/.{z[i_]:>Re[z[i]]}/.
+			soN[[Listrealsol[[Listcorrectsign[[j]]]]]])]],{j,Length[Listcorrectsign]}]}]
+		,{pa,1,Length[ListSign]}]
+,Length[#]>0&
+    ];
+(*output : List of solutions {{z[i]\[Rule]#}},{Sign(Det(Hessian))}*)
+Solution
+];
+
+ListClusters[ListPos_,r_]:=Module[{Li,sol,m},
+m=Length[ListPos];
+sol=Table[z[i]->ListPos[[i]],{i,m}];
+Li=Sort[Table[{{i},z[i]},{i,m}]/.sol,#1[[2]]<#2[[2]]&];
+Do[
+If[(Li[[m-i,2]]-Li[[m-i+1,2]])^2<r^2,
+Li=Delete[(Li/.{Li[[m-i]]->{Union[Li[[m-i,1]],Li[[m-i+1,1]]],Li[[m-i,2]]} }),m-i+1];];
+,{i,m-1}];
+(*output: list of clusters in which square distances are less than r *)
+Select[Table[Li[[i,1]],{i,Length[Li]}],Length[#]>1&]
+];
+
+CoulombIndexResidue[ListSol_,Mat_,RMat_,r_,y_]:=Module[{m,pa,ListRes,MatSign,Res,Sing,ListPole,Sol,Z,listvar,Rp,Pole,TruePole,TrueRp,CoulombHessian,Sigma,sup},
+pa=1;
+PrintTemporary["Computing Residue " ,Dynamic[pa],"/",Length[ListSol]];
+m=Length[RMat];
+Rp={u[i_]:>Exp[z[i]],y^a_:>Exp[a r]};
+Z=u[m]/Product[u[i],{i,m}]/(y-1/y)^(m-1) Product[If[Mat[[i,j]]>0,(-(y^RMat[[i,j]]u[i]/u[j]/y-y)/(y^RMat[[i,j]]u[i]/u[j]-1))^Mat[[i,j]],(-(y^RMat[[j,i]]u[j]/u[i]/y-y)/(y^RMat[[j,i]]u[j]/u[i]-1))^Mat[[j,i]]],{i,m-1},{j,i+1,m}]//Simplify;
+ListPole=Flatten[{Table[u[i],{i,m-1}],Table[If[Mat[[i,j]]>0,(y^RMat[[i,j]]u[i]-u[j]),(y^RMat[[j,i]]u[j]-u[i])],{i,m-1},{j,i+1,m}]}];
+      ListRes=Table[
+Sol=Table[z[i]->ListSol[[pa,1,k,i]],{i,m}];
+Pole[1]={{{},(#/D[#,u[1]]//Simplify)&/@Select[ListPole,!(D[#,u[1]]===0)&],ListPole}};
+Do[
+Sigma[va]=Table[((1-#)&/@((Pole[va][[i,2]]/u[va]//Simplify)/.Rp))/.Exp[x_]:>-x//Simplify,{i,Length[Pole[va]]}];
+TruePole=Table[sup={};
+Do[If[(Sigma[va][[j,i]]/.Sol)<0,AppendTo[sup,{i}]],{i,Length[Sigma[va][[j]]]}];
+Delete[Pole[va][[j,2]],sup]
+,{j,Length[Sigma[va]]}];
+TrueRp=(Flatten[Solve[#==0,u[va]]]&/@#)&/@TruePole;
+Pole[va+1]=Flatten[Table[{Union[TrueRp[[j,i]],Pole[va][[j,1]]],DeleteDuplicates[(#/D[#,u[va+1]]//Simplify)&/@Select[Select[Pole[va][[j,3]]/.TrueRp[[j,i]],!(#===0)&],!(D[#,u[va+1]]===0)&]],Pole[va][[j,3]]/.TrueRp[[j,i]]},{j,Length[TrueRp]},{i,Length[TrueRp[[j]]]}],1];
+,{va,m-1}];
+Do[Res[i]=Z,{i,Length[Pole[m]]}];
+Do[
+Do[Res[k]=Residue[Res[k],{u[i],(u[i]/.Pole[m][[k,1]])}],{i,m-1}];
+,{k,Length[Pole[m]]}];
+Table[Res[i],{i,Length[Pole[m]]}]
+,{pa,Length[ListSol]},{k,Length[ListSol[[pa,1]]]}];
+(*Print["Sign which contribute:",Table[CoulombSign[[i,1]],{i,Length[CoulombSign]}]];*)
+(* return list of residues *)
+Table[Table[ListSol[[i,2,k]]ListRes[[i,k]],{k,Length[ListSol[[i,2]]]}],{i,Length[ListSol]}]//Simplify
+];
+
+ExtendedCoulombIndex[Mat_,PMat_,RMat_,Cvec_,r_,y_]:=Module[{ListSol,ResList,ResReg,m,Cluster},
+m=Length[Mat];
+ListSol=FindCollinearSolutions[Mat,PMat,RMat,Cvec,r];
+ResList=CoulombIndexResidue[ListSol,Mat,RMat,r,y];
+Cluster=Table[ListClusters[ListSol[[i,1,j]],10r],{i,Length[ListSol]},{j,Length[ListSol[[i,1]]]}];
+ResReg=SortBy[Gather[Flatten[Table[{Cluster[[i,j]],i,j},{i,Length[Cluster]},{j,Length[Cluster[[i]]]}],1],First[#1]==First[#2]&],Length[#[[1,1]]]&];
+Do[Print[Subscript["I",If[Length[ResReg[[i,1,1]]]==0,"reg",ResReg[[i,1,1]]]]," = ",Sum[Plus@@ResList[[ResReg[[i,j,2]],ResReg[[i,j,3]]]],{j,Length[ResReg[[i]]]}]//Simplify];,{i,Length[ResReg]}];
+Print[Subscript["I","tot"]," = ",Plus@@Flatten[ResList]//Simplify];
+(*Return list of contribution by cluster type*)
+Table[Sum[Plus@@ResList[[ResReg[[i,j,2]],ResReg[[i,j,3]]]],{j,Length[ResReg[[i]]]}]//Factor,{i,Length[ResReg]}]
+];
+
+CoulombBranchResidue[ListSol_,Mat_,RMat_,Nvec_,r_,y_]:=Module[{m,pa,ListRes,MatSign,Res,Sing,ListPole,Sol,Z,listvar,Rp,Pole,TruePole,TrueRp,CoulombHessian,Sigma,sup},
+pa=1;
+PrintTemporary["Computing Residue " ,Dynamic[pa],"/",Length[ListSol]];
+m=Length[RMat];
+listvar=Flatten[Table[{i,j},{i,m},{j,Nvec[[i]]}],1];
+Rp={u[i_,j_]:>Exp[z[i,j]],y^a_:>Exp[a r]};
+Z=1/Product[Nvec[[i]]!,{i,m}] Product[-(u[i,j]-u[i,k])^2/(u[i,j]/y-u[i,k] y)/(u[i,k]/y-u[i,j] y),{i,m},{j,Nvec[[i]]-1},{k,j+1,Nvec[[i]]}]u[m,Nvec[[m]]]/Product[u[i,j],{i,m},{j,Nvec[[i]]}]/(y-1/y)^(Plus@@Nvec-1) Product[If[Mat[[i,j]]>0,(-(y^RMat[[i,j]]u[i,k]/u[j,l]/y-y)/(y^RMat[[i,j]]u[i,k]/u[j,l]-1))^Mat[[i,j]],(-(y^RMat[[j,i]]u[j,l]/u[i,k]/y-y)/(y^RMat[[j,i]]u[j,l]/u[i,k]-1))^Mat[[j,i]]],{i,m-1},{j,i+1,m},{k,Nvec[[i]]},{l,Nvec[[j]]}]//Simplify;
+ListPole=Flatten[{Delete[Table[u[i,k],{i,m},{k,Nvec[[i]]}],{m,Nvec[[m]]}],Table[If[Mat[[i,j]]>0,(y^RMat[[i,j]]u[i,k]-u[j,l]),(y^RMat[[j,i]]u[j,l]-u[i,k])],{i,m-1},{j,i+1,m},{k,Nvec[[i]]},{l,Nvec[[j]]}]}];
+      ListRes=Table[
+Sol=Flatten[Table[z[i,j]->ListSol[[pa,1,k,Sum[Nvec[[l]],{l,i-1}]+j]],{i,m},{j,Nvec[[i]]}]];
+Pole[1,1]={{{},(#/D[#,u[1,1]]//Simplify)&/@Select[ListPole,!(D[#,u[1,1]]===0)&],ListPole}};
+Do[
+Sigma[listvar[[va,1]],listvar[[va,2]]]=Table[((1-#)&/@((Pole[listvar[[va,1]],listvar[[va,2]]][[i,2]]/u[listvar[[va,1]],listvar[[va,2]]]//Simplify)/.Rp))/.Exp[x_]:>-x//Simplify,{i,Length[Pole[listvar[[va,1]],listvar[[va,2]]]]}];
+TruePole=Table[sup={};
+Do[If[(Sigma[listvar[[va,1]],listvar[[va,2]]][[j,i]]/.Sol)<0,AppendTo[sup,{i}]],{i,Length[Sigma[listvar[[va,1]],listvar[[va,2]]][[j]]]}];
+Delete[Pole[listvar[[va,1]],listvar[[va,2]]][[j,2]],sup]
+,{j,Length[Sigma[listvar[[va,1]],listvar[[va,2]]]]}];
+TrueRp=(Flatten[Solve[#==0,u[listvar[[va,1]],listvar[[va,2]]]]]&/@#)&/@TruePole;
+Pole[listvar[[va+1,1]],listvar[[va+1,2]]]=Flatten[Table[{Union[TrueRp[[j,i]],Pole[listvar[[va,1]],listvar[[va,2]]][[j,1]]],DeleteDuplicates[(#/D[#,u[listvar[[va+1,1]],listvar[[va+1,2]]]]//Simplify)&/@Select[Select[Pole[listvar[[va,1]],listvar[[va,2]]][[j,3]]/.TrueRp[[j,i]],!(#===0)&],!(D[#,u[listvar[[va+1,1]],listvar[[va+1,2]]]]===0)&]],Pole[listvar[[va,1]],listvar[[va,2]]][[j,3]]/.TrueRp[[j,i]]},{j,Length[TrueRp]},{i,Length[TrueRp[[j]]]}],1];
+,{va,Length[listvar]-1}];
+Do[Res[i]=Z,{i,Length[Pole[m,Nvec[[m]]]]}];
+Do[
+Do[Res[k]=Residue[Res[k],{u[i,j],(u[i,j]/.Pole[m,Nvec[[m]]][[k,1]])}],{i,m-1},{j,Nvec[[i]]}];
+Do[Res[k]=Residue[Res[k],{u[m,j],(u[m,j]/.Pole[m,Nvec[[m]]][[k,1]])}],{j,Nvec[[m]]-1}];
+,{k,Length[Pole[m,Nvec[[m]]]]}];
+Table[Res[i],{i,Length[Pole[m,Nvec[[m]]]]}]
+,{pa,Length[ListSol]},{k,Length[ListSol[[pa,1]]]}];
+(*Print["Sign which contribute:",Table[CoulombSign[[i,1]],{i,Length[CoulombSign]}]];*)
+(* return list of residues *)
+Table[Table[ListSol[[i,2,k]]ListRes[[i,k]],{k,Length[ListSol[[i,2]]]}],{i,Length[ListSol]}]//Simplify
+];
+
+CoulombBranchFormulaNum[Mat_,PMat_,RMat_,Cvec_,Nvec_,r_,y_]:=Module[{ListSol,ResList,ResReg,m,Cluster,MatAb,CvecAb,RMatAb,RdMat,PMatAb},
+m=Length[Mat];
+CvecAb=Flatten[Table[Cvec[[i]],{i,m},{k,Nvec[[i]]}]];
+MatAb=Flatten[Table[Flatten[Table[Mat[[j,i]],{i,m},{k,Nvec[[i]]}]],{j,m},{l,Nvec[[j]]}],1];
+RMatAb=Flatten[Table[Flatten[Table[RMat[[j,i]],{i,m},{k,Nvec[[i]]}]],{j,m},{l,Nvec[[j]]}],1];
+RdMat=RandomInteger[{-500,500},{Plus@@Nvec,Plus@@Nvec}];
+PMatAb=MatAb(*+(RdMat-Transpose[RdMat])/100 10 r*);
+ListSol=FindCollinearSolutions[MatAb,PMatAb,RMatAb,CvecAb,r];
+ResList=CoulombBranchResidue[ListSol,Mat,RMat,Nvec,r,y];
+Cluster=Table[ListClusters[ListSol[[i,1,j]],20r],{i,Length[ListSol]},{j,Length[ListSol[[i,1]]]}];
+ResReg=SortBy[Gather[Flatten[Table[{Cluster[[i,j]],i,j},{i,Length[Cluster]},{j,Length[Cluster[[i]]]}],1],First[#1]==First[#2]&],Length[#[[1,1]]]&];
+Do[Print[Subscript["I",If[Length[ResReg[[i,1,1]]]==0,"reg",ResReg[[i,1,1]]]]," = ",Sum[Plus@@ResList[[ResReg[[i,j,2]],ResReg[[i,j,3]]]],{j,Length[ResReg[[i]]]}]//Simplify];,{i,Length[ResReg]}];
+Print[Subscript["I","tot"]," = ",Plus@@Flatten[ResList]//Simplify];
+(*Return list of contribution by regime*)
+Table[Sum[Plus@@ResList[[ResReg[[i,j,2]],ResReg[[i,j,3]]]],{j,Length[ResReg[[i]]]}]//Simplify,{i,Length[ResReg]}]
+];
+
+
+
 (* ::Section:: *)
 (*Misc. Utilities*)
 
@@ -3085,7 +3260,7 @@ QuiverMultiplierMat[i_,j_]:=If[Depth[$QuiverMultiplier]==1,$QuiverMultiplier,$Qu
 
 CyclicQuiverDSZ[Li_]:=Map[RotateRight,DiagonalMatrix[Li]]-Transpose[Map[RotateRight,DiagonalMatrix[Li]]];
 
-CyclicQuiverOmS[avec_,t_]:=Module[{n,P,eps,Pexp,x},n=Length[avec]; P=-1/2(t-1/t)/(1/t Product[(1+x[i] t),{i,n}]-t Product[(1+x[i] /t),{i,n}])(t Product[x[i]/(1+x[i] t),{i,n}]+1/t Product[x[i]/(1+x[i]/ t),{i,n}])+ 1/2Sum[(1-x[k]^2)/(1+x[k] t)/(1+x[k]/t)Product[If[i==k,1,x[i]/(1-x[i]/x[k])/(1-x[i]x[k])],{i,n}],{k,n}];
+(* CyclicQuiverOmS[avec_,t_]:=Module[{n,P,eps,Pexp,x},n=Length[avec]; P=-1/2(t-1/t)/(1/t Product[(1+x[i] t),{i,n}]-t Product[(1+x[i] /t),{i,n}])(t Product[x[i]/(1+x[i] t),{i,n}]+1/t Product[x[i]/(1+x[i]/ t),{i,n}])+ 1/2Sum[(1-x[k]^2)/(1+x[k] t)/(1+x[k]/t)Product[If[i==k,1,x[i]/(1-x[i]/x[k])/(1-x[i]x[k])],{i,n}],{k,n}];
   Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
 PrintTemporary["Simplifying"];
 Pexp=Simplify[Pexp];
@@ -3100,10 +3275,6 @@ PrintTemporary["Simplifying"];
 Pexp=Simplify[Pexp];
  Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
 
-CyclicQuiverOmAttUnrefined[avec_]:=
-(-1)^(1+Plus@@avec)((Times@@avec)/Max[avec]-
-Integrate[Product[LaguerreL[avec[[i]]-1,1,s],{i,Length[avec]}]Exp[-s],{s,0,Infinity}]);
-  
 CyclicQuiverTrivialStacky[avec_,y_]:=Module[{n,P,eps,Pexp,x},
 n=Length[avec]; 
 P=Product[x[i] /(1-y x[i]),{i,n}](y^n/(y-1/y)^n+y /(1/y Product[(1-y x[i]),{i,n}]-y  Product[(1-x[i]/y),{i,n}]));
@@ -3111,7 +3282,41 @@ P=Product[x[i] /(1-y x[i]),{i,n}](y^n/(y-1/y)^n+y /(1/y Product[(1-y x[i]),{i,n}
 PrintTemporary["Simplifying"];
 Pexp=Simplify[Pexp];
  Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
+
+DerangementIndex[avec_,y_]:=Module[{n,P,eps,Pexp,x},
+n=Length[avec]; P=1/((1/y Product[(1-y x[i]),{i,n}]-y  Product[(1-x[i]/y),{i,n}])/(1/y-y));
+  Pexp=SeriesCoefficient[Series[P/.x[i_]->eps x[i],{eps,0,Plus@@avec}],Plus@@avec];
+PrintTemporary["Simplifying"];
+Pexp=Simplify[Pexp];
+ Do[PrintTemporary["Taking derivative ",i];Pexp=D[Pexp,{x[i],avec[[i]]}]/avec[[i]]!/.x[i]->0,{i,n}];Simplify[Pexp]];
+
+*)
+
+CyclicQuiverOmS[avec_,t_]:=Module[{n,P},n=Length[avec]; P=-1/2(t-1/t)/(1/t Product[(1+x[i] t),{i,n}]-t Product[(1+x[i] /t),{i,n}])(t Product[x[i]/(1+x[i] t),{i,n}]+1/t Product[x[i]/(1+x[i]/ t),{i,n}])+ 1/2Sum[(1-x[k]^2)/(1+x[k] t)/(1+x[k]/t)Product[If[i==k,1,x[i]/(1-x[i]/x[k])/(1-x[i]x[k])],{i,n}],{k,n}];
+SeriesCoefficient[P,##]&@@Table[{x[i],0,avec[[i]]},{i,n}]
+];
+
+CyclicQuiverOmAtt[avec_,y_]:=Module[{n,P,avec2},
+n=Length[avec]; 
+avec2=Sort[avec];
+P=Product[x[i] /(1+y x[i])/(1+x[i]/y),{i,n-1}](1/y Product[(1+y x[i]),{i,n-1}]-y  Product[(1+x[i]/y),{i,n-1}])/(1/y Product[(1+y x[i]),{i,n}]-y  Product[(1+x[i]/y),{i,n}]);
+ SeriesCoefficient[P,##]&@@Table[{x[i],0,avec[[i]]},{i,n}]];
+
+CyclicQuiverTrivialStacky[avec_,y_]:=Module[{n,P,eps,Pexp,x},
+n=Length[avec]; 
+P=Product[x[i] /(1-y x[i]),{i,n}](y^n/(y-1/y)^n+y /(1/y Product[(1-y x[i]),{i,n}]-y  Product[(1-x[i]/y),{i,n}]));
+ SeriesCoefficient[P,##]&@@Table[{x[i],0,avec[[i]]},{i,n}]];
+
+
+CyclicQuiverOmAttUnrefined[avec_]:=
+(-1)^(1+Plus@@avec)((Times@@avec)/Max[avec]-
+Integrate[Product[LaguerreL[avec[[i]]-1,1,s],{i,Length[avec]}]Exp[-s],{s,0,Infinity}]);
+  
+DerangementIndex[avec_,y_]:=Module[{n,P},
+n=Length[avec]; P=1/((1/y Product[(1-y x[i]),{i,n}]-y  Product[(1-x[i]/y),{i,n}])/(1/y-y));
+ SeriesCoefficient[P,##]&@@Table[{x[i],0,avec[[i]]},{i,n}]]; 
  
+  
 
 
 
