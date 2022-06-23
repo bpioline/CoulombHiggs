@@ -132,6 +132,9 @@ Print["CoulombHiggs 6.2 - A package for evaluating quiver invariants"];
 
 BeginPackage["CoulombHiggs`"]
 
+Unprotect[CoulombF, CoulombG]; (* avoid name conflict with new functions in Mathematica 13 *)
+ClearAll[CoulombF, CoulombG];
+
 (** symbols **)
 
 y::usage = "Angular momentum fugacity, conjugate to sum of Dolbeault degrees";
@@ -436,15 +439,15 @@ TreePoincarePolynomialRat::usage = "TreePoincarePolynomialRat[gam_,y_] expresses
 
 EvalTreeIndex::usage="EvalTreeIndex[Mat_,Cvec_,f_] evaluates any Treeg[Li,y] appearing in f using TreeIndex[] with arguments computed from the full DSZ matrix Mat and the stability parameters Cvec ";
 
-TreeIndex::"TreeIndex[Mat_,Cvec_,y_] computes the tree index by summing all partial tree indices computed using TreeF[]";
+TreeIndex::usage="TreeIndex[Mat_,Cvec_,y_] computes the tree index by summing all partial tree indices computed using TreeF[]";
 
-TreeIndexOpt::"TreeIndexOpt[Mat_,Cvec_,y_] computes the tree index by summing all planar binary trees using TreeIndexRecursive[]";
+TreeIndexOpt::usage="TreeIndexOpt[Mat_,Cvec_,y_] computes the tree index by summing all planar binary trees using TreeIndexRecursive[]";
 
-TreeIndexRecursive::"TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_] recursively constructs the sum over planar binary trees with leaves decorated by basis vectors summing up to Nvec";
+TreeIndexRecursive::usage="TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_] recursively constructs the sum over planar binary trees with leaves decorated by basis vectors summing up to Nvec";
 
 TreeF::usage="TreeF[Mat_,Cvec_] computes the partial tree index by summing over stable planar trees using PlaneTreeSign[]";
 
-PlaneTreeSign::"PlaneTreeSign[Mat_,Cvec_,Li_] computes the contribution to the partial tree index from the grouping Li recursively ";
+PlaneTreeSign::usage="PlaneTreeSign[Mat_,Cvec_,Li_] computes the contribution to the partial tree index from the grouping Li recursively ";
 
 TreeFAlt1::usage="TreeFAlt1[Mat_,Cvec_] computes the partial tree index by summing over stable planar trees using the first alternative recursion ";
 
@@ -1668,8 +1671,8 @@ If[$QuiverVerbose,
           If[(Abs[Plus@@(Nvec Cvec)]>$QuiverPrecision)&&$QuiverVerbose,
 		Print["StackInvariantFast: FI terms do not sum up to zero, shifting",Cvec," to ",Cvec0];
     ]];   
-Li=Union[Flatten[{{Nvec},{ConstantArray[0,Length[Nvec]]},Select[SubVectors[Nvec],#.Cvec0>0 &]},1]];
-ReinekeMatrix=Table[If[i==j,1,If[Max[Li[[i]]-Li[[j]]]<=0,(-y)^(-Li[[i]].(Transpose[Eu]-Eu).Li[[j]]-(Li[[j]]-Li[[i]]).Eu.(Li[[j]]-Li[[i]]))/
+Li=Union[Flatten[{{Nvec},{ConstantArray[0,Length[Nvec]]},Select[SubVectors[Nvec],# . Cvec0>0 &]},1]];
+ReinekeMatrix=Table[If[i==j,1,If[Max[Li[[i]]-Li[[j]]]<=0,(-y)^(-Li[[i]] . (Transpose[Eu]-Eu) . Li[[j]]-(Li[[j]]-Li[[i]]) . Eu . (Li[[j]]-Li[[i]]))/
 Product[1-y^(-2l),{k,Length[Nvec]},{l,1,Li[[j,k]]-Li[[i,k]]}]
 ,0]],{i,Length[Li]},{j,Length[Li]}];
 If[$QuiverVerbose,PrintTemporary["StackInvariantFast: Inverting matrix of size ",Length[Li]]];
@@ -1921,7 +1924,7 @@ JKResidueTrig[StableFlag_,ZTrig_]:=Module[{Inter,QT,QTi,Ksign,repu,gt,i,j},
 Inter=StableFlag[[1]]; 
   QT=StableFlag[[3]]; QTi=Inverse[QT];
   Ksign=Sign[Det[StableFlag[[4]]]];
-repu=Table[JKListu[[i]]->(Inverse[QT].JKListut+Inter)[[i]],{i,Length[JKListu]}];
+repu=Table[JKListu[[i]]->(Inverse[QT] . JKListut+Inter)[[i]],{i,Length[JKListu]}];
 gt=(ZTrig/.repu)/Det[QT] /.JKFrozenRuleEuler;
 If[$QuiverVerbose,PrintTemporary["JKResidueTrig: Step ",Dynamic[i],"/",Length[JKListut]]];
 Do[
@@ -1972,19 +1975,19 @@ FindIntersection[Sing_]:=Module[{QT,Rvec,i,d,so0,so1},
   If[d==0,(*Print["Degenerate intersection"];*)
    {},
   If[d==1,
-  (JKListu/.Solve[QT.JKListu+Rvec/2==0,JKListu])
+  (JKListu/.Solve[QT . JKListu+Rvec/2==0,JKListu])
   ,Print["Two hyperplanes intersect more than once !"];
  (* inhomogenous solution *)
-  so0=Solve[QT.JKListu+Rvec/2==0,JKListu];
+  so0=Solve[QT . JKListu+Rvec/2==0,JKListu];
  (* homogeneous solution mod Det *)
-so1=Select[Flatten[Table[If[Mod[QT.JKListu,d]==ConstantArray[0,Length[JKListu]],JKListu,{}],##]&@@Table[{JKListu[[i]],0,d-1},{i,Length[JKListu]}],Length[JKListu]-1],Length[#]>0&];
+so1=Select[Flatten[Table[If[Mod[QT . JKListu,d]==ConstantArray[0,Length[JKListu]],JKListu,{}],##]&@@Table[{JKListu[[i]],0,d-1},{i,Length[JKListu]}],Length[JKListu]-1],Length[#]>0&];
 Flatten[Table[(JKListu/.so0[[1]])+(so1[[i]]+tau so1[[j]])/d,{i,Length[so1]},{j,Length[so1]}],1]]
 ]];
 
 FlagToHyperplanes[Sing_]:=Module[{QT,Rvec},
 Rvec=Table[Sing[[i,-2]],{i,Length[Sing]}];
 QT=Map[Drop[#,-2]&,Sing];
-QT.JKListuDisplay+ Rvec/2];
+QT . JKListuDisplay+ Rvec/2];
 
 PartitionToPermutation[pa_]:=Module[{perm={},i=1,ta,mul},Do[AppendTo[perm,Range[i,i+pa[[j]]-1]];i=i+pa[[j]],{j,Length[pa]}];
  PermutationList[Cycles[perm],Plus@@pa]];
@@ -2013,7 +2016,7 @@ ListHyperplanesIntersectingAt[ListSings_,Inter_]:=ListSings[[Position[ListSings,
 
 TestProjectiveIntersection[ListSings_,Inter_]:=Module[{QT},
 QT=TrimChargeTable[ListHyperplanesIntersectingAt[ListSings,Inter]];
-If[Length[FindInstance[Min[QT.JKListu]>0,JKListu]]==0,False,True]];
+If[Length[FindInstance[Min[QT . JKListu]>0,JKListu]]==0,False,True]];
 
 (* collect hyperplanes which intersect at the point Inter *)
 CollectHyperplanes[ListInterrplets_,Inter_]:=Module[{Li,ListInter},
@@ -2022,7 +2025,7 @@ Li=Flatten[Transpose[Position[ListInter,Inter]][[1]]];
 Union[Flatten[Table[ListInterrplets[[Li[[i]],2]],{i,Length[Li]}],1]]
 ];
 
-SameFlagQ[Q1_,Q2_]:=Module[{i,j,Q3},Q3=Q2.Inverse[Q1];Union[Flatten[Table[Q3[[i,j]],{i,1,Length[Q3]-1},{j,i+1,Length[Q3]}]]]]=={0};
+SameFlagQ[Q1_,Q2_]:=Module[{i,j,Q3},Q3=Q2 . Inverse[Q1];Union[Flatten[Table[Q3[[i,j]],{i,1,Length[Q3]-1},{j,i+1,Length[Q3]}]]]]=={0};
 
 FindSingularities[ChargeMatrix_]:=Module[{Listrplets,ListInterrplets,ListInterDistinct,ListSings},
 If[Length[ChargeMatrix]>0,(* list of all r-plets of hyperplanes *)
@@ -2048,7 +2051,7 @@ Select[Table[
 QT=TrimChargeTable[ListFlags[[j]]];
 KTab=Table[Sum[If[MatrixRank[Flatten[{Take[QT,r],{ListCharges[[i]]}},1]]==r,(* charge belongs to r-th graded component *) ListCharges[[i]],ConstantArray[0,Length[QT]]],{i,Length[ListCharges]}],{r,Length[QT]}];
 If[Det[KTab]!=0,
- If[Min[Pick[Etavec,JKFrozenMask].Inverse[KTab]]>=0,
+ If[Min[Pick[Etavec,JKFrozenMask] . Inverse[KTab]]>=0,
 {Inter,ListFlags[[j]],QT,KTab},{}],{}],
 {j,Length[ListFlags]}], Length[#]>0&]],
 {k,Length[ListSubsets]}],1], Length[#]>0&];
@@ -2063,7 +2066,7 @@ ListCharges=TrimChargeTable[ListHyper];
 (* construct the kappa matrix *) 
 KTab=Table[Sum[If[MatrixRank[Flatten[{Take[QT,r],{ListCharges[[i]]}},1]]==r,(* charge belongs to r-th graded component *) ListCharges[[i]],ConstantArray[0,Length[QT]]],{i,Length[ListCharges]}],{r,Length[QT]}];
 If[Det[KTab]==0,0,
-         If[Min[Pick[Etavec,JKFrozenMask].Inverse[KTab]]>=0,
+         If[Min[Pick[Etavec,JKFrozenMask] . Inverse[KTab]]>=0,
 Sign[Det[KTab]],0]]
 ];
 
@@ -2079,7 +2082,7 @@ Select[Table[
 QT=TrimChargeTable[ListFlags[[j]]];
 KTab=Table[Sum[If[MatrixRank[Flatten[{Take[QT,r],{ListCharges[[i]]}},1]]==r,(* charge belongs to r-th graded component *) ListCharges[[i]],ConstantArray[0,Length[QT]]],{i,Length[ListCharges]}],{r,Length[QT]}];
 If[Det[KTab]!=0,
-{Inter, QT, KTab , (*ListFlags[[j]],*) FlagToHyperplanes[ListFlags[[j]]],Sign[Det[KTab]],Reduce[And@@Map[#>0&,Pick[Etavec,JKFrozenMask].Inverse[KTab]]]},{}],
+{Inter, QT, KTab , (*ListFlags[[j]],*) FlagToHyperplanes[ListFlags[[j]]],Sign[Det[KTab]],Reduce[And@@Map[#>0&,Pick[Etavec,JKFrozenMask] . Inverse[KTab]]]},{}],
 {j,Length[ListFlags]}], Length[#]>0&]],
 {k,Length[ListSubsets]}],1], Length[#]>0&];
 (*ListDistinctFlags=DeleteDuplicates[ListStableFlags,SameFlagQ[#1[[3]],#2[[3]]]&]; *)
@@ -2088,7 +2091,7 @@ ListDistinctFlags
 ];
 
 FindDegrees[ListSings_,NumSing_]:=Module[{NumHyperplanes,ListVanishingHyperplanes},
-If[Length[NumSing]>0&&Length[ListSings]>0,NumHyperplanes=TrimChargeTable[NumSing].JKListu+z Table[NumSing[[i,-2]]/2,{i,Length[NumSing]}];
+If[Length[NumSing]>0&&Length[ListSings]>0,NumHyperplanes=TrimChargeTable[NumSing] . JKListu+z Table[NumSing[[i,-2]]/2,{i,Length[NumSing]}];
 Table[
 ListVanishingHyperplanes=Flatten[Position[NumHyperplanes/.Table[JKListu[[j]]->ListSings[[i,1,j]],{j,Length[JKListu]}],0]];
 {ListSings[[i,1]],Plus@@Flatten[{Last/@ListSings[[i,2]],-(Last[NumSing[[#]]]&)/@ListVanishingHyperplanes}]},{i,Length[ListSings]}],{}]
@@ -2097,9 +2100,9 @@ ListVanishingHyperplanes=Flatten[Position[NumHyperplanes/.Table[JKListu[[j]]->Li
 FindMultiDegree[ListSings_,NumSing_,Inter_,StableFlag_]:=Module[{DenomSing,QT,repu,reput,DenomHyperplanes,NumHyperplanes,ListVanishingHyperplanesDenom,ListVanishingHyperplanesNum,SingIndex},
 SingIndex=Position[Map[First,ListSings],Inter][[1,1]];
 DenomSing=ListSings[[SingIndex,2]];
-DenomHyperplanes=TrimChargeTable[DenomSing].JKListu+z Table[DenomSing[[i,-2]]/2,{i,Length[DenomSing]}];
-NumHyperplanes=TrimChargeTable[NumSing].JKListu+z Table[NumSing[[i,-2]]/2,{i,Length[NumSing]}];
-QT=TrimChargeTable[StableFlag];repu=Table[JKListu[[i]]->(Inverse[QT].JKListut+Inter)[[i]],{i,Length[JKListu]}];
+DenomHyperplanes=TrimChargeTable[DenomSing] . JKListu+z Table[DenomSing[[i,-2]]/2,{i,Length[DenomSing]}];
+NumHyperplanes=TrimChargeTable[NumSing] . JKListu+z Table[NumSing[[i,-2]]/2,{i,Length[NumSing]}];
+QT=TrimChargeTable[StableFlag];repu=Table[JKListu[[i]]->(Inverse[QT] . JKListut+Inter)[[i]],{i,Length[JKListu]}];
 Table[
 ListVanishingHyperplanesDenom=Flatten[Position[Expand[DenomHyperplanes/.repu/.Table[JKListut[[j]]->0,{j,1,i}]],0]]; 
 ListVanishingHyperplanesNum=Flatten[Position[Expand[NumHyperplanes/.repu/.Table[JKListut[[j]]->0,{j,1,i}]],0]]; 
@@ -2448,7 +2451,7 @@ LiWalls=ListFirstWalls[Mat,Cvec, Nvec];
 Plus@@Prepend[Table[
 {gL,gR}={LiWalls[[l,1,1]],LiWalls[[l,2,1]]};
 Nvec2={LiWalls[[l,1,2]],LiWalls[[l,2,2]]};
-Cvec2={gL. Cvec,gR. Cvec};
+Cvec2={gL . Cvec,gR . Cvec};
 gLR=DSZProd[Mat,gL,gR];
 Cvecflip=Table[Sum[Nvec[[j]]Mat[[j,i]],{j,Length[Nvec]}],{i,Length[Nvec]}]Sum[gL[[i]]Cvec[[i]],{i,Length[Nvec]}]/gLR;
 (*Print[Nvec2,",",gLR,",",Cvecflip]; *)
@@ -2457,7 +2460,7 @@ If[gLR Cvec2[[1]]<0,0,
 Sum[If[$QuiverFlowTreeMethod,
 EvalReinekeIndex[{{0,gLR},{-gLR,0}},Cvec2,Coulombg[ListAllPart[[i]],y]],EvalCoulombIndex[{{0,gLR},{-gLR,0}},{{0,gLR},{-gLR,0}},Cvec2,Coulombg[ListAllPart[[i]],y]]]
 SymmetryFactor[ListAllPart[[i]]]
-		Product[NonAbelianFlowTreeFormula[Mat,Cvec+Cvecflip/Nvec2[[2]],ListAllPart[[i,j]].{gL,gR}],{j,Length[ListAllPart[[i]]]}],
+		Product[NonAbelianFlowTreeFormula[Mat,Cvec+Cvecflip/Nvec2[[2]],ListAllPart[[i,j]] . {gL,gR}],{j,Length[ListAllPart[[i]]]}],
 {i,Length[ListAllPart]}]]
 ,{l,Length[LiWalls]}],OmAttb[Nvec,y]]
 ]];
@@ -2510,7 +2513,7 @@ Attractorg[Mat_,Cvec_]:=
 Module[{Gam,m},Gam=Table[Sum[Cvec[[i]],{i,1,k}],{k,Length[Mat]-1}];
 m=Count[Gam,0];If[OddQ[m],0,1/(m+1)
 Product[If[Gam[[k]]==0,1,Sign[-Gam[[k]]]],{k,Length[Mat]-1}]/2^(Length[Mat]-1)]];
-Attractorg[Mat_]:=Attractorg[Mat,ConstantArray[1,Length[Mat]].Mat];
+Attractorg[Mat_]:=Attractorg[Mat,ConstantArray[1,Length[Mat]] . Mat];
 
 AttractorTreeList[n_]:=Groupings[Range[n],Drop[Range[n],1]];
 
