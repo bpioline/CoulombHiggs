@@ -120,11 +120,12 @@
  * Release notes for 6.2:
  * - Added ExtendedCoulombIndex, CoulombIndexResidue, FindCollinearSolutions
  * - Added ListClusters,  CoulombBranchFormulaNum,  CoulombBranchResidue
+ * - Fixed gLR in TreeIndexOpt such that it does not include QuiverMultiplierMat
  
  
  
  *********************************************************************)
-Print["CoulombHiggs 6.2 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 6.2.1 - A package for evaluating quiver invariants"];
 
 
 
@@ -732,9 +733,9 @@ SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors less th
 
 ListLoopRCharges::usage = "ListLoopRCharges[Mat_,RMat_] computes the R-charge of the primitive loops in a quiver with DSZ matrix Mat ";
 
-RandomDSZWithNoLoop::usage = "RandomDSZWithNoLoop[n_,$QuiverMaxPower_] generates a random antisymmetric nxn matrix with off-diagonal entries less than $QuiverMaxPower in absolute value, ensuring that the quiver has no loop ";
+RandomDSZWithNoLoop::usage = "RandomDSZWithNoLoop[n_,m_] generates a random antisymmetric nxn matrix with off-diagonal entries less than m in absolute value, ensuring that the quiver has no loop ";
 
-RandomDSZWithLoop::usage = "RandomDSZWithNoLoop[n_,$QuiverMaxPower_] generates a random antisymmetric nxn matrix with off-diagonal entries less than $QuiverMaxPower in absolute value, ensuring that the quiver has one loop or more ";
+RandomDSZWithLoop::usage = "RandomDSZWithLoop[n_,m_] generates a random antisymmetric nxn matrix with off-diagonal entries less than m in absolute value, ensuring that the quiver has one loop or more ";
 
 TestMultipleBasisVector::usage = "TestMultipleBasisVector[Li_] gives True if all elements of Li are multiples of basis vectors";
 PartitionToInvervals::usage="PartitionToInvervals[pa_] turn an integer partition of length l into intervals 0<a_1<...<a_l";
@@ -2310,15 +2311,17 @@ RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
 If[$QuiverVerbose&&m>5,PrintTemporary["TreeIndexOpt: evaluating for ",m," centers"]];
 TreeIndexRecursive[Mat,Cvec+RCvec,ConstantArray[1,m],y]]];
 
-TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_]:=Module[{Li,gLR,Cvec2},
+TreeIndexRecursive[Mat_,Cvec_,Nvec_,y_]:=Module[{Li,gLR,gLRMult,Cvec2},
 If [Plus@@Nvec==1,1,
 (*Print["TreeIndexRecursive: evaluating for ",Nvec]; *)
 (* list of subvectors, except 0 and Nvec *)
 Li=Drop[Drop[SubVectors[Nvec],1],-1];
-Sum[gLR=DSZProd[Mat,gL,Nvec-gL];
+Sum[gLR=Sum[Mat[[i,j]] gL[[i]] (Nvec[[j]]-gL[[j]]),{i,Length[Nvec]},{j,Length[Nvec]}];
+(*##*)
 If[gLR<=0|| Sum[Cvec[[i]]gL[[i]],{i,Length[Cvec]}]<=0,0,
+ gLRMult=Sum[QuiverMultiplierMat[i,j]Mat[[i,j]] gL[[i]] (Nvec[[j]]-gL[[j]]),{i,Length[Nvec]},{j,Length[Nvec]}];
  Cvec2=Cvec+Table[Sum[Nvec[[j]]Mat[[j,i]],{j,Length[Nvec]}],{i,Length[Nvec]}]Sum[gL[[i]]Cvec[[i]],{i,Length[Nvec]}]/gLR;
-(-1)^(gLR+1)(y^gLR-y^(-gLR))/(y-1/y)TreeIndexRecursive[Mat,Cvec2,gL,y]TreeIndexRecursive[Mat,Cvec2,Nvec-gL,y]
+(-1)^(gLRMult+1)(y^gLRMult-y^(-gLRMult))/(y-1/y)TreeIndexRecursive[Mat,Cvec2,gL,y]TreeIndexRecursive[Mat,Cvec2,Nvec-gL,y]
 ],{gL,Li}]]];	
 
 TreeIndex[Mat_,Cvec_,y_]:=Module[{m,ListPerm,i,j,k,RCvec},
@@ -2338,23 +2341,27 @@ If[$QuiverVerbose,
 	RCvec=1/1000/$QuiverPerturb2 Table[Random[Integer,{1,1000}],{i,m}];
 	RCvec[[m]]=-Sum[RCvec[[i]],{i,m-1}];
 	If[$QuiverVerbose&&m>5,PrintTemporary["TreeIndex: evaluating for ",m," centers"]];
-    (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
  Which[$QuiverFlowTreeOpt==0,
+        (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
         Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] 
         Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
 		TreeF[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
                  Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
        {k,Length[ListPerm]}],
        $QuiverFlowTreeOpt==1,
+       (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
 Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
 		TreeFAlt1[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
                  Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]],
        {k,Length[ListPerm]}],
        $QuiverFlowTreeOpt==2,
+       (y-1/y)^(1-m) (-1)^(Sum[QuiverMultiplierMat[i,j] Mat[[i,j]],{i,Length[Cvec]},{j,i+1,m}]+m-1)
 Sum[y^( Sum[QuiverMultiplierMat[ListPerm[[k,i]],ListPerm[[k,j]]] Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,i+1,m}])
 		TreeFAlt2[Table[Mat[[ListPerm[[k,i]],ListPerm[[k,j]]]],{i,m},{j,m}],
                  Table[Cvec[[ListPerm[[k,i]]]]+RCvec[[ListPerm[[k,i]]]],{i,m}]], 
-       {k,Length[ListPerm]}]
+       {k,Length[ListPerm]}],
+       $QuiverFlowTreeOpt==3,
+       TreeIndexOpt[Mat,Cvec,y]
        ]]
 ];
 		
@@ -2452,7 +2459,7 @@ Plus@@Prepend[Table[
 {gL,gR}={LiWalls[[l,1,1]],LiWalls[[l,2,1]]};
 Nvec2={LiWalls[[l,1,2]],LiWalls[[l,2,2]]};
 Cvec2={gL . Cvec,gR . Cvec};
-gLR=DSZProd[Mat,gL,gR];
+gLR=Sum[Mat[[i,j]] gL[[i]] (Nvec[[j]]-gL[[j]]),{i,Length[Nvec]},{j,Length[Nvec]}];
 Cvecflip=Table[Sum[Nvec[[j]]Mat[[j,i]],{j,Length[Nvec]}],{i,Length[Nvec]}]Sum[gL[[i]]Cvec[[i]],{i,Length[Nvec]}]/gLR;
 (*Print[Nvec2,",",gLR,",",Cvecflip]; *)
 ListAllPart=Drop[ListAllPartitions[Nvec2],1];
@@ -2626,7 +2633,7 @@ Slope[Nvec_,Cvec_]:=Sum[Nvec[[i]] Cvec[[i]],{i,Length[Nvec]}]/Plus@@Nvec;
 (** turn integer partition of length l into intervals a_0<a_1<...<a_l **)
 PartitionToInvervals[pa_]:=Table[Sum[pa[[j]],{j,1,i}],{i,0,Length[pa]}];
 
-DSZProd[Mat_,Nvec1_,Nvec2_]:=Sum[QuiverMultilplierMat[i,j] Mat[[i,j]]Nvec1[[i]]Nvec2[[j]],{i,Length[Nvec1]},{j,Length[Nvec2]}];
+DSZProd[Mat_,Nvec1_,Nvec2_]:=Sum[QuiverMultiplierMat[i,j] Mat[[i,j]]Nvec1[[i]]Nvec2[[j]],{i,Length[Nvec1]},{j,Length[Nvec2]}];
 
 DSZkappa[m_,y_]:=(y^m-y^(-m))/(y-1/y);
 
