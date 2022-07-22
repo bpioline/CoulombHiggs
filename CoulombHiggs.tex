@@ -1,6 +1,6 @@
 
 \documentclass[12pt]{JHEP3}
-\usepackage{epsfig,amsfonts,amssymb,amsmath}
+\usepackage{epsfig,amsfonts,amssymb,amsmath} 
  
 %\setlength{\topmargin}{.5cm}
 %\setlength{\textheight}{23.1cm}Denef
@@ -110,7 +110,7 @@
 
 \def\newdefy{\vardef{y}}
 
-\title{CoulombHiggs.m v6.2}
+\title{CoulombHiggs.m v6.3}
  
 \author{Boris Pioline}
 
@@ -1076,7 +1076,11 @@ $\langle\gamma_L,\gamma_R\rangle>0$.
 
 \defn{FlowTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of attractor indices, using the formula \cite[(2.21)]{Alexandrov:2018iao}}
 
-\defn{FlowTreeFormulaRat}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices}
+\defn{FlowTreeFormulaRat}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{y}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices}
+
+
+\defn{TropicalVertex}{\vardef{m},\{\vardef{n1},\vardef{n2}\},\vardef{LiOm1},\vardef{LiOm2}}{computes the index $\Omega(n_1 \gamma_1+n_2 \gamma_2)$ for an outgoing ray created by scattering of 2 vectors $\gamma_1, \gamma_2$ with Dirac product $m>0$, assuming that $\Omega(p \gamma_1,y)$ is given by the $p$-th entry in \var{LiOm1}, and similarly for $\gamma_2$}.
+
 
 
 \defn{TreePoincarePolynomialRat}{\vardef{gam},\newdefy}{expresses the rational BPS index in terms of terms of attractor indices and tree index}

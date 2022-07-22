@@ -121,20 +121,26 @@
  * - Added ExtendedCoulombIndex, CoulombIndexResidue, FindCollinearSolutions
  * - Added ListClusters,  CoulombBranchFormulaNum,  CoulombBranchResidue
  * - Fixed gLR in TreeIndexOpt such that it does not include QuiverMultiplierMat
+ * - Fixed FlowTreeFormula, added argument y to FlowTreeFormulaRat
+ * - Added TropicalVertex
  
  
  
  *********************************************************************)
-Print["CoulombHiggs 6.2.1 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 6.3 - A package for evaluating quiver invariants"];
 
 
-
-
+BeginPackage["IndexVars`"];
+Protect[tau, y];
+EndPackage[];
 
 BeginPackage["CoulombHiggs`"]
+Needs["IndexVars`"]
 
 Unprotect[CoulombF, CoulombG]; (* avoid name conflict with new functions in Mathematica 13 *)
 ClearAll[CoulombF, CoulombG];
+
+
 
 (** symbols **)
 
@@ -434,9 +440,11 @@ FlavoredRMatrix::usage= "FlavoredRMatrix[Mat_] constructs the matrix of R charge
 
 FlowTreeFormula::usage = "FlowTreeFormula[Mat_,Cvec_,Nvec_] computes the index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of attractor indices";
 
-FlowTreeFormulaRat::usage = "FlowTreeFormulaRat[Mat_,Cvec_,Nvec_] computes the rational index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of rational attractor indices";
+FlowTreeFormulaRat::usage = "FlowTreeFormulaRat[Mat_,Cvec_,Nvec_,y_] computes the rational index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of rational attractor indices";
 
 TreePoincarePolynomialRat::usage = "TreePoincarePolynomialRat[gam_,y_] expresses the rational BPS index in terms of terms of attractor indices and tree index ";
+
+TropicalVertex::usage="TropicalVertex[m_,{n1_,n2_},LiOm1_,LiOm2_] computes the index Omega[n1 gam1+n2 gam2] for an outgoing ray created by scattering of 2 vectors gam1, gam2 with Dirac product m>0, assuming that Om[p gam1,y] is given by the p-th entry in LiOm1, and similarly for gam2";
 
 EvalTreeIndex::usage="EvalTreeIndex[Mat_,Cvec_,f_] evaluates any Treeg[Li,y] appearing in f using TreeIndex[] with arguments computed from the full DSZ matrix Mat and the stability parameters Cvec ";
 
@@ -2270,9 +2278,10 @@ JKChiGenus
 (*Flow tree formula*)
 
 
-FlowTreeFormula[Mat_,Cvec_,Nvec_]:=OmAttbToOmAtt[FlowTreeFormulaRat[Mat,Cvec,Nvec]];
+FlowTreeFormula[Mat_,Cvec_,Nvec_]:=OmAttbToOmAtt[DivisorSum[GCD@@Nvec,
+	MoebiusMu[#]/# (y-1/y)/(y^#-y^(-#)) FlowTreeFormulaRat[Mat,Cvec,Nvec/#,y^#]&]];
 
-FlowTreeFormulaRat[Mat_,Cvec_,Nvec_]:=Module[{QPoinca,Cvec0},
+FlowTreeFormulaRat[Mat_,Cvec_,Nvec_,y_]:=Module[{QPoinca,Cvec0},
   If[Length[Union[{Length[Cvec],Length[Mat],Length[Nvec]}]]>1,      
  Print["FlowTreeFormula: Length of DSZ matrices, FI and dimension vectors do not match !"]];
   If[Max[Abs[Flatten[Mat+Transpose[Mat]]]]>$QuiverPrecision,
@@ -2291,6 +2300,13 @@ TreePoincarePolynomialRat[gam_,y_]:=Module[{JKListAllPart},
 	JKListAllPart=ListAllPartitions[gam];
     Sum[Treeg[JKListAllPart[[i]],y]SymmetryFactor[JKListAllPart[[i]]]
 		Product[OmAttb[JKListAllPart[[i,j]],y],{j,Length[JKListAllPart[[i]]]}],{i,Length[JKListAllPart]}]];
+
+TropicalVertex[m_,{n1_,n2_},LiOm1_,LiOm2_]:=Module[{$QuiverOmSbasis=0,w},
+(* LiOm1 is a finite list of nonvanishing OmAtt[{p,0},y], LiOm2 is a finite list of nonvanishing OmAtt[{0,p},y] *)
+FlowTreeFormula[{{0,m},{-m,0}},{1/n1,-1/n2},{n1,n2}]
+/. OmAtt[{p_,0},w_]:>(LiOm1[[p]]/.y->w)/;p<=Length[LiOm1]
+/. OmAtt[{0,p_},w_]:>(LiOm2[[p]]/.y->w)/;p<=Length[LiOm2]
+/.OmAtt[x___]:>0];
 
 EvalTreeIndex[Mat_,Cvec_,f_]:=If[$QuiverFlowTreeOpt==3,
 f/.{Treeg[Li_,y_]:>
