@@ -1270,7 +1270,7 @@ vectors with height up to $\var{Nn}$. Here $\var{fMat}$ is a list of two element
 a matrix of weights $h(q_i^\alpha)$  of arrows $q_i^\alpha:\infty\to i$, and the second is  
 a matrix of weights $h(p_i)$  of arrows $p_i^\beta:\infty\to i$. The result is a generating series 
 of Laurent polynomials in $y$,
-which reduce to the unrefined DT invariants at $y=1$, and to the number of molten crystals at $y=-1$. Here $y$ is {\it not} a refinement parameter !}
+which reduces to the unrefined DT invariants at $y=1$, and to the number of molten crystals at $y=-1$. Here $y$ is {\it not} a refinement parameter !}
 
 \defn{NCDTSeriesFromCrystal}{\vardef{hMat}, \vardef{fMat},\vardef{theta}, \vardef{phi}, \vardef{Nmax}}{constructs the generating function of refined NCDT invariants for the quiver with height matrix 
 $\var{hMat}$ and framing data $\var{fMat}$ using 
@@ -1421,10 +1421,10 @@ generalization of  Eq (E.2)
 in \cite{Denef:2007vg}. This is much faster than \fun{CyclicQuiverOmAtt}.} 
 
 \defn{CyclicQuiverTrivialStacky}{\vardef{Vec},\vardef{y}}{computes the stacky invariant associated
-to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,i+1}=\var{Vec}[[i]]$ with trivial stability condition via Eq ?? in \cite{Beaujard:2021}} 
+to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,i+1}=\var{Vec}[[i]]$ with trivial stability condition via Eq (4.23) in \cite{Beaujard:2021fsk}} 
 
 \defn{DerangementIndex}{\vardef{Vec},\vardef{y}}{
-computes the number of derangements of a set of \var{Vec[i]} objects of color $i$, weighted by $y^{n_+-n_-}$ where $n_+/n_-$ are the number of objects which are displaced forward/backward with respect to the standard ordering $11\dots 222\dots K$ \cite{Beaujard:2021}} 
+computes the number of derangements of a set of \var{Vec[i]} objects of color $i$, weighted by $y^{n_+-n_-}$ where $n_+/n_-$ are the number of objects which are displaced forward/backward with respect to the standard ordering $11\dots 222\dots K$ \cite{Beaujard:2021fsk}} 
 
 
 \defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{computes the FI parameters $\{\zeta_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $\zeta_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $\zeta_i$ are rounded up to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}}
