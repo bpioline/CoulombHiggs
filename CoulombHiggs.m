@@ -2624,12 +2624,12 @@ JKResidueAtSingularity[crystal_, hMat_, potential_, etas_,
 ];
 
 JKResidueFromNode[degenerateHMat_, potential_, eta_, order_, node_, mode_ : "Euler", prohibitedNodes_ : {}, preventSameHeightSameNode_ : True] := 
-  With[{hMat = Map[DeleteDuplicates, degenerateHMat, {2}], 
+  With[{hMat = Map[DeleteDuplicates, degenerateHMat, {2}],
     etas = (val |-> Table[val, order]) /@ eta + 
       Array[Random[Integer, {1, 100}]/10000 &, {Length[eta], order}]},
     Module[{crystals = {}, queue = CreateDataStructure["Queue"]},
     (* a crystal is {atoms,charges, order} where atoms is the atoms of the crystal of the form {node, height}, charges is a list of charges with pole for this atom, and order is an arbitrary order in which one can take the residues *)
-    queue["Push", {{{node, 0}}, {}, {1}}];
+    If[order > 1, queue["Push", {{{node, 0}}, {}, {1}}]];
     PrintTemporary["Starting to investigate all crystals starting by type ", node];
     While[! queue["EmptyQ"], With[{crys = queue["Pop"]},
       For[atom = 1, atom <= Length[crys[[1]]], atom++,
