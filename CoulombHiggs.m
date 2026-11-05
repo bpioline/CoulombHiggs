@@ -440,6 +440,7 @@ FlagResidue::usage = "FlagResidue[Integrand_, positions_, order_, correspondence
 
 JKPotentialDegree::usage = "JKPotentialDegree[hMat, Potential] computes the degree of the potential for a quiver with height matrix hMat, where Potential is either a monomial of the potential, the full potential or the potential's degree directly. ";
 
+JKLinearIntegrandData::usage = "JKLinearIntegrandData[hMat, Potential, Nvec, mode, hrule] computes the integrand in the residue formula for the index in mode 'Euler' and for the chi_y genus in mode 'ChiY', for a quiver with height matrix hMat, dimension vector Nvec, where Potential is either the potential's degree or directly a monomial or the full potential, and where hrule can be specified to choose the formal variables in the end result. ";
 
 ZEuler::usage="ZEuler[ChargeMatrix,Nvec] computes the integrand in the residue formula for the index ";
  
