@@ -147,6 +147,7 @@
  * 
  * Release notes for 7.2:
  * - Added SeriesFromInvariants, JKPotentialDegree, LinearToMultiplicativeWeight
+ * - Added JKLinearIntegrandData
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
 
@@ -438,6 +439,7 @@ EtaVectorFromEtas::usage = "EtaVectorFromEtas[atomTypeList_, etas_, Nvec_] compu
 FlagResidue::usage = "FlagResidue[Integrand_, positions_, order_, correspondence_] computes the flag residue of the integrand at the given positions in the order given, where the n^th variable's name is correspondence[[n]]";
 
 JKPotentialDegree::usage = "JKPotentialDegree[hMat, Potential] computes the degree of the potential for a quiver with height matrix hMat, where Potential is either a monomial of the potential, the full potential or the potential's degree directly. ";
+
 
 ZEuler::usage="ZEuler[ChargeMatrix,Nvec] computes the integrand in the residue formula for the index ";
  
@@ -2077,6 +2079,36 @@ JKPotentialDegree[hMat_, Potential_] :=
      Potential[[0]] === NonCommutativeMultiply],
     Total[Part @@ (Join[{hMat}, List @@ #]) & /@ List @@ Potential],
     Total[Part @@ (Join[{hMat}, List @@ #]) & /@ List @@ Potential[[1]]]]];
+
+JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Subscript[t,1], h2 -> Subscript[t,1], h3 -> y}] :=
+(* Integrand data is of the form {prefactor, variables, const, vector, power} where const, vector and power are lists where each entry corresponds to a factor in the integrand of the form (const + vector.variables)^power *)
+  JKLinearIntegrandData[hMat, Potential, Nvec, mode, hrule] =
+  With[{vars = Flatten[Table[u[n, i], {n, Length[Nvec]}, {i, Nvec[[n]]}]]}, 
+  Module[{d, heights, vars, facs, const},
+  d = JKPotentialDegree[hMat, Potential];
+   facs = Reap[
+      Switch[mode, "Euler",
+       const = d^(1-Total[Nvec]);
+       Do[If[i != j, Sow[{u[n, j] - u[n, i], 1}]; Sow[{d + u[n, i] - u[n, j], -1}]],
+        {n, Length[Nvec]}, {i, Nvec[[n]]}, {j, Nvec[[n]]}];
+       Do[With[{hh = hMat[[a, b, n]]},
+         Sow[{d - hh + u[a, t] - u[b, h], 1}]; Sow[{hh + u[b, h] - u[a, t], -1}]],
+        {a, Length[hMat]}, {b, Length[hMat]}, {n, Length[hMat[[a, b]]]}, {t, Nvec[[a]]}, {h, Nvec[[b]]}],
+       "ChiY",
+       d = LinearToMultiplicativeWeight[d, hrule]; heights = LinearToMultiplicativeWeight[hMat, hrule];
+       const = (d - d^(-1))^(1-Total[Nvec]);
+       Do[If[i != j, Sow[{u[n, j] - u[n, i], 1}]; Sow[{d u[n, i] - d^(-1) u[n, j], -1}]],
+        {n, Length[Nvec]}, {i, Nvec[[n]]}, {j, Nvec[[n]]}];
+       Do[With[{hh = heights[[a, b, n]]},
+         Sow[{d hh^(-2) u[a, t] - u[b, h] d^(-1), 1}]; Sow[{u[b, h] - u[a, t] hh^(-2), -1}]],
+        {a, Length[hMat]}, {b, Length[hMat]}, {n, Length[hMat[[a, b]]]}, {t, Nvec[[a]]}, {h, Nvec[[b]]}],
+        _, Message[JKResidue::UnknownMode]]][[2]];
+   facs = If[facs === {}, {}, facs[[1]]];
+   {const, vars,
+    facs[[All, 1]] /. Thread[vars -> 0],
+    Table[D[f[[1]], v], {f, facs}, {v, vars}],
+    facs[[All, 2]]}
+]];
 
 ZEuler[ChargeMatrix_,Nvec_]:= (UpdateJKList[Nvec];1/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,-(u[i,ii]-u[i,jj])/ (u[i,ii]-u[i,jj]-1 )],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-((Sum[ChargeMatrix[[i,j]]JKListuAll[[j]],{j,Length[JKListuAll]}]+(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]JKListuAll[[j]],{j,Length[JKListuAll]}]+ ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]);
 
