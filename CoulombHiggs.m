@@ -146,7 +146,7 @@
  * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
  * 
  * Release notes for 7.2:
- * - Added SeriesFromInvariants, JKPotentialDegree
+ * - Added SeriesFromInvariants, JKPotentialDegree, LinearToMultiplicativeWeight
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
 
@@ -719,6 +719,8 @@ CoulombBranchFormulaNum::usage="CoulombBranchFormulaNum[Mat_,PMat_,RMat_,Cvec_,N
 
 
 (** Utilities **)
+
+LinearToMultiplicativeWeight::usage = "LinearToMultiplicativeWeight[weight_, rules_] takes a weight in additive language and returns it in multiplicative language, where rules is a list of rules giving a dictionnary between the additive formal variables and the multiplicative formal variables. The multiplicative constant formal variable is y'. ";
 
 CanonicalPartitionForm::usage = "CanonicalPartitionForm[expr_, variables_, simplify_] returns the partition function expr in its canonical form, where variables is the number of different variables and where the optional parameter simplify says wether the coefficients should be fully simplified or not";
 
@@ -2057,7 +2059,6 @@ EtaVectorFromEtas[atomTypeList_, etas_, Nvec_] :=
           eta[[type]] = Drop[eta[[type]], 1]; param]) /@ atomTypeList},
     flateta - Total[flateta]/Length[flateta]
 ]];
-
 
 FlagResidue[Integrand_, positions_, order_, correspondence_] := 
   Module[{result = 
@@ -3566,6 +3567,8 @@ Table[Sum[Plus@@ResList[[ResReg[[i,j,2]],ResReg[[i,j,3]]]],{j,Length[ResReg[[i]]
 
 
 (* utilities *)
+
+LinearToMultiplicativeWeight[weight_, rules_] := Times @@ (Power[#[[2]], D[weight, #[[1]]]] & /@ rules) Power[y', weight /. (#[[1]] -> 0 & /@ rules)];
 
 SeriesFromInvariants[invariants_, simplify_ : True] := 
   Total[KeyValueMap[{nv, coef} |-> 
