@@ -146,7 +146,7 @@
  * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
  * 
  * Release notes for 7.2:
- * - Added SeriesFromInvariants
+ * - Added SeriesFromInvariants, JKPotentialDegree
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
 
@@ -436,6 +436,8 @@ AddAtomToCrystal::usage = "AddAtomToCrystal[Atom_, Crystal_, From_, Reverse_] ad
 EtaVectorFromEtas::usage = "EtaVectorFromEtas[atomTypeList_, etas_, Nvec_] computes the eta (expanded stability) vector for dimension vector Nvec, where atomTypeList specifies in which order the atoms appear and etas give a list of already perturbed numbers";
 
 FlagResidue::usage = "FlagResidue[Integrand_, positions_, order_, correspondence_] computes the flag residue of the integrand at the given positions in the order given, where the n^th variable's name is correspondence[[n]]";
+
+JKPotentialDegree::usage = "JKPotentialDegree[hMat, Potential] computes the degree of the potential for a quiver with height matrix hMat, where Potential is either a monomial of the potential, the full potential or the potential's degree directly. ";
 
 ZEuler::usage="ZEuler[ChargeMatrix,Nvec] computes the integrand in the residue formula for the index ";
  
@@ -2066,6 +2068,14 @@ FlagResidue[Integrand_, positions_, order_, correspondence_] :=
         result, {correspondence[[order[[# + 1]]]], 
          positions[[order[[# + 1]]]]}]) &, Length[order] - 1]; result
 ];
+
+JKPotentialDegree[hMat_, Potential_] :=
+  If[Or[Potential[[0]] === Integer, Potential[[0]] === Symbol],
+   Potential,
+   If[Or[Potential[[0]] === Times,
+     Potential[[0]] === NonCommutativeMultiply],
+    Total[Part @@ (Join[{hMat}, List @@ #]) & /@ List @@ Potential],
+    Total[Part @@ (Join[{hMat}, List @@ #]) & /@ List @@ Potential[[1]]]]];
 
 ZEuler[ChargeMatrix_,Nvec_]:= (UpdateJKList[Nvec];1/Product[Nvec[[i]]!,{i,Length[Nvec]}]Product[If[ii==jj,1,-(u[i,ii]-u[i,jj])/ (u[i,ii]-u[i,jj]-1 )],{i,Length[Nvec]},{ii,Nvec[[i]]},{jj,Nvec[[i]]}]Product[(-((Sum[ChargeMatrix[[i,j]]JKListuAll[[j]],{j,Length[JKListuAll]}]+(ChargeMatrix[[i,-2]]/2-1)))/((Sum[ChargeMatrix[[i,j]]JKListuAll[[j]],{j,Length[JKListuAll]}]+ ChargeMatrix[[i,-2]]/2)))^ChargeMatrix[[i,-1]],{i,Length[ChargeMatrix]}]);
 
