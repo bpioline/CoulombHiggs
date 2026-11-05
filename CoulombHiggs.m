@@ -145,8 +145,10 @@
  * - JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
  * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
  * 
+ * Release notes for 7.2:
+ * - Added SeriesFromInvariants
  *********************************************************************)
-Print["CoulombHiggs 7.1 - A package for evaluating quiver invariants"];
+Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
 
 
 BeginPackage["IndexVars`"];
@@ -717,6 +719,8 @@ CoulombBranchFormulaNum::usage="CoulombBranchFormulaNum[Mat_,PMat_,RMat_,Cvec_,N
 (** Utilities **)
 
 CanonicalPartitionForm::usage = "CanonicalPartitionForm[expr_, variables_, simplify_] returns the partition function expr in its canonical form, where variables is the number of different variables and where the optional parameter simplify says wether the coefficients should be fully simplified or not";
+
+SeriesFromInvariants::usage = "SeriesFromInvariants[invariants_, simplify_] takes an association of (dimension vector -> invariant) and returns the associated partition function. Set simplify to False to avoid simplifying the invariants.";
 
 SymmetryFactor::usage = "SymmetryFactor[pa_] gives 1/|Aut| where Aut is the subgroup of the permutation group leaving the list pa invariant ";
 
@@ -3552,6 +3556,12 @@ Table[Sum[Plus@@ResList[[ResReg[[i,j,2]],ResReg[[i,j,3]]]],{j,Length[ResReg[[i]]
 
 
 (* utilities *)
+
+SeriesFromInvariants[invariants_, simplify_ : True] := 
+  Total[KeyValueMap[{nv, coef} |-> 
+     If[simplify, Simplify[coef], coef] Times @@ 
+       MapIndexed[Subscript[x, #2[[1]]]^#1 &, nv], 
+    Select[invariants, # =!= 0 &]]];
 
 CanonicalPartitionForm[expr_, variables_, simplify_: True] := 
   FromCoefficientRules[
