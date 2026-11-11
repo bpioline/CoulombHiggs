@@ -2081,28 +2081,28 @@ JKPotentialDegree[hMat_, Potential_] :=
     Total[Part @@ (Join[{hMat}, List @@ #]) & /@ List @@ Potential],
     Total[Part @@ (Join[{hMat}, List @@ #]) & /@ List @@ Potential[[1]]]]];
 
-JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Subscript[t,1], h2 -> Subscript[t,1], h3 -> y}] :=
+JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
 (* Integrand data is of the form {prefactor, variables, const, vector, power} where const, vector and power are lists where each entry corresponds to a factor in the integrand of the form (const + vector.variables)^power *)
   JKLinearIntegrandData[hMat, Potential, Nvec, mode, hrule] =
   With[{vars = Flatten[Table[u[n, i], {n, Length[Nvec]}, {i, Nvec[[n]]}]]}, 
-  Module[{d, heights, vars, facs, const},
+  Module[{d, heights, facs, const},
   d = JKPotentialDegree[hMat, Potential];
    facs = Reap[
       Switch[mode, "Euler",
        const = d^(1-Total[Nvec]);
-       Do[If[i != j, Sow[{u[n, j] - u[n, i], 1}]; Sow[{d + u[n, i] - u[n, j], -1}]],
-        {n, Length[Nvec]}, {i, Nvec[[n]]}, {j, Nvec[[n]]}];
-       Do[With[{hh = hMat[[a, b, n]]},
-         Sow[{d - hh + u[a, t] - u[b, h], 1}]; Sow[{hh + u[b, h] - u[a, t], -1}]],
-        {a, Length[hMat]}, {b, Length[hMat]}, {n, Length[hMat[[a, b]]]}, {t, Nvec[[a]]}, {h, Nvec[[b]]}],
+       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d + u[nn, i] - u[nn, j], -1}]],
+        {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
+       Do[With[{hh = hMat[[a, b, nn]]},
+         Sow[{d - hh + u[a, ttt] - u[b, hhh], 1}]; Sow[{hh + u[b, hhh] - u[a, ttt], -1}]],
+        {a, Length[hMat]}, {b, Length[hMat]}, {nn, Length[hMat[[a, b]]]}, {ttt, Nvec[[a]]}, {hhh, Nvec[[b]]}],
        "ChiY",
        d = LinearToMultiplicativeWeight[d, hrule]; heights = LinearToMultiplicativeWeight[hMat, hrule];
        const = (d - d^(-1))^(1-Total[Nvec]);
-       Do[If[i != j, Sow[{u[n, j] - u[n, i], 1}]; Sow[{d u[n, i] - d^(-1) u[n, j], -1}]],
-        {n, Length[Nvec]}, {i, Nvec[[n]]}, {j, Nvec[[n]]}];
-       Do[With[{hh = heights[[a, b, n]]},
-         Sow[{d hh^(-2) u[a, t] - u[b, h] d^(-1), 1}]; Sow[{u[b, h] - u[a, t] hh^(-2), -1}]],
-        {a, Length[hMat]}, {b, Length[hMat]}, {n, Length[hMat[[a, b]]]}, {t, Nvec[[a]]}, {h, Nvec[[b]]}],
+       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d u[nn, i] - d^(-1) u[nn, j], -1}]],
+        {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
+       Do[With[{hh = heights[[a, b, nn]]},
+         Sow[{d hh^(-2) u[a, ttt] - u[b, hhh] d^(-1), 1}]; Sow[{u[b, hhh] - u[a, ttt] hh^(-2), -1}]],
+        {a, Length[hMat]}, {b, Length[hMat]}, {nn, Length[hMat[[a, b]]]}, {ttt, Nvec[[a]]}, {hhh, Nvec[[b]]}],
         _, Message[JKResidue::UnknownMode]]][[2]];
    facs = If[facs === {}, {}, facs[[1]]];
    {const, vars,
