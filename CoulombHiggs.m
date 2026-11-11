@@ -2619,9 +2619,8 @@ If[$QuiverVerbose,Print["Chi-genus = ",JKChiGenus," =",Expand[Plus@@Flatten[JKCh
 JKChiGenus
 ];
 
-JKResidueAtSingularity[crystal_, hMat_, potential_, etas_, 
-   mode_ : "Euler"] :=
-  (* crystal of the form {atoms, charges, order} *)
+JKResidueAtSingularity[crystal_, hMat_, potential_, etas_,
+   mode_ : "Euler", hrule_: {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
   With[{atomTypeList = First /@ crystal[[1]]},
    {nvec = Lookup[Counts[atomTypeList], Range[Length[hMat]], 0],
     compactcharges = {FirstPosition[#, 1][[1]], 
