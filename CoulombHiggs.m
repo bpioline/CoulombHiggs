@@ -146,6 +146,7 @@
  * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
  * 
  * Release notes for 7.2:
+ * - Added ThetaDerivativeAtZero
  * - Added SeriesFromInvariants, JKPotentialDegree, LinearToMultiplicativeWeight
  * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, JKResidueFromBlocks
  *********************************************************************)
@@ -213,6 +214,8 @@ q::usage = "q denotes Exp[2 Pi I tau]";
 Theta::usage = "Theta[z_] represents the Jacobi Theta series Theta_1[z,tau]";
 
 Eta::usage = "Eta represents the Dedekind eta function eta[tau]";
+
+Eisenstein::usage = "Eisenstein[n_] represents the Eisenstein series E_n[tau] for n even, normalized as E_n = 1 + O(q)";
 
 th::usage = "th[i_] denotes the i-th chemical potential for flavor symmetry";
 
@@ -479,6 +482,8 @@ FindStableFlags::usage = "FindStableFlags[Inter_,ListHyper_,Nvec_,Etavec_] const
 FindStableDomains::usage = "FindStableDomains[Inter_,ListHyper_,Nvec_,Etavec_] gives the stability conditions for each flag at given singularity ";
 
 ExpandTheta::usage = "ExpandTheta[f_] replaces Theta[z] and Eta by its Fourier expansion up to order q^$QuiverMaxPower, using both q and tau variables ";
+
+ThetaDerivativeAtZero::usage = "ThetaDerivativeAtZero[k] computes the kth derivative of Theta at 0 ";
 
 qSeries::usage = "qSeries[f_] computes the Fourier expansion of f[q,tau] up to order q^$QuiverMaxPower";
 
@@ -3924,7 +3929,13 @@ perm=FindCycle[AdjacencyGraph[Table[If[Mat[[i,j]]>0,1,0],{i,Length[Mat]},{j,Leng
 Table[{Table[perm[[i,j,1]],{j,Length[perm[[i]]]}],Plus@@Table[RMat[[perm[[i,j,1]],perm[[i,j,2]]]],{j,Length[perm[[i]]]}]},{i,Length[perm]}]
 ];
 
-ExpandTheta[f_]:=(f/.Theta[x_]:>-I q^(1/8)(Exp[I Pi x]-Exp[-I Pi x])Product[(1-q^k)(1- q^k Exp[2Pi I x])(1-q^k Exp[-2Pi I x]),{k,1,$QuiverMaxPower}]/.Eta->q^(1/24)Product[1-q^k,{k,1,$QuiverMaxPower}]);
+ThetaDerivativeAtZero[k_Integer] := ThetaDerivativeAtZero[k] =
+  If[EvenQ[k], 0,
+   Module[{w}, k! SeriesCoefficient[2 Pi Eta^3 w Exp[-Sum[Zeta[2 j]/j Eisenstein[2 j] w^(2 j), {j, 1, (k - 1)/2}]], {w, 0, k}]]];
+
+ExpandTheta[f_]:=(f/.{Theta[x_]:>ThetaQExpansion[x],
+  Derivative[k_][Theta][x_]:>Module[{w},D[-I q^(1/8)(Exp[I Pi w]-Exp[-I Pi w])Product[(1-q^k)(1- q^k Exp[2Pi I w])(1-q^k Exp[-2Pi I w]),{k,1,$QuiverMaxPower}],{w,k}]/.w->x],
+  Eisenstein[n_]:>1-2n/BernoulliB[n] Sum[DivisorSigma[n-1,m] q^m,{m,1,$QuiverMaxPower}]}/.Eta->q^(1/24)Product[1-q^k,{k,1,$QuiverMaxPower}]);
 
 qSeries[f_]:=Series[f,{q,0,$QuiverMaxPower}];
 
