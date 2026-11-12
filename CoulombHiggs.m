@@ -2700,7 +2700,7 @@ JKResidueFromBlocks[data_, positions_, flag_, root_, jacobian_: True] :=
            invF = Select[nonv, e[[#]] != 0 &];
            Do[Module[{e3 = e2}, e3[[invF]] -= j;
              add[e3, base Times @@ (Binomial[e[[invF]], j] col[[invF]]^j)]],
-            {j, JKCompositions[p - 1, Length[invF]]}]]]]], terms];
+            {j, Flatten[Permutations /@ (PadRight[#, Length[invF]] & /@ IntegerPartitions[p - 1, Length[invF]]), 1]}]]]]], terms];
       terms = newTerms;
       If[terms === <||>, Throw[0]]],
      {m, flag}];
