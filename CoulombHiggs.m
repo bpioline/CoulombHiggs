@@ -2657,7 +2657,7 @@ JKStableFlagsFromBlocks[dim_, charges_, eta_, root_] :=
       {merges, Sign[Det[Table[kappaOf[chain[[-k - 1]]], {k, Length[merges]}] . Transpose[Table[Total[UnitVector[dim, #] & /@ m[[2]]], {m, merges}]]]]}]) /@ chains
 ]];
 
-JKResidueFromBlocks[data_, positions_, flag_, root_, jacobian_: true] :=
+JKResidueFromBlocks[data_, positions_, flag_, root_, jacobian_: True] :=
   With[{dim = Length[data[[2]]]}, 
   Module[{s, a, beta, z0, repOf, terms, newTerms, add, col, vanish, nonv, inv},
    s = data[[5]];
