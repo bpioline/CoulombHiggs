@@ -150,6 +150,7 @@
  * - Added SeriesFromInvariants, JKPotentialDegree, LinearToMultiplicativeWeight
  * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
  * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
+ * - Removed AddAtomToCrystal
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
 
@@ -443,8 +444,6 @@ JKInitialize::usage = "JKInitialize[Mat_,RMat_,Cvec_,Nvec] initializes the inter
 JKToricInitialize::usage = "JKToricInitialize[hMat_, fMat_, Cvec_, Nvec_] initializes the internal variables for a toric quiver. If Cvec only gives stability parameters for the quiver, the non-commutative chamber is automatically chosen ";
 
 UpdateJKList::usage = "UpdateJKList[Nvec_] updates the internal variable listing the u[i,j]";
-
-AddAtomToCrystal::usage = "AddAtomToCrystal[Atom_, Crystal_, From_, Reverse_] adds the atom numbered Atom coming from the atom numbered From to the crystal Crystal, with Revese specifying wether the atom is added through an arrow or anti-arrow";
 
 EtaVectorFromEtas::usage = "EtaVectorFromEtas[atomTypeList_, etas_, Nvec_] computes the eta (expanded stability) vector for dimension vector Nvec, where atomTypeList specifies in which order the atoms appear and etas give a list of already perturbed numbers";
 
@@ -2055,19 +2054,6 @@ JKToricInitialize[hMat_, fMat_, Cvec_, Nvec_, OptionalWeights_:{Sqrt[2],Sqrt[3]}
 ]];
 
 UpdateJKList[Nvec_]:=JKListuAll=Flatten[Table[u[i, ii], {i, Length[Nvec]}, {ii, Nvec[[i]]}]];
-
-AddAtomToCrystal[atom_, crystal_, from_, reverse_ : False] := 
-  With[{atomList = Sort[Append[crystal[[1]], atom]]}, 
-  {newpos = Position[atomList, atom][[-1, 1]]}, 
-  {originInd = If[from >= newpos, from + 1, from]}, 
-  {newcharge = Array[If[# == newpos, If[reverse, -1, 1], If[# == originInd, If[reverse, 1, -1], 0]] &, Length[atomList]]}, 
-  {atomList, 
-    Append[If[Length[crystal[[2]]] > 0, 
-      Transpose[
-       Insert[Transpose[crystal[[2]]], Table[0, Length[crystal[[2]]]],
-         newpos]], crystal[[2]]], newcharge], 
-    Append[If[# >= newpos, # + 1, #] & /@ crystal[[3]], newpos]}
-];
 
 EtaVectorFromEtas[atomTypeList_, etas_, Nvec_] := 
   Module[{eta = Array[etas[[#, 1 ;; Nvec[[#]]]] &, Length[Nvec]]},
