@@ -148,7 +148,8 @@
  * Release notes for 7.2:
  * - Added ThetaDerivativeAtZero
  * - Added SeriesFromInvariants, JKPotentialDegree, LinearToMultiplicativeWeight
- * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, JKResidueFromBlocks, JKGenericResidueFromBlocks
+ * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
+ * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
 
@@ -421,6 +422,8 @@ JKStableFlagsFromBlocks::usage = "JKStableFlagsFromBlocks[dim_, charges_, eta_, 
 
 JKResidueFromBlocks::usage = "JKResidueFromBlocks[data, positions, flag, root, jacobian] computes the Jeffrey-Kirwan residue from the linear data of the integrand as given by JKLinearIntegrandData, the position of each variable, the stable flag to use to compute the residue as given by JKStableFlagsFromBlocks, the root corresponding the the frozen variable in the integral, and the optional jacobian set to true if the integral has to be taken with respect to du/u. ";
 
+JKEllipticResidueFromBlocks::usage= "JKEllipticResidueFromBlocks[data, positions, flag, root] computes the elliptic Jeffrey-Kirwan residue from the linear data of the integrand as given by JKLinearIntegrandData in elliptic mode, the position of each variable, the stable flag to use to compute the residue as given by JKStableFlagsFromBlocks, and the root corresponding the the frozen variable in the integral. ";
+
 JKGenericResidueFromBlocks::usage = "JKGenericResidueFromBlocks[integrand, variables, positions, flag] computes the iterated residue from the integrand in variables, where the residue is taken for the variables going around the positions, taken in the order of the flag as returned by JKStableFlagsFromBlocks. ";
 
 JKResidueAtSingularity::usage = "JKResidueAtSingularity[crystal_, hMat_, potential_, etas_, mode_] computes the Jeffrey-Kirwan residue for the Euler or chi_y genus depending on mode, for the given crystal of the form {atoms, chargeList, order}, for the quiver described by height matrix hMat, where potential is either the full superpotential, a monomial of the potential or the degree of the potential, and where etas is a list of perturbed stability vectors. ";
@@ -449,7 +452,7 @@ FlagResidue::usage = "FlagResidue[Integrand_, positions_, order_, correspondence
 
 JKPotentialDegree::usage = "JKPotentialDegree[hMat, Potential] computes the degree of the potential for a quiver with height matrix hMat, where Potential is either a monomial of the potential, the full potential or the potential's degree directly. ";
 
-JKLinearIntegrandData::usage = "JKLinearIntegrandData[hMat, Potential, Nvec, mode, hrule] computes the integrand in the residue formula for the index in mode 'Euler' and for the chi_y genus in mode 'ChiY', for a quiver with height matrix hMat, dimension vector Nvec, where Potential is either the potential's degree or directly a monomial or the full potential, and where hrule can be specified to choose the formal variables in the end result. The integrand is a list {prefactor, variables, const, vector, power} where const, vector and power are lists with one element per factor in the integrand, each factor of the form (vector.variables + const)^power. ";
+JKLinearIntegrandData::usage = "JKLinearIntegrandData[hMat, Potential, Nvec, mode, hrule] computes the integrand in the residue formula for the index in mode 'Euler', for the chi_y genus in mode 'ChiY' and for the elliptic genus in mode 'Elliptic', for a quiver with height matrix hMat, dimension vector Nvec, where Potential is either the potential's degree or directly a monomial or the full potential, and where hrule can be specified to choose the formal variables in the end result. The integrand is a list {prefactor, variables, const, vector, power} where const, vector and power are lists with one element per factor in the integrand, each factor of the form (vector.variables + const)^power (put in a shifted theta function for the Elliptic mode). ";
 
 ZEuler::usage="ZEuler[ChargeMatrix,Nvec] computes the integrand in the residue formula for the index ";
  
@@ -2114,6 +2117,13 @@ JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Su
        Do[With[{hh = heights[[a, b, nn]]},
          Sow[{d hh^(-2) u[a, ttt] - u[b, hhh] d^(-1), 1}]; Sow[{u[b, hhh] - u[a, ttt] hh^(-2), -1}]],
         {a, Length[hMat]}, {b, Length[hMat]}, {nn, Length[hMat[[a, b]]]}, {ttt, Nvec[[a]]}, {hhh, Nvec[[b]]}],
+        "Elliptic",
+        const = (2 Pi Eta^3 z/Theta[d z])^(Total[Nvec] - 1);
+       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d + u[nn, i] - u[nn, j], -1}]],
+        {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
+       Do[With[{hh = hMat[[a, b, nn]]},
+         Sow[{d - hh + u[a, ttt] - u[b, hhh], 1}]; Sow[{hh + u[b, hhh] - u[a, ttt], -1}]],
+        {a, Length[hMat]}, {b, Length[hMat]}, {nn, Length[hMat[[a, b]]]}, {ttt, Nvec[[a]]}, {hhh, Nvec[[b]]}],
         _, Message[JKResidue::UnknownMode]]][[2]];
    facs = If[facs === {}, {}, facs[[1]]];
    {const, vars,
@@ -2709,6 +2719,68 @@ JKResidueFromBlocks[data_, positions_, flag_, root_, jacobian_: True] :=
     (* everything is merged into the root block: all forms are now the constants a *)
     Total[KeyValueMap[Function[{e, coef},
        With[{nz = Flatten[Position[e, Except[0], {1}, Heads -> False]]}, coef Times @@ (a[[nz]]^e[[nz]])]], terms]]
+   ]
+]];
+
+JKEllipticResidueFromBlocks[data_, positions_, flag_, root_] :=
+  With[{dim = Length[data[[2]]]},
+  Module[{s, a, beta, repOf, terms, newTerms, add, col, vanish, nonv, inv, entries},
+   s = data[[5]];
+   a = Expand[data[[3]] + data[[4]] . positions]; beta = data[[4]];
+  (* the root column: its variable is frozen to z0 *)
+   beta[[All, root]] = 0;
+   (* all atoms of a block share one variable, stored in the column repOf[atom] *)
+   repOf = Range[dim];
+   terms = <|{s} -> data[[1]]|>;
+   (* exponent matrices are stored without trailing zero rows, so that equal terms share one key *)
+   add[e_, v_] := Module[{ee = e},
+     While[Length[ee] > 1 && FreeQ[Last[ee], Except[0], {1}, Heads -> False], ee = Most[ee]];
+     newTerms[ee] = Lookup[newTerms, Key[ee], 0] + v];
+   (* the nonzero entries {k, f, n} of the exponent matrix e restricted to the forms fs *)
+   entries[e_, fs_] := Flatten[Table[If[e[[k + 1, f]] =!= 0, {{k, f, e[[k + 1, f]]}}, {}], {k, 0, Length[e] - 1}, {f, fs}], 2];
+   Catch[
+    Do[With[{fixed = m[[1]], moving = m[[2]], rf = repOf[[m[[1, 1]]]], rm = repOf[[m[[2, 1]]]]},
+      col = beta[[All, rm]];
+      If[! MemberQ[fixed, root], beta[[All, rf]] = beta[[All, rf]] + col];
+      beta[[All, rm]] = 0;
+      repOf[[moving]] = rf;
+      inv = Flatten[Position[col, Except[0], {1}, Heads -> False]];
+      vanish = Select[inv, (Expand[a[[#]]] === 0 && Count[Expand[beta[[#]]], Except[0]] == 0) &];
+      nonv = Complement[inv, vanish];
+      newTerms = <||>;
+      KeyValueMap[
+       Function[{e, coef},
+        Module[{p = -Total[e[[1 ;; ;; 2, vanish]], 2], van = entries[e, vanish], base, e2},
+         If[p >= 1,
+          base = coef Times @@ (If[EvenQ[#[[1]]], (ThetaDerivativeAtZero[#[[1]] + 1] z col[[#[[2]]]])^#[[3]],
+               ThetaDerivativeAtZero[#[[1]]]^#[[3]]] & /@ van);
+          e2 = e; e2[[All, vanish]] = 0;
+          If[p == 1, add[e2, base],
+           Module[{xx, poly},
+            poly = Expand[SeriesCoefficient[
+               (Times @@ (With[{k = #[[1]], f = #[[2]], n = #[[3]]},
+                   If[EvenQ[k],
+                    (Sum[ThetaDerivativeAtZero[k + mm] (z col[[f]])^(mm - 1) xx^(mm - 1)/mm!, {mm, 1, p}]/ThetaDerivativeAtZero[k + 1])^n,
+                    (Sum[ThetaDerivativeAtZero[k + mm] (z col[[f]] xx)^mm/mm!, {mm, 0, p - 1}]/ThetaDerivativeAtZero[k])^n]] & /@ van))
+               (Times @@ (With[{k = #[[1]], f = #[[2]], n = #[[3]]},
+                   Sum[JKThetaD[k + mm, f] (z col[[f]] xx)^mm/mm!, {mm, 0, p - 1}]^n] & /@ entries[e, nonv])),
+               {xx, 0, p - 1}]];
+            e2[[All, nonv]] = 0;
+            Do[If[mon =!= 0,
+              Module[{e3 = e2},
+               Do[With[{k = v[[1]], f = v[[2]]},
+                  If[k >= Length[e3], e3 = PadRight[e3, {k + 1, nf}]];
+                  e3[[k + 1, f]] += Together[v D[mon, v]/mon]],
+                 {v, Union[Cases[{mon}, _JKThetaD, Infinity]]}];
+               add[e3, base (mon /. _JKThetaD -> 1)]]],
+             {mon, If[Head[poly] === Plus, List @@ poly, {poly}]}]]]]]], terms];
+      terms = newTerms;
+      If[terms === <||>, Throw[0]]],
+     {m, flag}];
+    (* everything is merged into the root block: all forms are now the constants a *)
+    Total[KeyValueMap[Function[{e, coef},
+       coef Times @@ ((If[#[[1]] == 0, Theta[z a[[#[[2]]]]], Derivative[#[[1]]][Theta][z a[[#[[2]]]]]])^#[[3]] & /@ entries[e, Range[Length[data[[5]]]]])],
+      terms]]
    ]
 ]];
 
