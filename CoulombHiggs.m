@@ -427,7 +427,7 @@ JKEllipticResidueFromBlocks::usage= "JKEllipticResidueFromBlocks[data, positions
 
 JKGenericResidueFromBlocks::usage = "JKGenericResidueFromBlocks[integrand, variables, positions, flag] computes the iterated residue from the integrand in variables, where the residue is taken for the variables going around the positions, taken in the order of the flag as returned by JKStableFlagsFromBlocks. ";
 
-JKResidueAtSingularity::usage = "JKResidueAtSingularity[crystal_, hMat_, potential_, etas_, mode_] computes the Jeffrey-Kirwan residue for the Euler or chi_y genus depending on mode, for the given crystal of the form {atoms, chargeList, order}, for the quiver described by height matrix hMat, where potential is either the full superpotential, a monomial of the potential or the degree of the potential, and where etas is a list of perturbed stability vectors. ";
+JKResidueAtSingularity::usage = "JKResidueAtSingularity[crystal_, hMat_, potential_, etas_, mode_, hrule_] computes the Jeffrey-Kirwan residue for the Euler or chi_y genus depending on mode for the crystal of the form {atoms, root} with atoms a list of {node, height}, for the quiver described by height matrix hMat, where potential is either the full superpotential, a monomial of the potential or the degree of the potential, where etas is a list of perturbed stability vectors, and where hrule can be specified to choose the formal variables in the end result. ";
 
 JKResidueFromNode::usage = "JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_, prohibitedNodes_, preventSameHeightSameNode_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, starting from node, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, prohibitedNodes optionally specifies a list of nodes that the algorithm will not visit, and preventSameHeightSameNode optionally tells the code to assume that two atoms of the same type should not have the same coordinate in a crystal";
 
@@ -2781,53 +2781,25 @@ JKGenericResidueFromBlocks[integrand_, variables_, positions_, flag_] :=
 
 JKResidueAtSingularity[crystal_, hMat_, potential_, etas_,
    mode_ : "Euler", hrule_: {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
-  With[{atomTypeList = First /@ crystal[[1]]},
-   {nvec = Lookup[Counts[atomTypeList], Range[Length[hMat]], 0],
-    compactcharges = {FirstPosition[#, 1][[1]], 
-        FirstPosition[#, -1][[1]]} & /@ crystal[[2]],
-    emptycutcharge = Array[0 &, Length[crystal[[2, 1]]] - 1],
-    dim = Length[atomTypeList]},
-   {eta = EtaVectorFromEtas[atomTypeList, etas, nvec]},
-   Module[{numberFlags = 0},
-    (flag |->
-       With[{kappas = 
-          Total[Array[
-            If[SubsetQ[flag[[1 ;; #2 + 1]], compactcharges[[#1]]], 
-              crystal[[2, #1]][[2 ;; -1]], emptycutcharge] &, {Length[
-              crystal[[2]]], dim - 1}]]},
-        If[
-         Not[MemberQ[kappas - Join[{emptycutcharge}, kappas][[1 ;; -2]],
-            emptycutcharge]],
-         With[{det = Det[kappas]},
-          If[Not[det == 0],
-           With[{min = 
-              Min[LinearSolve[Transpose[kappas], eta[[2 ;; -1]]]]},
-            If[min == 0, Message[JKResidue::SumRegular],
-             If[min > 0,
-              numberFlags += 1
-              ]]]]]]]) /@ 
-     Select[Permutations[Range[dim]], #[[1]] < #[[2]] &];
-    If[numberFlags == 0, 0,
-     With[{correspondence = 
-        u @@ # & /@ 
-         Module[{count = <||>}, ({#, 
-              count[#] = Lookup[count, #, 0] + 1} &) /@ atomTypeList],
-        eulerIntegrand = ZEulerFromQuiver[hMat, potential, nvec],
-       positions = Last /@ crystal[[1]]},
-      {eulerResult = 
-        FlagResidue[eulerIntegrand, positions, crystal[[3]], correspondence]}, 
-      If[Not[mode === "Euler" || eulerResult === 0], If[mode === "ChiY",
-         FlagResidue[ZRatFromQuiver[hMat, potential, nvec], 
-         y^(2 positions /. Array[(Symbol["h" <> ToString[#]] -> Log[y, Symbol["y" <> ToString[#]]]) &, 3]), 
-         crystal[[3]], correspondence],
-         If[mode === "Elliptic",
-         FlagResidue[ZEllipticFromQuiver[hMat, potential, nvec], positions, crystal[[3]], 
-         correspondence],
-         Message[JKResidue::UnknownMode]
-         ]
-         ], eulerResult] Times @@ 
-        Array[Subscript[x, #]^nvec[[#]] &, Length[nvec]] numberFlags
-      ]]]
+  With[{atomTypeList = First /@ crystal[[1]], root = crystal[[2]]},
+   {nvec = Lookup[Counts[atomTypeList], Range[Length[hMat]], 0]},
+   {eta = EtaVectorFromEtas[atomTypeList, etas, nvec],
+    charges = With[{data = JKLinearIntegrandData[hMat, potential, nvec, "Euler"]},
+      With[{val = Expand[data[[3]] + data[[4]] . (Last /@ crystal[[1]])]},
+       Union[data[[4]][[Select[Range[Length[val]], data[[5, #]] == -1 && val[[#]] === 0 &]]]]]]},
+   With[{stableFlags = JKStableFlagsFromBlocks[Length[atomTypeList], charges, eta, root]},
+    If[stableFlags === {}, 0,
+      Switch[mode,
+        "Euler",
+         Total[(#[[2]] JKResidueFromBlocks[JKLinearIntegrandData[hMat, potential, nvec, "Euler"], positions, #[[1]], root, False]) & /@ stableFlags],
+        "ChiY",
+         Total[(#[[2]] JKResidueFromBlocks[JKLinearIntegrandData[hMat, potential, nvec, "ChiY"], LinearToMultiplicativeWeight[positions,hrule]^2, #[[1]], root, True]) & /@ stableFlags],
+        "Elliptic",
+         Total[(#[[2]] JKEllipticResidueFromBlocks[JKLinearIntegrandData[hMat, potential, nvec, "Elliptic"], positions, #[[1]], root]) & /@ stableFlags],
+        _, Message[JKResidue::UnknownMode]
+        ] Times @@
+        Array[Subscript[x, #]^nvec[[#]] &, Length[nvec]]
+      ]]
 ];
 
 JKResidueFromNode[degenerateHMat_, potential_, eta_, order_, node_, mode_ : "Euler", prohibitedNodes_ : {}, preventSameHeightSameNode_ : True] := 
