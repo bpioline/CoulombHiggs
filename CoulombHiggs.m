@@ -3488,16 +3488,36 @@ Table[{Hue[ArrowList[[k,1]]/4],Arrow[{v1 D[ArrowList[[k,2]],h1]+v2 D[ArrowList[[
 PlotToricFan[Fan_]:=Module[{mx1,mx2,my1,my2},
 mx1=Min[First[Transpose[Fan]]];mx2=Max[First[Transpose[Fan]]];my1=Min[Last[Transpose[Fan]]];my2=Max[Last[Transpose[Fan]]];Graphics[{Thick,Line[Append[Fan,First[Fan]]]},PlotRange->{{mx1-1/3,mx2+1/3},{my1-1/3,my2+1/3}},GridLines->{Range[mx1,mx2],Range[my1,my2]},Frame->True,FrameTicks->None]];
 
-ListPerfectMatchings[Wp_,Wm_]:=Module[{WL,m,LiPhi,LiCuts},
-WL=Union[List@@Expand[Wp+Wm]];
-If[Length[Cases[WL,_Times]]>0,Message[Potential::sign]];
-If[Length[Cases[WL,_Integer]]>0,Message[Potential::duplicate]];
-m=Length[WL];
-If[OddQ[m],Message[Potential::numberOfTerms]];
-WL=Times@@#&/@WL;
-LiPhi=Union[Flatten[Table[List@@WL[[i]],{i,m}]]];
-LiCuts=Subsets[LiPhi,{m/2}];
-Select[LiCuts,(WL/.Table[#[[k]]->0,{k,Length[#]}])===ConstantArray[0,m]&]/.Phi[i_,j_,k_]:>{i,j,k}];
+ListPerfectMatchings[Wp_,Wm_]:=With[{terms=Union[List@@Expand[Wp+Wm]]},
+If[Length[Cases[terms,_Times]]>0,Message[Potential::sign]];
+If[Length[Cases[terms,_Integer]]>0,Message[Potential::duplicate]];
+If[OddQ[Length[terms]],Message[Potential::numberOfTerms]];
+With[{
+  monomials=Times@@#&/@terms,       
+  nTerms=Length[terms],
+  matchingSize=Length[terms]/2},
+With[{fields=Union[Flatten[List@@#&/@monomials]]},
+With[{
+  fieldsOfTerm=Function[mono,Select[Range[Length[fields]],!FreeQ[mono,fields[[#]]]&]]/@monomials},
+With[{
+  termsOfField=Table[Select[Range[nTerms],MemberQ[fieldsOfTerm[[#]],f]&],{f,Length[fields]}]},
+With[{maxCover=Max[1,Length/@termsOfField]},
+Module[{search,matchings},
+  search[chosen_,covered_]:=Module[{firstUncovered,nLeft},
+    nLeft=matchingSize-Length[chosen];
+    firstUncovered=FirstPosition[covered,False,{0},{1}][[1]];
+    Which[
+      firstUncovered==0,
+        Scan[Sow[Sort[Join[chosen,#]]]&,Subsets[Complement[Range[Length[fields]],chosen],{nLeft}]],
+      nLeft<=0||Count[covered,False]>nLeft maxCover,
+        Null,
+      True,
+        Do[If[FreeQ[chosen,f],
+          search[Append[chosen,f],ReplacePart[covered,Thread[termsOfField[[f]]->True]]]],
+          {f,fieldsOfTerm[[firstUncovered]]}]]];
+  matchings=If[IntegerQ[matchingSize],Reap[search[{},ConstantArray[False,nTerms]]][[2]],{}];
+  matchings=If[matchings==={},{},Sort[DeleteDuplicates[First[matchings]]]];
+  Map[fields[[#]]&,matchings,{2}]/.Phi[a_,b_,c_]:>{a,b,c}]]]]]]];
 
 PerfectMatchingWeight[Perf_,hMat_]:=Module[{exprs,weight1,weight2},exprs={};
 With[{perfWeight=Join[Array[Symbol["q"<>ToString[#]]&,Length[hMat]],{weight1,weight2,1}]},
