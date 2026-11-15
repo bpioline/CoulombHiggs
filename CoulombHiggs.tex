@@ -347,6 +347,22 @@ For the evaluation of the residue, we note that it is often more efficient to us
 
 Finally, by setting $\var{\$QuiverTrig}$ to True and $ \var{\$QuiverMaxPower}>0$, the routine will attempt to compute the elliptic genus up to order $q^{\var{\$QuiverMaxPower}}$ using the residue prescription in \cite{Benini:2013xpa}. Note however that it will only include the same hyperplanes which contribute to the Euler number, and not hyperplanes which decouple as $\tau\to\I\infty$.
 
+\medskip
+
+Since v7.1, the package also provides the routines \fun{JKResidueFromCrystals} and \fun{FramedJKResidue}, along with the special cases \fun{D6FramedJKResidue} and \fun{D4FramedJKResidue}, which evaluate the Jeffrey-Kirwan residue formula for arbitrary unframed and framed quivers with potential, by growing crystals of atoms in the spirit of the Quiver Yangian algorithm. Depending on the mode (\var{"Euler"}, \var{"ChiY"} or \var{"Elliptic"}), they return the generating series of Euler numbers, $\chi_y$-genera or elliptic genera. The quiver with potential is specified by its height matrix \var{hMat} and potential, following the conventions of \S\ref{sec:QY}. For instance, for the Kronecker quiver with three arrows and no potential,
+
+\mathematica{1.0}{
+JKResidueFromCrystals[\{\{\{\}, \{h1, h2, -h1 - h2\}\}, \{\{\}, \{\}\}\}, h3, \{-1, 1\}, 3, "ChiY"]
+}{$1+\left(y^2+1+\frac{1}{y^2}\right) \left( x_1 x_2 + x_1^2 x_2 + x_1 x_2^2 \right)$}
+
+\noindent while the D6-framed NCDT invariants of the conifold computed in \S\ref{sec:QY} are recovered from (with \var{hMat} and \var{Wp} defined as in that section)
+
+\mathematica{1.0}{
+Expand@FullSimplify@Limit[ D6FramedJKResidue[hMat, Wp, 1, \{1, 1\}, 4], h3 -> 0]
+}{$1 + x_1 - 2 x_1 x_2 - 4 x_1^2 x_2 - 2 x_1^3 x_2 +  x_1 x_2^2 + 8 x_1^2 x_2^2 $}
+
+\noindent See \S\ref{sec:JKcrystals} for more details.
+
 
 
 \subsubsection{Flow tree  formula}
@@ -375,6 +391,7 @@ The syntax is identical to the flow tree formula,
 }
 
 \subsubsection{Quiver Yangian algorithm}
+\label{sec:QY}
 
 The algorithm relies on a matrix $\var{hMat}$ whose entry $(i,j)$ lists the heights $h_a$ of arrows
 $a:i\to j$. These heights are linear combinations of three parameters $h_1,h_2,h_3$ such that, for all vertices $i\in Q_0$
