@@ -150,6 +150,9 @@
  * - Added SeriesFromInvariants, JKInvariantsFromNode
  * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
  * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
+ * - Adjusted FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
+ * - Adjusted JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
+ * - Fixed D4FramedNCDTSeries, ExpandTheta
  * - Removed AddAtomToCrystal
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
