@@ -2850,11 +2850,13 @@ FramedJKResidue[hMat_, potential_, eta_, order_, framingArrows_, mode_ : "Euler"
   With[{fpotential=Replace[potential, Phi[abc_, abd_, abe_] -> Phi[abc + 1, abd + 1, abe], 
            All],
         feta= Join[{-Total[eta]},eta], 
-        fMat = FramedHeightMatrix[hMat, framingArrows]}, 
-    1 + SeriesFromInvariants[Merge[Array[
-    JKInvariantsFromNode[fMat, fpotential, feta, order+1, #, mode,
-      Range[# - 1], hrule] &, Length[fMat]], Total], simplify]
-      ];
+        fMat = FramedHeightMatrix[hMat, framingArrows]},
+    1 + SeriesFromInvariants[
+      Association[(First[#][[2 ;;]] -> Last[#]) & /@ Normal[
+        JKInvariantsFromNode[fMat, fpotential, feta, order+1, 1, mode, {1}, hrule]
+      ]], 
+      simplify]
+];
 
 D6FramedJKResidue[hMat_, potential_, i_, eta_, Nn_, mode_ : "Euler", simplify_: True, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] := 
   FramedJKResidue[hMat, potential, eta, Nn, {{0, i, 0}}, mode, simplify, hrule];
