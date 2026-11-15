@@ -1613,7 +1613,7 @@ computes the number of derangements of a set of \var{Vec[i]} objects of color $i
 \defn{ResidueFast}{\vardef{f},\{ \vardef{x}, \vardef{x0} \}}{computes the residue of $f$ at $x=x_0$ via \fun{Series}, without simplifying the result}
 
 
-\defn{DSZProd}{\vardef{Mat},\vardef{Nvec1}, \vardef{Nvec2}}{computes the Dirac product $\sum_{i,j} m_{ij}\alpha_{ij} N_i^1 N_j^2$, where $m_{ij}$ is given by \fun{QuiverMultiplierMat}}
+\defn{DSZProd}{\vardef{Mat},\vardef{Nvec1}, \vardef{Nvec2}}{computes the Dirac product $\sum_{i,j} \alpha_{ij} N_i^1 N_j^2$ (see Section~\ref{sec:issues} on the multiplier $m_{ij}$)}
 
 \defn{ReduceDSZMatrix}{\vardef{Mat},\vardef{Li}}{sets $\var{Mat}[[i,j]]=\var{Mat}[[j,i]]=0$ for all elements $\{i,j\}$ in \var{Li}, and returns the resulting matrix. If $i=j$, then the $i$-th row and column of $\var{Mat}$ are set to 0.}
 
@@ -1783,26 +1783,17 @@ The following problems were found while checking this documentation against the 
 \end{itemize}
 
 \subsection*{Usage messages}
-\begin{itemize}
-\item Wrong defaults: \var{\$QuiverPerturb1} (says 1000, is 50), \var{\$QuiverPerturb2} (says 100000, is
-  $2.5\times10^6$), \var{\$QuiverFlowTreeOpt} (says 0, is 3), \var{\$QuiverFlowTreeMethod} (says 0/1, is the
-  Boolean True).
-\item Wrong routine name at the start of the message: \fun{EvalHiggsGGen} (``EvalHiggsG''),
-  \fun{EvalCoulombIndexNum} (``EvalCoulombIndex''), \fun{Mutate} (``MutateRight''), \fun{AttractorIndex}
-  ({\tt AttractorIndex::usage[...]}); malformed starts for \fun{AttractorF} and \fun{ChargeFunction}.
-\item Wrong arguments: \fun{DisplayFlagList} (shows two arguments, takes one), \fun{DisplayFlagListDegrees}
-  (wrong order; the code is {\tt [ListSings,NumSing,ListFlags]}), \fun{Higgsg} (the first argument is a
-  list of charge vectors).
-\item Inaccurate: \fun{ZEllipticPartial} (says it reproduces {\tt ZTrig}).
-\item Empty: \fun{FindMultiDegree}, \fun{PartitionMultiplicity}.
-\item Typos: \fun{CoulombIndexResidue} (``omputes'', ``ione-loop''), \fun{NCDTSeriesFromOmS} (``gener- ating''),
-  \fun{PlethysticLog} (``logarythm''); \fun{EulerForm} has two usage messages.
-\end{itemize}
+The usage messages ({\tt ?Name}) of all routines were checked against the code and corrected in November 2026
+(wrong defaults of \var{\$QuiverPerturb1}, \var{\$QuiverPerturb2}, \var{\$QuiverFlowTreeOpt},
+\var{\$QuiverFlowTreeMethod}; wrong names, arguments or descriptions; empty messages; typos).
 
 \subsection*{Code hygiene}
 \begin{itemize}
 \item \fun{CyclicQuiverOmAtt}, \fun{CyclicQuiverTrivialStacky} and \fun{DerangementIndex} are each defined twice;
   the later (equivalent) definitions override the earlier ones.
+\item \fun{DSZProd} is defined twice: the later definition, which is the one in effect, ignores
+  \fun{QuiverMultiplierMat}, whereas the earlier one includes it; with a non-trivial \var{\$QuiverMultiplier}
+  the two differ.
 \item \fun{RandomDSZWithNoLoop} and \fun{RandomDSZWithLoop} name their second argument {\tt \$QuiverMaxPower\_},
   which shadows the global variable.
 \end{itemize}

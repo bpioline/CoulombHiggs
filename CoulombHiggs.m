@@ -206,7 +206,7 @@ Treeg::usage="Treeg[Li_,y_] denotes the tree index of n centers with charges Li"
 
 HiggsG::usage = "HiggsG[gam_,y_] denotes the (unevaluated) stack invariant G_Higgs(gamma,y)";
 
-Higgsg::usage = "Higgsg[gam_,y_] denotes the (unevaluated) Abelian stack invariant g_Higgs(gamma,y)";
+Higgsg::usage = "Higgsg[Li_,y_] denotes the (unevaluated) Abelian stack invariant g_Higgs({alpha_i},y) for the list of charge vectors Li={alpha_i}";
 
 Coulombg::usage = "Coulombg[Li_,y_] denotes the Coulomb index of n centers with charges Li";
 
@@ -257,7 +257,7 @@ JKListAllSings::usage= "Keeps track of singular hyperplanes for all permutations
 
 JKListAllStableFlags::usage="Keeps track of stable flags for all permutations ";
 
-JKChargeMatrix::usage = "ChargeMatrix is the matrix of gauge charges, R-charges and multiplicities for chiral multiplets";
+JKChargeMatrix::usage = "JKChargeMatrix is the matrix of gauge charges, R-charges and multiplicities for chiral multiplets";
 
 JKEta::usage = "Extended stability vector, perturbation from diagonal embedding of Cvec "; 
 
@@ -277,9 +277,9 @@ BraneTilingsData::usage = "List of {name, Fan, hMat, Wp, Wm, v1, v2} for known b
 
 (** environment variables variables **)
 
-$QuiverPerturb1::usage = "Inverse size of beta1 perturbation, default =1000";
+$QuiverPerturb1::usage = "Inverse size of beta1 perturbation, default =50";
 
-$QuiverPerturb2::usage = "Inverse size of beta2 perturbation, default =100000";
+$QuiverPerturb2::usage = "Inverse size of beta2 perturbation, default =50*50*1000";
 
 $QuiverPrecision::usage = "Precision to decide vanishing, default=0";
 
@@ -301,11 +301,11 @@ $QuiverOmSbasis::usage = "Default=1, set to 0 to relax the assumption that OmS=1
 
 $QuiverMutationMult::usage = "Default=1, set to M>1 for generalized quiver mutations ";
 
-$QuiverCoulombOpt::usage = "Default=1, set to 0 for old unoptimized evaluation of gCoulomb";
+$QuiverCoulombOpt::usage = "Default=1 (optimized CoulombIndexOpt); set to 0 for the old unoptimized evaluation of gCoulomb. Loading the add-on CoulombHiggsFast.m sets it to 2, in which case CoulombBranchFormula uses FastCoulombBranchFormula and compiled Coulomb indices for 5 or more centers";
 
-$QuiverFlowTreeOpt::usage = "Default=0, set to 1 or 2 for alternate evaluation of gTree";
+$QuiverFlowTreeOpt::usage = "Default=3 (recursive evaluation of gTree by TreeIndexOpt), set to 0, 1 or 2 for alternate evaluation of gTree";
 
-$QuiverFlowTreeMethod::usage = "Default=0, set to 1 for using CoulombIndex in NonAbelianFlowTreeFormula";
+$QuiverFlowTreeMethod::usage = "Default=True (Reineke formula, EvalReinekeIndex, in NonAbelianFlowTreeFormula), set to False for using the Coulomb index (EvalCoulombIndex)";
 
 $QuiverNoVM::usage = "Default=False, set to True to ignore vector multiplet poles in JKIndex and JKIndexSplit";
 
@@ -315,7 +315,7 @@ $QuiverMaxPower::usage = "Maximal power in the q-expansion of the elliptic genus
  
 $QuiverOnlyMultipleBasisVector::usage = "If true, then ListAllPartitions will produce partitions involving only multiple of basis vectors";
   
-$QuiverDisplayCrystal::usage ="If True, then NCDTSeriesFromCrystal[hMat_,Framing_,Nn_] will produce a list of {Generating function, List of crystals with Nn atoms}";  
+$QuiverDisplayCrystal::usage ="Default=False, currently not used by the code (intended to make NCDTSeriesFromCrystal return also the list of crystals)";  
 
 $QuiverVertexLabels::usage = "Specify the vertex labels to be used by PlotQuiver and PlotTiling";
   
@@ -341,19 +341,19 @@ CoulombFNum::usage = "CoulombFNum[Mat_,Cvec_] computes numerically the index F o
 
 CoulombGNum::usage = "CoulombGNum[Mat_] computes numerically the index G of scaling collinear solutions,assuming DSZ matrix Mat. The total angular momentum Sum[Mat[i,j],j>i] must vanish. Not for more than 6 centers.";
 
-EvalCoulombIndex::usage="EvalCoulombIndex[Mat_,PMat_,Cvec_,f_] evaluates the Coulomb indices Coulombg[{alpha_i}] appearing in g using DSZ matrix Mat, deformed to PMat, rescaled by $QuiverMultiplicity, and FI terms Cvec";
+EvalCoulombIndex::usage="EvalCoulombIndex[Mat_,PMat_,Cvec_,f_] evaluates the Coulomb indices Coulombg[{alpha_i}] appearing in g using DSZ matrix Mat, deformed to PMat, rescaled by $QuiverMultiplier, and FI terms Cvec";
 
-EvalCoulombIndexAtt::usage="EvalCoulombIndexAtt[Mat_,PMat_,f_] evaluates the Coulomb indices Coulombg[{alpha_i}] appearing in g using DSZ matrix Mat, deformed to PMat, rescaled by $QuiverMultiplicity, in the respective attractor chamber computed from PMat";
+EvalCoulombIndexAtt::usage="EvalCoulombIndexAtt[Mat_,PMat_,f_] evaluates the Coulomb indices Coulombg[{alpha_i}] appearing in g using DSZ matrix Mat, deformed to PMat, rescaled by $QuiverMultiplier, in the respective attractor chamber computed from PMat";
 
-EvalCoulombIndexNum::usage="EvalCoulombIndex[Mat_,PMat_,Cvec_,f_] evaluates the Coulomb indices Coulombg[{alpha_i}] appearing in g using DSZ matrix Mat, deformed to PMat, rescaled by $QuiverMultiplicity, and FI terms Cvec, using numerical search ";
+EvalCoulombIndexNum::usage="EvalCoulombIndexNum[Mat_,PMat_,Cvec_,f_] evaluates the Coulomb indices Coulombg[{alpha_i}] appearing in g using DSZ matrix Mat, deformed to PMat, rescaled by $QuiverMultiplier, and FI terms Cvec, using numerical search ";
 
 (** Coulomb branch formula **)
 
-CoulombBranchFormula::usage = "CoulombBranchFormula[Mat_,Cvec_,Nvec_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the single center degeneracies OmS[alpha_i,t] using the Coulomb branch formula, computing all CoulombH factors recursively using the minimal modification hypothesis. Also provides list of CoulombH factors if $QuiverDisplayCoulombH is set to True ";
+CoulombBranchFormula::usage = "CoulombBranchFormula[Mat_,Cvec_,Nvec_] expresses the Dolbeault polynomial of a quiver with dimension vector Nvec in terms of the single center degeneracies OmS[alpha_i,t] using the Coulomb branch formula, computing all CoulombH factors recursively using the minimal modification hypothesis. Also provides list of CoulombH factors if $QuiverDisplayCoulombH is set to True ";
 
-CoulombBranchFormulaFromH::usage = "CoulombBranchFormulaFromH[Mat_,Cvec_,Nvec_,R_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the single center degeneracies OmS[alpha_i,y] using the Coulomb branch formula, using CoulombH factors provided in replacement rule R ";
+CoulombBranchFormulaFromH::usage = "CoulombBranchFormulaFromH[Mat_,Cvec_,Nvec_,R_] expresses the Dolbeault polynomial of a quiver with dimension vector Nvec in terms of the single center degeneracies OmS[alpha_i,y] using the Coulomb branch formula, using CoulombH factors provided in replacement rule R ";
 
-QuiverPoincarePolynomial::usage = "QuiverPoincarePolynomial[gam_,y_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the total single center degeneracies OmT[alpha_i,y] and Coulomb indices Coulombg[{alpha_i},y]. If gam is primitive, QuiverPoincarePolynomial[gam] coincides with QuiverPoincarePolynomialRat[gam_].";
+QuiverPoincarePolynomial::usage = "QuiverPoincarePolynomial[gam_,y_] expresses the Dolbeault polynomial of a quiver with dimension vector gam in terms of the total single center degeneracies OmT[alpha_i,y] and Coulomb indices Coulombg[{alpha_i},y]. If gam is primitive, QuiverPoincarePolynomial[gam,y] coincides with QuiverPoincarePolynomialRat[gam,y].";
 
 QuiverPoincarePolynomialRat::usage = "QuiverPoincarePolynomialRat[gam_,y_] expresses the rational Dolbeault polynomial of a quiver with dimension vector gam in terms of the total single center degeneracies OmT[alpha_i,y] and Coulomb indices Coulombg[{alpha_i},y]";
 
@@ -381,10 +381,10 @@ QDeformedFactorial::usage = "QDeformedFactorial[n_,y_] gives the q-deformed fact
 
 EvalQFact::usage = "EvalQFact[f_] replaces QFact[n_,y_] with QDeformedFactorial[n,y] everywhere in f ";
 
-EulerForm::usage = "EulerForm[Mat] gives the Euler form constructed from the DSZ matrix Mat ";
+EulerForm::usage = "EulerForm[Mat_] gives the Euler (Ringel-Tits) form constructed from the DSZ matrix Mat ";
 
 (* mutations *)
-Mutate::usage = "MutateRight[Mat_,klist_] mutates the quiver with respect to nodes in klist ";
+Mutate::usage = "Mutate[Mat_,klist_] mutates the DSZ matrix Mat with respect to nodes in klist ";
 
 MutateRight::usage = "MutateRight[Mat_,Cvec_,Nvec_,klist_] mutates the quiver with respect to nodes in klist ";
 
@@ -418,15 +418,15 @@ HuaTermMult::usage="HuaTermMult[Mat_,ListPa_] computes the contribution of one s
 
 (* Jeffrey-Kirwan residue formula *)
 
-JKIndex::usage = "JKIndex[ChargeMatrix_,Nvec_,Etavec_] computes the chi_y genus of the GLSM with given charge matrix, dimension vector and stability parameter ";
+JKIndex::usage = "JKIndex[ChargeMatrix_,Nvec_,Etavec_] computes the chi_y genus of the GLSM with given charge matrix, dimension vector and stability parameter; returns the list of contributions of the relevant stable flags (also stored in JKChiGenus), whose sum is the chi_y genus ";
 
 JKIndexSplit::usage = "JKIndexSplit[ChargeMatrix_,Nvec_,Etavec_,SplitNodes_] computes the chi_y genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula for the nodes listed in SplitNodes ";
 
 JKStableFlagsFromBlocks::usage = "JKStableFlagsFromBlocks[dim_, charges_, eta_, root_] computes a list of stable flags of total dimension dim-1 in the space generated by charges, where charges are vectors of length dim which should be reduced to dimension dim-1 by ignoring the root entry, for stability vector eta of length dim. Each flag is of the form {list of block operations, sign(det(kappa))} where kappa is the matrix generated by the reduced charges taken in order of the flag and where each block operation attaches a new block to a root block and is written as {root block, new block}, with blocks being lists of nodes. ";
 
-JKResidueFromBlocks::usage = "JKResidueFromBlocks[data, positions, flag, root, jacobian] computes the Jeffrey-Kirwan residue from the linear data of the integrand as given by JKLinearIntegrandData, the position of each variable, the stable flag to use to compute the residue as given by JKStableFlagsFromBlocks, the root corresponding the the frozen variable in the integral, and the optional jacobian set to true if the integral has to be taken with respect to du/u. ";
+JKResidueFromBlocks::usage = "JKResidueFromBlocks[data, positions, flag, root, jacobian] computes the Jeffrey-Kirwan residue from the linear data of the integrand as given by JKLinearIntegrandData, the position of each variable, the stable flag to use to compute the residue as given by JKStableFlagsFromBlocks, the root corresponding the the frozen variable in the integral, and the optional jacobian (default True) set to True if the integral has to be taken with respect to du/u. ";
 
-JKEllipticResidueFromBlocks::usage= "JKEllipticResidueFromBlocks[data, positions, flag, root] computes the elliptic Jeffrey-Kirwan residue from the linear data of the integrand as given by JKLinearIntegrandData in elliptic mode, the position of each variable, the stable flag to use to compute the residue as given by JKStableFlagsFromBlocks, and the root corresponding the the frozen variable in the integral. ";
+JKEllipticResidueFromBlocks::usage= "JKEllipticResidueFromBlocks[data, positions, flag, root] computes the elliptic Jeffrey-Kirwan residue from the linear data of the integrand as given by JKLinearIntegrandData in elliptic mode, the position of each variable, the stable flag to use to compute the residue as given by JKStableFlagsFromBlocks, and the root corresponding to the frozen variable in the integral. ";
 
 JKGenericResidueFromBlocks::usage = "JKGenericResidueFromBlocks[integrand, variables, positions, flag] computes the iterated residue from the integrand in variables, where the residue is taken for the variables going around the positions, taken in the order of the flag as returned by JKStableFlagsFromBlocks. ";
 
@@ -444,9 +444,9 @@ D6FramedJKResidue::usage = "D6FramedJKResidue[hMat_, potential_, i_, eta_, Nn_, 
 
 D4FramedJKResidue::usage = "D4FramedJKResidue[hMat_, potential_, i_, j_, k_, eta_, Nn_, mode_, simplify_, hrule_] computes the D4-framed partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat and framed at arrow Phi[i,j,k] up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
 
-JKInitialize::usage = "JKInitialize[Mat_,RMat_,Cvec_,Nvec] initializes the internal variables "; 
+JKInitialize::usage = "JKInitialize[Mat_,RMat_,Cvec_,Nvec_] initializes the internal variables "; 
 
-JKToricInitialize::usage = "JKToricInitialize[hMat_, fMat_, Cvec_, Nvec_] initializes the internal variables for a toric quiver. If Cvec only gives stability parameters for the quiver, the non-commutative chamber is automatically chosen ";
+JKToricInitialize::usage = "JKToricInitialize[hMat_, fMat_, Cvec_, Nvec_] initializes the internal variables for a toric quiver. If Cvec only gives stability parameters for the quiver, the non-commutative chamber is automatically chosen; OptionalWeights are the numerical values substituted for h1,h2 ";
 
 UpdateJKList::usage = "UpdateJKList[Nvec_] updates the internal variable listing the u[i,j]";
 
@@ -470,19 +470,19 @@ ZEulerFromQuiver::usage="ZEulerFromQuiver[hMat, Potential, Nvec] constructs the 
 
 ZRatFromQuiver::usage="ZRatFromQuiver[hMat, Potential, Nvec] constructs the integrand in the residue formula for the chi_y genus in rational representation, for a quiver with height matrix hMat, dimension vector Nvec, and where Potential is either the potential's degree or directly a monomial or the full potential";
 
-ZEllipticFromQuiver::usage="ZEllipticFromQuiver[hMat_, Potential_, Ndim_] constructs the integrand in the residue formula for the elliptic genus, for a quiver with height matrix hMat, dimension vector Nvec, and where Potential is either the potential's degree or directly a monomial or the full potential";
+ZEllipticFromQuiver::usage="ZEllipticFromQuiver[hMat_, Potential_, Ndim_] constructs the integrand in the residue formula for the elliptic genus, for a quiver with height matrix hMat, dimension vector Ndim, and where Potential is either the potential's degree or directly a monomial or the full potential";
 
 ZEulerPartial::usage="ZEulerPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces ZEuler[ChargeMatrix,Nvec]";
 
-ZRationalPartial::usage= "ZRationalPartial[ChargeMatrix_,Nvec_,ListPerm_] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in rational representation, corresponding to the partitions Listperm at each node; ; the sum over all permutations reproduces ZRational[ChargeMatrix,Nvec]";
+ZRationalPartial::usage= "ZRationalPartial[ChargeMatrix_,Nvec_,ListPerm_] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in rational representation, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces ZRational[ChargeMatrix,Nvec]";
 
 ZTrigPartial::usage="ZTrigPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the chi_y genus in trigonometric representation, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces ZTrig[ChargeMatrix,Nvec]";
 
-ZEllipticPartial::usage="ZEllipticPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the elliptic genus, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces ZTrig[ChargeMatrix,Nvec]";
+ZEllipticPartial::usage="ZEllipticPartial[ChargeMatrix,Nvec,ListPerm] constructs the partial contribution to the integrand in the residue formula for the elliptic genus, corresponding to the partitions Listperm at each node; the sum over all permutations reproduces ZElliptic[ChargeMatrix,Nvec]";
 
-JKResidueRational::usage= "JKResidueRational[Flags_,f_] extracts the sum of the residues of f (in rational representation) at the specified Flags, weighted with sign; the first entry in Flags is the intersection point, the second is a list of r-plets of charges for each flag ";  
+JKResidueRational::usage= "JKResidueRational[StableFlag_,f_] computes sign(det kappa) times the iterated residue of f (in rational representation) at the stable flag StableFlag={Inter,Flag,QT,kappa} produced by FindStableFlags ";  
 
-JKResidueTrig::usage ="JKResidueTrig[Flags_,f_] extracts the sum of the residues of f (in trigonometric representation) at the specified Flags, weighted with sign; the first entry in Flags is the intersection point, the second is a list of r-plets of charges for each flag ";  
+JKResidueTrig::usage ="JKResidueTrig[StableFlag_,f_] computes sign(det kappa) times the iterated residue of f (in trigonometric representation) at the stable flag StableFlag={Inter,Flag,QT,kappa} produced by FindStableFlags ";  
 
 FindSingularities::usage = "FindSingularities[ChargeMatrix_] constructs the list of singular hyperplanes for the specified charge matrix ";
 
@@ -496,13 +496,13 @@ ThetaDerivativeAtZero::usage = "ThetaDerivativeAtZero[k] computes the kth deriva
 
 qSeries::usage = "qSeries[f_] computes the Fourier expansion of f[q,tau] up to order q^$QuiverMaxPower";
 
-DisplayFlagList::usage = "DisplayFlagList[ListFlags_,ListDegrees_] displays the list of list of (intersection point, stable flag, sign, degree)";
+DisplayFlagList::usage = "DisplayFlagList[ListFlags_] displays the list of (intersection point, stable flag, sign)";
 
 DisplaySingList::usage = "DisplaySingList[ListSings_] displays the list of list of (intersection point, intersecting hyperplanes, projective test)";
 
-DisplayFlagListDegrees::usage = "DisplayFlagListDegrees[ListSings_,ListFlags_,NumSing_] displays the list of list of (intersection point, stable flag, sign, multidegree)";
+DisplayFlagListDegrees::usage = "DisplayFlagListDegrees[ListSings_,NumSing_,ListFlags_] displays the list of (intersection point, stable flag, sign, multidegree), with the multidegree computed by FindMultiDegree";
 
-FindMultiDegree::usage = "FindMultiDegree[ListSings_,NumSing_,Inter_,StableFlag_]";
+FindMultiDegree::usage = "FindMultiDegree[ListSings_,NumSing_,Inter_,StableFlag_] computes the multidegree of the integrand at the intersection point Inter along the stable flag StableFlag, i.e. for each step of the iterated residue the number of vanishing denominator hyperplanes (from ListSings) minus the number of vanishing numerator hyperplanes (from NumSing), weighted by multiplicity";
 
 DisplayFlagTree::usage = "DisplayFlagTree[f_] displays flag f as a spanning tree";
 
@@ -514,11 +514,11 @@ FlowTreeFormula::usage = "FlowTreeFormula[Mat_,Cvec_,Nvec_] computes the index o
 
 FlowTreeFormulaRat::usage = "FlowTreeFormulaRat[Mat_,Cvec_,Nvec_,y_] computes the rational index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of rational attractor indices";
 
-TreePoincarePolynomialRat::usage = "TreePoincarePolynomialRat[gam_,y_] expresses the rational BPS index in terms of terms of attractor indices and tree index ";
+TreePoincarePolynomialRat::usage = "TreePoincarePolynomialRat[gam_,y_] expresses the rational BPS index in terms of attractor indices and tree index ";
 
 TropicalVertex::usage="TropicalVertex[m_,{n1_,n2_},LiOm1_,LiOm2_] computes the index Omega[n1 gam1+n2 gam2] for an outgoing ray created by scattering of 2 vectors gam1, gam2 with Dirac product m>0, assuming that Om[p gam1,y] is given by the p-th entry in LiOm1, and similarly for gam2";
 
-EvalTreeIndex::usage="EvalTreeIndex[Mat_,Cvec_,f_] evaluates any Treeg[Li,y] appearing in f using TreeIndex[] with arguments computed from the full DSZ matrix Mat and the stability parameters Cvec ";
+EvalTreeIndex::usage="EvalTreeIndex[Mat_,Cvec_,f_] evaluates any Treeg[Li,y] appearing in f using TreeIndexOpt[] (or TreeIndex[] if $QuiverFlowTreeOpt is not 3) with arguments computed from the full DSZ matrix Mat and the stability parameters Cvec ";
 
 TreeIndex::usage="TreeIndex[Mat_,Cvec_,y_] computes the tree index by summing all partial tree indices computed using TreeF[]";
 
@@ -534,9 +534,9 @@ TreeFAlt1::usage="TreeFAlt1[Mat_,Cvec_] computes the partial tree index by summi
 
 TreeFAlt2::usage="TreeFAlt2[Mat_,Cvec_] computes the partial tree index by summing over stable planar trees using the second alternative recursion ";
 
-TreeFAlt1Att::usage="TreeFAlt1Att[Mat_] computes  the attractor contribution to the partial tree index appearing in the first alternative recursion ";
+TreeFAlt1Att::usage="TreeFAlt1Att[Mat_] computes the attractor contribution to the partial tree index appearing in the first alternative recursion ";
 
-TreeFAlt2Att::usage="TreeFAlt2Att[Mat_] computes  the attractor contribution to the partial tree index appearing in the second alternative recursion ";
+TreeFAlt2Att::usage="TreeFAlt2Att[Mat_] computes the attractor contribution to the partial tree index appearing in the second alternative recursion ";
 
 PlaneTreeSplitList::usage="PlaneTreeSplitList[n_] constructs all splittings of Range[1,n] appearing in the alternative recursions for the partial tree index ";
 
@@ -550,7 +550,7 @@ SubFIAbelian::usage="SubFIAbelian[Cvec_,Li_] computes the stability parameters $
 
 NonAbelianFlowTreeFormula::usage="NonAbelianFlowTreeFormula[Mat_,Cvec_,Nvec_] expresses the rational invariant in terms of rational tree invariants using the non-Abelian flow tree formula"; 
 
-ListFirstWalls::usage="ListFirstWalls[Mat_,Cvec_,Nvec_] gives a list of {{gamL,nL},{gam,nR}} corresponding to the walls encountered in the attractor flow from Cvec";
+ListFirstWalls::usage="ListFirstWalls[Mat_,Cvec_,Nvec_] gives a list of {{gamL,nL},{gamR,nR}}, with gamL, gamR primitive and Nvec=nL gamL+nR gamR, corresponding to the walls encountered in the attractor flow from Cvec";
 
 EvalReinekeIndex::usage="EvalReinekeIndex[Mat_,Cvec_,f_] evaluates all Coulombg factors in f using Reineke's formula for Abelian stack invariants";
 
@@ -560,13 +560,13 @@ ReinekeIndex::usage="ReinekeIndex[Mat_,Cvec_,y_] computes the Abelian stack inva
 
 AttractorTreeFormula::usage="AttractorTreeFormula[Mat_,Cvec_,Nvec_] computes the index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of attractor indices.";
 
-AttractorTreeFormulaRat::usage="AttractorTreeFormulaRat[Mat_,Cvec_,Nvec_] computes the rational index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of rational; attractor indices.";
+AttractorTreeFormulaRat::usage="AttractorTreeFormulaRat[Mat_,Cvec_,Nvec_] computes the rational index of a quiver with DSZ matrix Mat, stability parameters Cvec and dimension vector Nvec in terms of rational attractor indices.";
 
-AttractorIndex::usage="AttractorIndex::usage[Mat_,Cvec_,y_] evaluates the Attractor index as a sum over rooted trees with valency greater or equal to 3.";
+AttractorIndex::usage="AttractorIndex[Mat_,Cvec_,y_] evaluates the Attractor index as a sum over rooted trees with valency greater or equal to 3.";
 
-EvalAttractorIndex::usage="EvalAttractorIndex[Mat_,Cvec_,f_]evaluates any Treeg[Li_,y_] appearing in f using AttractorIndex.";
+EvalAttractorIndex::usage="EvalAttractorIndex[Mat_,Cvec_,f_] evaluates any Treeg[Li_,y_] appearing in f using AttractorIndex.";
 
-AttractorF::usage="AttractorF:[ListVertices_,Mat_,Cvec_] computes the partial Attractor index by summing over rooted planar trees; the first argument supplies the list of vertices in each tree, computed by AttractorTreeVertices ";
+AttractorF::usage="AttractorF[ListVertices_,Mat_,Cvec_] computes the partial Attractor index by summing over rooted planar trees; the first argument supplies the list of vertices in each tree, computed by AttractorTreeVertices ";
 
 Attractorg::usage="Attractorg[Mat_,Cvec_] computes the sign factor assigned to a given vertex in a Attractor tree, with Sign[0]^m replaced by 1/(m+1) if m even, or 0 if m odd ";
 
@@ -583,7 +583,7 @@ SimplifyOmAttbasis::usage="SimplifyOmAttbasis[f_] replaces OmAtt[gam_,y_] by 1 i
 (* for Jeffrey-Kirwan residue formula *)
 ChargeMatrixFromQuiver::usage = "ChargeMatrixFromQuiver[Mat_,RMat_,Nvec_] constructs the charge matrix for a quiver with DSZ matrix Mat, R-charge matrix RMat, and dimension vector Nvec; do not forget to set JKFrozenCartan={{1,1}} to decouple the overall U(1)";
 
-ChargeMatrixFromToricQuiver::usage = "ChargeMatrixFromToricQuiver[hMat_, ffMat_, Nvec_] constructs the charge matrix for a toric quiver with height matrix hMat, framing matrix fMat, and dimension vector Nvec; do not forget to set JKFrozenCartan to decouple the overall U(1)";
+ChargeMatrixFromToricQuiver::usage = "ChargeMatrixFromToricQuiver[hMat_, ffMat_, Nvec_] constructs the charge matrix for a toric quiver with height matrix hMat, framing matrix fMat, and dimension vector Nvec; do not forget to set JKFrozenCartan to decouple the overall U(1); OptionalWeights are the numerical values substituted for h1,h2";
 
 CompleteChargeMatrix::usage= "CompleteChargeMatrix[ChargeMatrix_,Nvec_] constructs the extended charge matrix consisting of chiral multiplets and vector multiplets ";
 
@@ -609,7 +609,7 @@ PartitionToPermutation::usage = "PartitionToPermutation[pa_] translates the part
 
 PermutationToPartition::usage = "PermutationToPartition[perm_] translates the standard permutation perm into a partition ";
 
-PartitionMultiplicity::usage="PartitionMultiplicity[pa_]";
+PartitionMultiplicity::usage="PartitionMultiplicity[pa_] computes the number of permutations of Plus@@pa elements with cycle type given by the partition pa";
 
 ListPermutationsWithMultiplicity::usage = "ListPermutationsWithMultiplicity[Nvec_] computes the list of all multi-partitions of Nvec, represented by a standard permutation, and their multiplicity ";
 
@@ -650,17 +650,17 @@ TrivialStackInvariant::usage="TrivialStackInvariant[Mat_,Cvec_,Nvec_] computes t
 
 (* for framed invariants *)
 
-NCDTSeriesFromOmS::usage="NCDTSeriesFromOmS[Mat_, Framing_, Nmin_,Nmax_] constructs the gener- ating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Coulomb branch formula, for dimension vectors from Nmin up to Nmax.";
+NCDTSeriesFromOmS::usage="NCDTSeriesFromOmS[Mat_, Framing_, Nmin_,Nmax_] constructs the generating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Coulomb branch formula, for dimension vectors from Nmin up to Nmax.";
 
 NCDTSeriesFromOmAtt::usage="NCDTSeriesFromOmAtt[Mat_, Framing_, Nmin_,Nmax_] constructs the generating function of NCDT invariants for the quiver with DSZ matrix Mat and framing vector Framing using the Flow Tree formula, for dimension vectors from Nmin up to Nmax.";
 
-NCDTSeriesFromCrystal::usage="NCDTSeriesFromCrystal[hMat_, fMat_, theta_, phi_, Nn_] or NCDTSeriesFromCrystal[hMat_, fMat_, actionWeight_, Nn_] constructs the generating function of refined NCDT invariants for the quiver with height matrix hMat and framing data Framing using the refined Quiver Yangian algorithm with C^* action determined by the angles theta and phi or directly by the weight actionWeight, for dimension vectors with height up to Nn. Set $theta=0$ or $h_3=0$ for action preserving the superpotential.";
+NCDTSeriesFromCrystal::usage="NCDTSeriesFromCrystal[hMat_, fMat_, theta_, phi_, Nn_] or NCDTSeriesFromCrystal[hMat_, fMat_, actionWeight_, Nn_] constructs the generating function of refined NCDT invariants for the quiver with height matrix hMat and framing data fMat using the refined Quiver Yangian algorithm with C^* action determined by the angles theta and phi or directly by the weight actionWeight, for dimension vectors with height up to Nn. Set theta=0, or give zero weight along h3, for an action preserving the superpotential.";
 
-UnrefinedSeriesFromCrystal::usage="UnrefinedSeriesFromCrystal[hMat_,fMat_,Nn_] constructs the generating function of unrefined NCDT invariants (y=1) or molten crystals (y=-1) and framing data fMat using the Quiver Yangian algorithm, for dimension vectors with height up to NMax.";
+UnrefinedSeriesFromCrystal::usage="UnrefinedSeriesFromCrystal[hMat_,fMat_,Nn_] constructs the generating function of unrefined NCDT invariants (y=1) or molten crystals (y=-1) for the quiver with height matrix hMat and framing data fMat using the Quiver Yangian algorithm, for dimension vectors with height up to Nn.";
 
 D4FramedNCDTSeries::usage="D4FramedNCDTSeries[hMat_,Wp_,Wm_,i_,j_,k_,Nn_] constructs the generating function of refined NCDT invariants with a D4 framing for dimension vectors up to Nn, for the quiver with height matrix hMat and potential Wp-Wm, with the D4 framing associated to the arrow Phi[i,j,k]. If this arrow does not correspond to any non-compact 4-cycle, an error will pop-up.";
 
-D6FramedNCDTSeries::usage="D6FramedNCDTSeries[hMat_,Wp_,Wm_,i_,Nn_,weight_,maxWeightIter_] constructs the generating function of refined NCDT invariants with a D6 framing in node i for dimension vectors up to Nn, for the quiver with height matrix hMat and potential Wp-Wm. If no weight is specificed, a default weight will be used. The algorithm will check wether the weight is valid or not up to order maxWeightIter, which is set to 4 by default.";
+D6FramedNCDTSeries::usage="D6FramedNCDTSeries[hMat_,Wp_,Wm_,i_,Nn_,weight_,maxWeightIter_] constructs the generating function of refined NCDT invariants with a D6 framing in node i for dimension vectors up to Nn, for the quiver with height matrix hMat and potential Wp-Wm. If no weight is specified, the default weight -h1+h2/Sqrt[2] is used. The algorithm checks whether the weight is general or not up to order Min[Nn,maxWeightIter], where maxWeightIter is set to 4 by default.";
 
 FramedHeightMatrix::usage="FramedHeightMatrix[hMat_,Arrows_] constructs the height matrix of the quiver described by hMat with an additional framing node in position 1. Arrows is an optional list of arrows {i,j,w} from i to j with weight w to add to the framed quiver, where the framing node is numbered 0";
 
@@ -668,19 +668,19 @@ D6Framing::usage="D6Framing[hMat_,i_] constructs the framing data fMat for a D6-
 
 D4Framing::usage="D4Framing[hMat_,i_,j_,k_] constructs the framing data for a D4-brane associated to arrow Phi_{ij}^k";
 
-D4FramingDictionary::usage="D4FramingDictionary[hMat_,Wp_,Wm_] or D4FramingDictionary[hMat_,Perfs_] constructs the dictionnary from the corners of the toric fan (associated to the quiver with height matrix hMat and with potential Wp-Wm or with perfect matchings Perfs) to the associated D4 framings. Explicitely, it returns a list L such that L[[i]] is a list of all arrows defining D4 framings associated to the i-th toric corner, where the order of the corners is given by applying ExternalPoints and DualFan together.";
+D4FramingDictionary::usage="D4FramingDictionary[hMat_,Wp_,Wm_] or D4FramingDictionary[hMat_,Perfs_] constructs the dictionary from the corners of the toric fan (associated to the quiver with height matrix hMat and with potential Wp-Wm or with perfect matchings Perfs) to the associated D4 framings. Explicitly, it returns a list L such that L[[i]] is a list of all arrows defining D4 framings associated to the i-th toric corner, where the order of the corners is given by applying ExternalPoints and DualFan together.";
 
 FramedDSZ::usage="FramedDSZ[Mat_,Framing_] constructs the DSZ matrix of the framed quiver obtained by attaching arrows from the framing node (labelled 0) to the node i of the original quiver with DSZ matrix Mat.";
 
-FramedFI::usage="FramedFI[Nvec_]constructs a random FI parameter for a framed quiver with dimension vector [1; Nvec], with first entry much larger than the other ones.";
+FramedFI::usage="FramedFI[Nvec_] constructs a random FI parameter for a framed quiver with dimension vector {1,Nvec}, with first entry much larger than the other ones.";
 
-BondFactor::usage="BondFactor[hMat_,i_,j_,z_] evaluates the bond factor \[CurlyPhi]^{i->j(z), where hMat is a matrix whose (i, j)-entry is the list of heights of the arrows from node i to node j. The heights are in turn linear combinations of parameters h1, h2, h3";
+BondFactor::usage="BondFactor[hMat_,i_,j_,z_] evaluates the bond factor \[CurlyPhi]^{i->j}(z), where hMat is a matrix whose (i, j)-entry is the list of heights of the arrows from node i to node j. The heights are in turn linear combinations of parameters h1, h2, h3";
 
-ChargeFunction::usage="[ChargeFunction[hMat_, fMat_, Crys_, i_, z_] constructs the charge function Phi^i_C(z) for the molten crystal C = Crys. The crystal is encoded in a list of {color, height} for each atom.";
+ChargeFunction::usage="ChargeFunction[hMat_, fMat_, Crys_, i_, z_] constructs the charge function Phi^i_C(z) for the molten crystal C = Crys. The crystal is encoded in a list of {color, height} for each atom.";
 
 AddToCrystal::usage="AddToCrystal[hMat_, fMat_, i_, Crys_] constructs the list of molten crystals obtained by attaching one atom of color i to the molten crystal Crys.";
 
-GrowCrystalList::usage="GrowCrystalList[hMat_, fMat_, CrysList_] constructs the molten crystals obtained from the list Crysli by attaching one additional atom of any color, or none at all";
+GrowCrystalList::usage="GrowCrystalList[hMat_, fMat_, CrysList_] constructs the list of molten crystals obtained from the crystals in CrysList by attaching one additional atom of any color";
 
 CrystalDim::usage="CrystalDim[r_, Crys_] computes the dimension vector for the crystal Crys, assuming that the colors can take values 1 up to r";
 
@@ -690,7 +690,7 @@ DirectedSign::usage="DirectedSign[actionWeight_, lambda_] computes the sign for 
 
 WeightScalarProduct::usage="WeightScalarProduct[mu_, lambda_] computes the scalar product between the two weights mu and lambda";
 
-GeneralWeight::usage="GeneralWeight[hMat_,weight_,Nn_:10] computes wether the given weight is a general weight relative to the given height matrix hMat up to order Nn, meaning the weight cannot be obtained by integer positive integer linear combinations of the height matrix weights with less than Nn terms. If Nn is omitted, it is set to 10 by default.";
+GeneralWeight::usage="GeneralWeight[hMat_,weight_,Nn_:10] tests whether the given weight is general relative to the height matrix hMat up to order Nn, meaning that the weight is not orthogonal to any non-zero linear combination of the (h1,h2 components of the) arrow heights with integer coefficients between 0 and Nn. If Nn is omitted, it is set to 10 by default.";
 
 EulerNorm::usage="EulerNorm[hMat_, Nvec_] computes the Ringel-Tits norm of the dimension vector Nvec from the matrix of heights hMat";
 
@@ -712,23 +712,23 @@ ShortestCycleWeight::usage="ShortestCycleWeight[hMat_,node_,Cut_,maxIters_] comp
 
 SideWeight::usage="SideWeight[hMat_,Wp_,Wm_,z_] or SideWeight[hMat_,Perfs_,z_] computes the weight lz associated to the side lying between the z and z+1 corners of the dual toric fan, for a quiver of height matrix hMat and potential Wp-Wm. The order of the dual toric fan corners is given by applying ExternalPoints to DualFan";
 
-InternalSidePoints::usage="InternalSidePoints[unrefinedPoints_, side_] gives the number of internal points of the convex hull of unrefinedPoints along the side lying between the z and z+1 corners, where the order of the corners is given by applying ExternalPoints on the corners. The points are counted without multiplicities.";
+InternalSidePoints::usage="InternalSidePoints[unrefinedPoints_, side_] gives the number of internal points of the convex hull of unrefinedPoints along the side lying between the corners side and side+1, where the order of the corners is given by applying ExternalPoints on the corners. The points are counted without multiplicities.";
 
 DualFan::usage="DualFan[hMat_,Wp_,Wm_] or DualFan[hMat_,Perfs_] produces the fan dual to the quiver with potential, described by its height matrix hMat and its potential Wp-Wm or its complete list of perfect matchings Perfs";
 
 PlethysticExp::usage="PlethysticExp[f_,Nn_] computes the plethystic exponential of f, assuming that it is a function of x[i] and y only";
 
-PlethysticLog::usage="PlethysticLog[f_,Nn_] computes the plethystic logarythm of f , assuming that it is a function of x[i] and y only";
+PlethysticLog::usage="PlethysticLog[f_,Nn_] computes the plethystic logarithm of f , assuming that it is a function of x[i] and y only";
 
-ListKnownBraneTilings::usage ="ListKnownBraneTilings lists the names known brane tilings. The data for each can be extracted from the global variable BraneTilingsData";
+ListKnownBraneTilings::usage ="ListKnownBraneTilings lists the names of known brane tilings. The data for each can be extracted from the global variable BraneTilingsData";
 
 (* Coulomb branch localization *)
 
 FindCollinearSolutions::usage="FindCollinearSolutions[Mat_,PMat_,RMat_,Cvec_,r_] numerically solves the deformed Denef equations with adjacency matrix Mat (perturbed to PMat), R-charges RMat, stability parameters Cvec and deformation parameter r = \[Pi] Im[z]/\[Beta]. The result is a list of solutions {{z[i] \[RightArrow] #}, \[Sigma]} where \[Sigma] is the sign of the Hessian around the corresponding solution.";
 
-ListClusters::usage="ListClusters[ListPos_,r_] produces a list of lists (or clusters) of indices i such that the positions ListPos[[i]] have relative square distances less than Abs[r] in each cluster.";
+ListClusters::usage="ListClusters[ListPos_,r_] produces a list of lists (or clusters) of indices i such that, after sorting, consecutive positions ListPos[[i]] in each cluster are at distance less than Abs[r]; only clusters with more than one element are returned.";
 
-CoulombIndexResidue::usage="CoulombIndexResidue[ListSol_,Mat_,RMat_,r_,y_] omputes the contribu- tions of each collinear solution in ListSol by evaluating the residues of ione- loop determinant of chiral fields at suitable poles.";
+CoulombIndexResidue::usage="CoulombIndexResidue[ListSol_,Mat_,RMat_,r_,y_] computes the contributions of each collinear solution in ListSol by evaluating the residues of the one-loop determinant of chiral fields at suitable poles.";
 
 ExtendedCoulombIndex::usage="ExtendedCoulombIndex[Mat_,PMat_,RMat_,Cvec_,r_,y_] computes the index of an Abelian quiver with (or without) oriented loops by summing over solutions to deformed Denef equations, and computing the contribution of each by residue calculus. The result is a list of contributions associated to the various cluster shapes.";
 
@@ -741,9 +741,9 @@ CoulombBranchFormulaNum::usage="CoulombBranchFormulaNum[Mat_,PMat_,RMat_,Cvec_,N
 
 (** Utilities **)
 
-LinearToMultiplicativeWeight::usage = "LinearToMultiplicativeWeight[weight_, rules_] takes a weight in additive language and returns it in multiplicative language, where rules is a list of rules giving a dictionnary between the additive formal variables and the multiplicative formal variables. The multiplicative constant formal variable is y'. ";
+LinearToMultiplicativeWeight::usage = "LinearToMultiplicativeWeight[weight_, rules_] takes a weight in additive language and returns it in multiplicative language, where rules is a list of rules giving a dictionary between the additive formal variables and the multiplicative formal variables. The multiplicative constant formal variable is y'. ";
 
-CanonicalPartitionForm::usage = "CanonicalPartitionForm[expr_, variables_, simplify_] returns the partition function expr in its canonical form, where variables is the number of different variables and where the optional parameter simplify says wether the coefficients should be fully simplified or not";
+CanonicalPartitionForm::usage = "CanonicalPartitionForm[expr_, variables_, simplify_] returns the partition function expr in its canonical form, where variables is the number of different variables and where the optional parameter simplify (default True) says whether the coefficients should be fully simplified or not";
 
 SeriesFromInvariants::usage = "SeriesFromInvariants[invariants_, simplify_] takes an association of (dimension vector -> invariant) and returns the associated partition function. Set simplify to False to avoid simplifying the invariants.";
 
@@ -755,37 +755,37 @@ ListAllPartitionsMult::usage = "ListAllPartitionsMult[gam_] returns the list of 
 
 ListSubQuivers::usage = "ListSubQuivers[Nvec_] gives a list of all dimension vectors less or equal to Nvec ";
 
-SimplifyOmSbasis::usage = "SimplifyOmSbasis[f_] replaces OmS[gam,y]->1 when gam is a basis vector ";
+SimplifyOmSbasis::usage = "SimplifyOmSbasis[f_] replaces OmS[gam,y]->$QuiverOmSbasis (1 by default) when gam is a basis vector ";
 
 SimplifyOmSmultbasis::usage = "SimplifyOmSmultbasis[f_] replaces OmS[gam,y]->0 if gam is a non-trivial multiple of a basis vector ";
 
-SwapFugacity::usage = "Replaces OmS[Nvec_,y^m_] by OmS[Nvec,y^m,t^m]";
+SwapFugacity::usage = "SwapFugacity[f_] replaces any OmS[Nvec_,y^m_] in f by OmS[Nvec,y^m,t^m]";
 
-DropFugacity::usage = "Replaces OmS[Nvec_,y_] and OmS[Nvec_,y_,t_] by OmS[Nvec]";
+DropFugacity::usage = "DropFugacity[f_] replaces any OmS[Nvec_,y_,t_] in f by OmS[Nvec,t]";
 
 EvalCoulombH3::usage = "EvalCoulombH3[Mat_,f_] evaluates any 3-center CoulombH factor in f.";
 
-TestNoLoop::usage = "TestNoLoop[Mat_,Li_] tests if the quiver made from vectors in list Li is a tree ";
+TestNoLoop::usage = "TestNoLoop[Mat_,Li_] returns True if the quiver made from vectors in list Li has no oriented loop, i.e. its nodes can be ordered so that all arrows go in the same direction (True for two vectors or if $QuiverNoLoop=True; False for a single vector, or if $QuiverTestLoop=False or $QuiverOmSbasis=0) ";
 
 TestNoFullLoop::usage = "TestNoFullLoop[Mat_,Li_] tests if the quiver made from vectors in list Li has no loop going through all nodes ";
 
-CoulombHNoLoopToZero::usage = "CoulombHNoLoopToZero[Mat_,f_] sets to zero any CoulombH factor in f corresponding to non-scaling subquivers. Returns f is $QuiverTestLoop=False.";
+CoulombHNoLoopToZero::usage = "CoulombHNoLoopToZero[Mat_,f_] sets to zero any CoulombH factor in f corresponding to non-scaling subquivers. Returns f if $QuiverTestLoop=False.";
 
-OmTNoLoopToZero::usage = "OmTNoLoopToZero[Mat_,f_]sets to zero any OmT in f corresponding to non-scaling subquivers (except basis vectors). Returns f is $QuiverTestLoop=False.";
+OmTNoLoopToZero::usage = "OmTNoLoopToZero[Mat_,f_] sets to zero any OmT in f corresponding to non-scaling subquivers (except basis vectors). Returns f if $QuiverTestLoop=False.";
 
-OmSNoLoopToZero::usage = "OmSNoLoopToZero[Mat_,f_]sets to zero any OmS in f corresponding to non-scaling subquivers (except basis vectors). Returns f is $QuiverTestLoop=False.";
+OmSNoLoopToZero::usage = "OmSNoLoopToZero[Mat_,f_] sets to zero any OmS in f corresponding to non-scaling subquivers (except basis vectors). Returns f if $QuiverTestLoop=False.";
 
-OmAttNoLoopToZero::usage = "OmAttNoLoopToZero[Mat_,f_]sets to zero any OmAtt in f corresponding to non-scaling subquivers (except basis vectors). Returns f is $QuiverTestLoop=False.";
+OmAttNoLoopToZero::usage = "OmAttNoLoopToZero[Mat_,f_] sets to zero any OmAtt in f corresponding to non-scaling subquivers (except basis vectors). Returns f if $QuiverTestLoop=False.";
 
 OmTToOmS::usage="OmTToOmS[f_] expands any OmT in f into sums of products of CoulombH and OmS factors ";
 
 SubDSZ::usage = "SubDSZ[Mat_,PMat_,Cvec_,Li_] gives the DSZ matrix, perturbed DSZ matrix and FI parameters of the subquiver made of vectors in list Li ";
 
-AbelianSubQuiver::usage = "AbelianSubQuiver[Mat_,RMat_,Cvec_,Nvec_,perm_]gives the DSZ matrix, R-charge matrix and FI parameters of the subquiver associated to the list of permutations perm";
+AbelianSubQuiver::usage = "AbelianSubQuiver[Mat_,RMat_,Cvec_,Nvec_,perm_] gives the DSZ matrix, R-charge matrix and FI parameters of the subquiver associated to the list of permutations perm";
 
-MinimalModif::usage = "MinimalModif[f_] returns the symmetric Laurent polynomial which coincides with the Laurent expansion expansion of the symmetric rational function f at y=0, up to strictly positive powers of y. Here symmetric means invariant under y->1/y.";
+MinimalModif::usage = "MinimalModif[f_] returns the symmetric Laurent polynomial which coincides with the Laurent expansion of the symmetric rational function f at y=0, up to strictly positive powers of y. Here symmetric means invariant under y->1/y.";
 
-MinimalModifFast::usage = "MinimalModifFast[f_] returns the symmetric Laurent polynomial which coincides with the Laurent expansion expansion of the symmetric rational function f at y=0, up to strictly positive powers of y. This assumes that the order of the pole at y=0 is manifest.";
+MinimalModifFast::usage = "MinimalModifFast[f_] returns the symmetric Laurent polynomial which coincides with the Laurent expansion of the symmetric rational function f at y=0, up to strictly positive powers of y. This assumes that the order of the pole at y=0 is manifest.";
 
 OmToOmb::usage = "OmToOmb[f_] expresses any Om[gam,y] in f in terms of Omb[gam,y]";
 
@@ -797,24 +797,24 @@ OmAttbToOmAtt::usage = "OmAttbToOmAtt[f_] expresses any OmAttb[gam,y] in f in te
 
 StackInvariantToOmb::usage = "StackInvariantToOmb[gam_,y_] expresses the stack invariant GHiggs[gam,y] in terms of sums of products of Omb; Coincides with Omb[gam,y] if charge vector is primitive ";
 
-HiggsGToOmb::usage = "HiggsGToOmb[f_] expresses any HiggsG[gam,y] in f in terms of Omb[gam,y]";
+HiggsGToOmb::usage = "HiggsGToOmb[f_] expresses any HiggsG[gam,y] in f in terms of Omb[gam',y] with gam' multiples of gam/GCD[gam]; HiggsGToOmb[Cvec_,f_] includes all charges gam' with the same phase as gam for FI parameters Cvec";
 
-OmbToHiggsG::usage = "OmbToHiggsG[f_] expresses any Omb[gam,y] in f in terms of HiggsG[gam,y]";
+OmbToHiggsG::usage = "OmbToHiggsG[f_] expresses any Omb[gam,y] in f in terms of HiggsG[gam',y] with gam' multiples of gam/GCD[gam]; OmbToHiggsG[Cvec_,f_] includes all charges gam' with the same phase as gam for FI parameters Cvec";
 
 EvalHiggsg::usage = "EvalHiggsg[Mat_,Cvec_,f_] evaluates any Higgsg[Li,y] appearing in f using Reineke's formula for Abelian quivers ";
 
 EvalHiggsG::usage = "EvalHiggsG[Mat_,Cvec_,f_] evaluates any HiggsG[gam,y] appearing in f using Reineke's formula ";
 
-EvalHiggsGGen::usage = "EvalHiggsG[Mat_,Cvec_,f_] evaluates any HiggsG[gam,y] appearing in f using Reineke's formula ";
+EvalHiggsGGen::usage = "EvalHiggsGGen[Mat_,Cvec_,f_] evaluates any HiggsG[gam,y] appearing in f using StackInvariantGen ";
 
 CoulombHSubQuivers::usage = "CoulombHSubQuivers[Mat_,PMat_,Nvec_,y_] computes all CoulombH factors for dimension vector strictly less than Nvec ";
 
 RandomCvec::usage = "RandomCvec[gam_] is obsolete, use RandomFI instead";
 
-RandomFI::usage = "RandomFI[gam_] generates a random set of FI parameters between -1 and 1";
+RandomFI::usage = "RandomFI[gam_] generates a random set of FI parameters Cvec satisfying Cvec.gam=0, with entries of the form (random integer between -1000 and 1000)/$QuiverPerturb1 (except one entry fixed by Cvec.gam=0)";
 
 
-UnitStepWarn::usage = "UnitStepWarn[x_] gives 1 for x>0, 0 for x<0, and produces a warning for x=0";
+UnitStepWarn::usage = "UnitStepWarn[x_] gives 1 for x>0, 0 for x<0, and prints a warning and returns 1/2 for x=0";
 
 AttractorFI::usage = "AttractorFI[Mat_,Nvec_] gives the attractor stability condition";
 
@@ -824,7 +824,7 @@ QuiverPlot::usage = "QuiverPlot[Mat_] displays the quiver with DSZ matrix Mat (o
 
 PlotQuiver::usage = "PlotQuiver[Mat_] displays the quiver with DSZ matrix or height matrix Mat ";
 
-DisplayArrowMatrix::usage = "DisplayArrowMatrix[hMat_] displays the number of arrows in the quiver with height matrix Mat in a matrix format"
+DisplayArrowMatrix::usage = "DisplayArrowMatrix[hMat_] displays the number of arrows in the quiver with height matrix hMat in a matrix format";
 
 HirzebruchR::usage = "HirzebruchR[J_,v_] is the function R_v(J) entering in the Hirzebruch-Riemann-Roch formula ";
 
@@ -832,34 +832,33 @@ GrassmannianPoincare::usage = "GrassmannianPoincare[k_,n_,y_] gives the Poincar\
 
 CyclicQuiverOmS::usage = "CyclicQuiverOmS[Vec_,t_] computes the single-centered degeneracy associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
 
-CyclicQuiverOmAtt::usage = "CyclicQuiverOmS[Vec_,t_] computes the refined attractor index to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+CyclicQuiverOmAtt::usage = "CyclicQuiverOmAtt[Vec_,y_] computes the refined attractor index of a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
 
 CyclicQuiverOmAttUnrefined::usage = "CyclicQuiverOmAttUnrefined[Vec_] computes the unrefined attractor index to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
 
-CyclicQuiverTrivialStacky::usage = "CyclicQuiverTrivialStacky[Vec,y_] gives the stacky invariant associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
+CyclicQuiverTrivialStacky::usage = "CyclicQuiverTrivialStacky[Vec_,y_] gives the stacky invariant associated to a cyclic quiver with Vec arrows (assuming Vec[[i]]>0)";
 
 CyclicQuiverDSZ::usage = "CyclicQuiverDSZ[Vec_] constructs the DSZ matrix for a cyclic quiver with Vec[[i]] arrows from node i to node i+1";
 
 DerangementIndex::usage="DerangementIndex[Vec_,y_] computes the number of derangements of a set of Vec[i] objects of color i, weighted by y^(n_+-n_-) where n_+/n_- are the number of objects which are displaced forward/backward with respect to standard ordering";
 
-EulerForm::usage = "EulerForm[Mat_] gives the Ringel-Tits form";
 
-SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors less than Nvec";
+SubVectors::usage = "SubVectors[Nvec_] gives a list of dimension vectors less or equal to Nvec (including the zero vector and Nvec)";
 
 ListLoopRCharges::usage = "ListLoopRCharges[Mat_,RMat_] computes the R-charge of the primitive loops in a quiver with DSZ matrix Mat ";
 
-RandomDSZWithNoLoop::usage = "RandomDSZWithNoLoop[n_,m_] generates a random antisymmetric nxn matrix with off-diagonal entries less than m in absolute value, ensuring that the quiver has no loop ";
+RandomDSZWithNoLoop::usage = "RandomDSZWithNoLoop[n_,m_] generates a random antisymmetric nxn matrix with off-diagonal entries at most 2m in absolute value (difference of two random integers in [-m,m]), ensuring that the quiver has no oriented loop ";
 
-RandomDSZWithLoop::usage = "RandomDSZWithLoop[n_,m_] generates a random antisymmetric nxn matrix with off-diagonal entries less than m in absolute value, ensuring that the quiver has one loop or more ";
+RandomDSZWithLoop::usage = "RandomDSZWithLoop[n_,m_] generates a random antisymmetric nxn matrix with off-diagonal entries at most 2m in absolute value (difference of two random integers in [-m,m]), ensuring that the quiver has one oriented loop or more ";
 
 TestMultipleBasisVector::usage = "TestMultipleBasisVector[Li_] gives True if all elements of Li are multiples of basis vectors";
-PartitionToInvervals::usage="PartitionToInvervals[pa_] turn an integer partition of length l into intervals 0<a_1<...<a_l";
+PartitionToInvervals::usage="PartitionToInvervals[pa_] turns an integer partition pa of length l into the list of partial sums {0,a_1,...,a_l} with 0<a_1<...<a_l";
 
-DSZProd::usage="DSZProd[Mat_,Nvec1_,Nvec2_] computes the inner product Sum[Nvec1[i]Nvec2[j]Mat[i,j]";
+DSZProd::usage="DSZProd[Mat_,Nvec1_,Nvec2_] computes the inner product Sum[Nvec1[[i]]Nvec2[[j]]Mat[[i,j]],{i,j}]";
 
-DSZkappa::usage = "DSZkappa[m_,y_] returns(y^m-y^(-m))/(y-1/y)";
+DSZkappa::usage = "DSZkappa[m_,y_] returns (y^m-y^(-m))/(y-1/y)";
 
-BinarySplits::usage="BinarySplits[Nvec_] gives the list of dimension vectors which are smaller than Nvec/2";
+BinarySplits::usage="BinarySplits[Nvec_] gives the first half (in lexicographic order) of the list of non-zero dimension vectors strictly less than Nvec, hence one vector from each pair {gam,Nvec-gam}";
 
 ToPrimitive::usage="ToPrimitive[Nvec_] gives {gam,d} where d=GCD[Nvec] and gam=Nvec/d";
 
@@ -867,13 +866,13 @@ CodeToLabeledTreeAlt::usage = "CodeToLabeledTreeAlt[li_] constructs the labelled
 
 ReduceDSZMatrix::usage="ReduceDSZMatrix[Mat_,Li_] returns the matrix obtained from Mat by setting  Mat[[i, j]] = Mat[[j, i]] = 0 for all elements {i, j} in Li. If i = j, then the i-th row and column of Mat are set to 0.";
 
-HiggsedDSZ::usage="HiggsedDSZ[Mat_,i_,j_]constructs the DSZ matrix of the quiver obtained from the quiver with DSZ matrix Mat by merging the node j with the node i";
+HiggsedDSZ::usage="HiggsedDSZ[Mat_,i_,j_] constructs the DSZ matrix of the quiver obtained from the quiver with DSZ matrix Mat by merging the node j with the node i";
 
-ConnectedQuiverQ::usage="ConnectedQuiverQ[Mat_,Nvec_] returns True is the restriction of the quiver with DSZ matrix Mat to the nodes where Nvec has non-trivial support is connected";
+ConnectedQuiverQ::usage="ConnectedQuiverQ[Mat_,Nvec_] returns True if the restriction of the quiver with DSZ matrix Mat to the nodes where Nvec has non-trivial support is connected";
 
-HeightMatrixToDSZ::usage="HeightToDSZ[hMat_] computes the skew-symmetric Euler form from the matrix of heights";
+HeightMatrixToDSZ::usage="HeightMatrixToDSZ[hMat_] computes the DSZ matrix (skew-symmetrized Euler form) from the matrix of heights";
 
-HeightMatrixFromPotential::usage="HeightMatrixFromPotential[Wp_,Wm_,{i1_,j1_,k1_},{i2_,j2_,k2_}] construct the matrix of heights such that the arrow Phi[i1,j1,k1] has height h1, the arrow Phi[i2,j2,k2] has height h2 and all monomials in the potential W=Wp-Wm have height h3";
+HeightMatrixFromPotential::usage="HeightMatrixFromPotential[Wp_,Wm_,{i1_,j1_,k1_},{i2_,j2_,k2_}] constructs the matrix of heights such that the arrow Phi[i1,j1,k1] has height h1, the arrow Phi[i2,j2,k2] has height h2 and all monomials in the potential W=Wp-Wm have height h3";
 
 QuiverMultiplierMat::usage="QuiverMultiplierMat[i_,j_] gives the multiplier to be applied to the (i,j) entry of the DSZ matrix, constructed from $QuiverMultiplier";
  

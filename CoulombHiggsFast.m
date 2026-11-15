@@ -19,8 +19,10 @@
 
    Coulomb branch formula: loading this file sets $QuiverCoulombOpt = 2, so that EvalCoulombIndex
    (used by CoulombBranchFormula) evaluates all Coulomb indices with >= 5 centres by the compiled
-   program c/coulombidx (C++, a line-by-line translation of CoulombFOpt/CoulombGOpt, with a roundoff guard
-   and fallback to CoulombIndexOpt); TestNoLoop is replaced by an equivalent acyclicity test.
+   program c/coulombph (C++, closed formula with exact sign tests), or c/coulombidx (a translation of
+   CoulombFOpt/CoulombGOpt) when $QuiverNoLoop is True, with fallback to CoulombIndexOpt;
+   TestNoLoop is replaced by an equivalent acyclicity test.
+   Build: c++ -O3 -std=c++17 -o c/coulombph c/coulombph.cpp -lpthread  (same for coulombidx).
    Set $QuiverCoulombOpt = 1 to recover the original behaviour. *)
 
 BeginPackage["CoulombHiggsFast`", {"CoulombHiggs`", "IndexVars`"}];
@@ -28,19 +30,19 @@ BeginPackage["CoulombHiggsFast`", {"CoulombHiggs`", "IndexVars`"}];
 FastFlowTreeFormula::usage = "FastFlowTreeFormula[Mat,Cvec,Nvec] or FastFlowTreeFormula[Mat,Cvec,Nvec,OmStar] computes the index with the flow tree formula, in terms of OmAtt[gam,y] (or of the integer attractor indices OmStar[gam,y]).";
 FastFlowTreeFormulaRat::usage = "FastFlowTreeFormulaRat[Mat,Cvec,Nvec] or FastFlowTreeFormulaRat[Mat,Cvec,Nvec,OmStar] computes the rational index with the flow tree formula, in terms of OmAttb[gam,y] (or of OmStar).";
 FastCoulombIndex::usage = "FastCoulombIndex[Mat,PMat,Cvec,y] is CoulombIndexOpt with memoization of the F and G recursions.";
-CCoulombIndex::usage = "CCoulombIndex[Mat,PMat,Cvec,y] computes the same Coulomb index as CoulombIndexOpt, with the sum over permutations done by the compiled program c/coulombidx (double precision).";
+CCoulombIndex::usage = "CCoulombIndex[Mat,PMat,Cvec,y] computes the same Coulomb index as CoulombIndexOpt, using the compiled program $CoulombIdxExe (c/coulombph, exact sign tests; c/coulombidx when $QuiverNoLoop is True), with fallback to the exact Mathematica routine when a sign test is ambiguous.";
 CCoulombIndexPerturbed::usage = "CCoulombIndexPerturbed[Mat,PMatPert,CvecPert,y] runs the compiled program on already perturbed data.";
-$CoulombIdxExe::usage = "path to the compiled Coulomb index program (default c/coulombph, closed formula; c/coulombidx is the translated recursion)";
-$CoulombIdxRecExe::usage = "path to c/coulombidx, used when $QuiverNoLoop is True";
-$CoulombIdxThreads::usage = "number of threads used by coulombidx";
+$CoulombIdxExe::usage = "path to the compiled Coulomb index program (default: c/coulombph, closed formula, in the directory of CoulombHiggsFast.m); set it after loading the add-on if the program is elsewhere. If the file does not exist, Coulomb indices are computed in Mathematica.";
+$CoulombIdxRecExe::usage = "path to the compiled program c/coulombidx (translation of the recursion of CoulombFOpt, CoulombGOpt), used instead of $CoulombIdxExe when $QuiverNoLoop is True";
+$CoulombIdxThreads::usage = "number of threads used by the compiled Coulomb index programs (default 8)";
 $FastPerturbRange::usage = "number of values from which the random perturbations of the fast Coulomb branch formula are drawn (default 10^5; the original code uses 1000)";
 $CoulombIdxDoubleDouble::usage = "number of Coulomb indices that the compiled program had to redo in double-double arithmetic";
 $CoulombIdxFallbacks::usage = "number of Coulomb indices for which the compiled program detected a sign test within roundoff and the exact Mathematica routine was used instead";
 KSWallCrossingRat::usage = "KSWallCrossingRat[Mat, Omb1, c1, c2, Nvec] applies the Kontsevich-Soibelman wall-crossing formula for a quiver with antisymmetrized exchange matrix Mat: given the rational indices Omb1 of all dimension vectors 0<alpha<=Nvec at stability (FI) parameter c1 (Omb1 is an Association alpha->value or a function Omb1[alpha]; values are rational functions of y, possibly symbolic), it returns the Association alpha -> rational index at stability parameter c2, for all 0<alpha<=Nvec. c1, c2 are FI vectors (slope of alpha = c.alpha/Total[alpha]); a list of FI vectors {c0,c1,...} stands for c0+eps c1+eps^2 c2+... with eps infinitesimal. Option \"CollectPattern\" (default _OmAttb|_OmAtt|_Omb|_Om|_OmS|_OmT) gives the symbols on which coefficients are collected.";
 KSWallCrossing::usage = "KSWallCrossing[Mat, Om1, c1, c2, Nvec] is the same as KSWallCrossingRat for integer (refined) indices: Om1 is a function Om1[alpha, y] or an Association alpha->Omega(alpha,y) of the integer indices at c1; returns the Association alpha -> integer index at c2. Rational and integer indices are related by Omb(alpha,y)=Sum_{d|alpha} (y-1/y)/(d (y^d-y^-d)) Om(alpha/d, y^d).";
-FastFlowTreeClear::usage = "FastFlowTreeClear[] clears the memoization tables.";
-$FastFlowTreeStats::usage = "FastFlowTreeStats[] gives {number of memoized states, number of walls processed}";
-FastFlowTreeStats::usage = $FastFlowTreeStats::usage;
+FastFlowTreeClear::usage = "FastFlowTreeClear[] clears the memoization tables of FastFlowTreeFormula and FastFlowTreeFormulaRat.";
+FastFlowTreeStats::usage = "FastFlowTreeStats[] gives {number of memoized states, number of walls processed} in the fast flow tree routines.";
+FastCoulombBranchFormula::usage = "FastCoulombBranchFormula[Mat,Cvec,Nvec] computes the same quantity as CoulombBranchFormula[Mat,Cvec,Nvec], with sparse polynomials instead of global replacements on one large expression. Loading CoulombHiggsFast.m makes CoulombBranchFormula call it when $QuiverCoulombOpt==2 (set by loading the add-on; $QuiverCoulombOpt=1 restores the original code).";
 
 Begin["`Private`"];
 
@@ -456,7 +458,6 @@ End[];
    {1, alpha, k} = OmS[alpha, y^k] and {2, charges, mults, k} = CoulombH[charges, mults, y^k].
    Vanishing factors are dropped before multiplying, partitions with vanishing Coulomb index are
    skipped, and only sub-dimension vectors carrying undetermined H-factors are treated. *)
-FastCoulombBranchFormula::usage = "FastCoulombBranchFormula[Mat,Cvec,Nvec] computes the same quantity as CoulombBranchFormula[Mat,Cvec,Nvec], with sparse polynomials instead of global replacements on one large expression. Loading CoulombHiggsFast.m makes CoulombBranchFormula call it when $QuiverCoulombOpt==2.";
 Begin["CoulombHiggs`Private`"];
 
 symFactor[pa_] := 1/Times @@ (Factorial /@ Tally[pa][[All, 2]]);
