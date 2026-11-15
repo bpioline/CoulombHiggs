@@ -1,155 +1,46 @@
 # CoulombHiggs
-A mathematica package for computing quiver invariants
+A Mathematica package for computing quiver invariants
 
-This project started in joint work with Jan Manschot and Ashoke Sen on the Coulomb branch formula for computing the Poincaré-Laurent polynomial of the moduli space of stable representations of quivers [1011.1258, 1103.1887, 1207.2230, 1302.5498,1309.7053]. The first version of the code was released along with [1302.5498] on arXiv. Since then it has been expanded in many directions, including the Reineke formula for quivers without relations, the Jeffrey-Kirwan residue formula, various versions of the flow tree formula, and most recently the Quiver Yangian algorithm for computing non-commutative DT invariants and various tools for dealing with brane tilings. See the documentation for more details. The various versions have been uploaded on Git for the first time in Dec 2020. This Git repository is not intended for collaborative use.
+The Mathematica package `CoulombHiggs.m` computes BPS indices of quiver quantum mechanics, i.e. the refined
+Donaldson-Thomas invariants (specializations of the Hodge polynomial) of moduli spaces of semi-stable quiver
+representations, for arbitrary dimension vectors and stability parameters. It implements and compares several
+independent methods:
+- the Higgs branch formula, based on Reineke's resolution of the Harder-Narasimhan recursion;
+- the Coulomb branch formula, which expresses the index in terms of single-centered invariants and multi-centered
+  black hole configurations;
+- the flow tree and attractor tree formulae, which express it in terms of attractor indices;
+- the Joyce formula and the Kontsevich-Soibelman wall-crossing formula;
+- the Jeffrey-Kirwan residue formula for the Witten index, χ_y genus and elliptic genus, including framed invariants
+  of toric quivers with potential computed from molten crystals.
 
-The code can be used freely, but should be acknowledged if used for published results. Please send queries or bug reports to pioline@lpthe.jussieu.fr 
+It also provides tools for mutations, non-commutative Donaldson-Thomas invariants of brane tilings, the deformed
+Denef equations for quivers with loops, and various utilities. The documentation `CoulombHiggs.pdf` describes all
+routines of version 7.2, together with the optional add-on `CoulombHiggsFast.m`, which provides fast
+implementations of the flow tree and Coulomb branch formulae (with compiled C++ programs for Coulomb indices with
+many centres, in the folder `c/`) and a standalone Kontsevich-Soibelman wall-crossing routine. Installation
+instructions for the add-on are given in the section "Fast routines" of the documentation.
 
-History of changes:
+## History
 
- * Release notes for 2.0: 
- * - Removed argument y from CoulombBranchFormula, CoulombBranchFormulaFromH, 
- *   HiggsBranchFormula
- * - New recursion scheme for computing CoulombF, old one can be used by setting 
- *   $QuiverRecursion=1
- * - CoulombBranchFormula now computes the Dolbeault polynomial, as a function of the 
- *   single centered degeneracies OmS[gam,y,t]; This is done by using SwapFugacity in 
- *   the last step. The y argument is dropped by using DropFugacity.
- * - The assumption that basis vectors have OmS=1 (and multiples thereof have OmS=0) can
- *   be relaxed by setting $QuiverOmSbasis=0; 
- * - New routines MutateRight, MutateRightOmS, OmSToOmS2, etc for mutations have been introduced. Generalized mutations are 
- *   by setting $QuiverMutationMult>1
- * - CyclicQuiverOmS[Avec_,t_] computes the single-centered invariant associated to a 
- *   cyclic Abelian quiver with arrows Mat[i,i+1]=Avec[i]
- * - GrassmannianPoincare[k,n,y] gives the Poincare polynomial of the Grassmannian G(k,n)
- *
- * Release notes for 2.1: 
- * - Optimized CoulombF, CoulombG; old procedure can be recovered by setting $QuiverOpt=False.
- * - Relaxed condition that FI parameters sum up to zero
- *
- * Release notes for 2.2:
- * - Introduced StackInvariantGen, relaxing antisymmetry of DSZ matrix 
- * - Introduced EulerForm, SubVectors
- * - Introduced StackInvariantFast, computing StackInvariantGen using Reineke's fast algorithm
- * - Introduced HuaFormula
- *
- * Release notes for 3.0:
- * - Fixed bug in HuaFormula
- * - Introduced JKIndex, etc
- *
- * Release notes for 3.1:
- * - Introduced elliptic genus computation 
- * - beware, the intersection points on torus have not been implemented yet - see JeffreyKirwan8
- *
- * Release notes for 4.2:
- * - Introduced Tree Flow Formula
- *
- * Release notes for 4.3:
- * - Fixed bug in CompleteChargeMatrix, 
- * - added CompleteChargeNumMatrix, PartialChargeNumMatrix
- * - added DisplayFlagList, DisplaySingList, FindDegrees, FindStableDomains
- * - fixed bug in determining relevant flags from Euler index
- *
- * Release notes for 4.4:
- * - optimized the enumeration of stable flags
- * - removed JKIndex**SplitFromStableFlags, JKIndex**FromStableFlags, TestStableFlag
- *
- * Release notes for 4.5:
- * - Introduced SplitNodes argument in JKIndexSplit
- * - Introduced $QuiverNoVM, $QuiverTrig, JKListuDisplay, 
- * - Optimized ZRational, ZRationalPartial
- * - externalized JKInitialize from JKIndex, JKIndexSplit
- * - Allowed chemical potentials via R-charge Matrix
- * - replaced ZRational,ResidueRat by ZTrig, ResidueTrig in JKIndex, JKIndexSplit
- * - Added DisplayFlagTree, AbelianSubQuiver, FlavoredRMatrix
- * - Updated SubDSZ
- * - Fixed CyclicQuiverOmS, AttractorFI, ListLoopRCharges
- * - Optimized ExpandTheta
- *
- * Release notes for 5.0:
- * - Removed z variable in hyperplanes
- * - Renamed gEuler, gRat, gTrig, etc into ZEuler, ZRational, ZTrig
- * - Renamed IndEuler, IndHirzebruch into JKEuler, JKChiGenus
- * - Renamed ListRelevantStableFlags into JKRelevantStableFlags 
- * - Renamed InitializeJK into JKInitialize
- * - Renamed global variables ChargeMatrix, Etavec into JKChargeMatrix, JKEta
- * - Renamed Frozen* into JKFrozen*, Listu into Listu*, FlagVertex* into JKVertex*
- * - Renamed ListAll* into JKListAll*, EXCEPT ListAllPartitions
- * - Renamed JKResidueRat into JKResidueRational
- * - Added Joyce-Song formula
- *
- * Release notes for 5.1:
- * - Added Mutate
- * - Added $QuiverOnlyMultipleBasisVector, TestMultipleBasisVector
- * - Updated ListAllPartitions
- * - Optimized PlaneTreeSign
- * - Renamed $QuiverOpt to $QuiverCoulombOpt, added $QuiverFlowTreeOpt
- * - Added FlowTreeFormulaRat, BinarySplits, ToPrimitive,
- * - Added NonAbelianFlowTreeFormula, ListFirstWalls
- * - Added EvalReinekeIndex, ReinekeIndex
- * - Added EvalCoulombIndexAtt, MinimalModifFast, ReduceDSZMatrix, CompareDSZMatrices
- * - Fixed bug in FindSingularities, which occurred when ChargeMatrix is empty
- * - Changed RMat -> PMat in SubDSZ
- *
- * Release notes for 5.2:
- * - Redirected AbelianStackInvariant to StackInvariant
- * - Renamed JoyceSongFormula into JoyceFormula
- * - Renamed SubCvecABelian into SubFIAbelian, RandomCvec into RandomFI
- * - Added AttractorTreeFormula and related routines
- * - Added NCDTSeriesFromCrystal and routines
- * - Added CyclicQuiverDSZ, HiggsedDSZ, ConnectedQuiverQ
- * - Modified OmbToHiggsG and HiggsGToOmb to allow arbitrary stability
- * - Added GaugeMotive, DTSpectrumFromOmAtt, TrivialStackInvariant
- * - Added ListPerfectMatchings, ListKnownBraneTilings, PlotToricFan, PlotQuiver
- * - Added HeightMatrixToDSZ, HeightMatrixFromPotential
- *
- * Release notes for 6.0:
- * - Added QuiverMultiplierMat, $QuiverMultiplierAssumption
- * - Updated demo notebooks
- *
- * Release notes for 6.1:
- * - Added TreeIndexOpt
- * - Removed PMat argument from TreeIndex
- * - Added D6Framing, D4Framing, CohomologicalWeight, CohomologicalSign, UnrefinedSeriesFromCrystal
- * - Merged ChargeFunction and VacuumChargeFunction
- * - Added data for Y30, Y31 
- * - Nmin and Nmax in NCDTSeriesFromOmAtt/OmS are now dimension vectors
- * - Added CyclicQuiverOmAtt,CyclicQuiverOmAttUnrefined,CyclicQuiverTrivialStacky 
- *
- * Release notes for 6.2:
- * - Added ExtendedCoulombIndex, CoulombIndexResidue, FindCollinearSolutions
- * - Added ListClusters,  CoulombBranchFormulaNum,  CoulombBranchResidue
- * - Fixed gLR in TreeIndexOpt such that it does not include QuiverMultiplierMat
- * - Fixed FlowTreeFormula, added argument y to FlowTreeFormulaRat
- * - Added TropicalVertex
- *
- * Release notes for 7.0:
- * - Added DisplayArrowMatrix, WeightScalarProduct, GeneralWeight
- * - Added PerfectMatchingWeight, ShortestCycleWeight, SideWeight
- * - Added DualFan, InternalSidePoints, ExternalPoints, DimensionVectors
- * - Added D4FramedNCDTSeries, D4FramingDictionary, D6FramedNCDTSeries
- * - Fixed ListPerfectMatchings, HeightMatrixFromPotential, AddToCrystal
- * - Adjusted D4Framing, PlotTiling3D to match expected behaviour
- * - Angle arguments can now be replaced by a weight argument in NCDTSeriesFromCrystal
- * - Replaced the angle argument by a weight argument in CrystalWeight and DirectedSign
- * - Potential terms Wp and Wm are now non-commutative
- * - Added various safeguards and error messages for quiver routines 
- *
- * Release notes for 7.1:
- * - Fixed FlowTreeFormula, FlowTreeFormulaRat
- * - Added ChargeMatrixFromToricQuiver, JKToricInitialize, UpdateJKList
- * - Adjusted JKIndex to simplify expressions
- * - Added ZEulerFromQuiver, ZRatFromQuiver, ZEllipticFromQuiver, FlagResidue
- * - Added AddAtomToCrystal, EtaVectorFromEtas, CanonicalPartitionForm
- * - JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
- * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
- * 
- * Release notes for 7.2:
- * - Added ThetaDerivativeAtZero, JKPotentialDegree, LinearToMultiplicativeWeight
- * - Added SeriesFromInvariants, JKInvariantsFromNode
- * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
- * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
- * - Adjusted FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
- * - Adjusted JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
- * - Fixed D4FramedNCDTSeries, ExpandTheta
- * - Removed AddAtomToCrystal
+This project started in joint work with Jan Manschot and Ashoke Sen on the Coulomb branch formula for the
+Poincaré-Laurent polynomial of the moduli space of stable quiver representations
+[arXiv:1011.1258, 1103.1887, 1207.2230, 1302.5498, 1404.7154]. The first version of the package was released along
+with [arXiv:1302.5498]. Version 2.0 [arXiv:1207.2230] added the Dolbeault polynomial, general single-centered
+indices for basis vectors and generalized mutations; version 2.1 [arXiv:1404.7154] optimized the evaluation of
+Coulomb indices; version 3.0 introduced an early version of the Jeffrey-Kirwan residue formula, made more robust in
+version 5.0 [arXiv:1907.01354]. Version 4.0 [arXiv:1804.06928] introduced the flow tree formula, and version 6.0
+[arXiv:2012.14358] the attractor tree formula, the Quiver Yangian algorithm for non-commutative DT invariants and
+many tools for brane tilings. Version 6.2 [arXiv:2103.03205] added the computation of indices of Abelian quivers
+from the deformed Denef equations. The various versions were uploaded to GitHub for the first time in December 2020.
+
+Versions 7.0 to 7.2 are due to Léo Buisine ([Darkneew](https://github.com/Darkneew)), whom I warmly thank: they
+implement the formulae of [arXiv:2106.02518] for D4- and D6-framed refined DT invariants of quivers with potential,
+the Jeffrey-Kirwan residue formula for toric and framed quivers with residues enumerated by molten crystals and
+evaluated block by block, and many fixes. The add-on `CoulombHiggsFast.m` and the C++ programs in `c/` were written in November 2026 with
+[Claude Code](https://claude.com/claude-code), and checked against the original routines.
+
+The package has been used by other authors, for instance in arXiv:1308.6829, 1603.01724, 2008.05432, 2011.04661,
+2012.09769, 2101.01681.
+
+The code can be used freely, but should be acknowledged if used for published results. Please send queries or bug
+reports to pioline@lpthe.jussieu.fr
