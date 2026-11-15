@@ -153,6 +153,7 @@
  * - Adjusted FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
  * - Adjusted JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
  * - Fixed D4FramedNCDTSeries, ExpandTheta
+ * - Normalized DualFan, Optimized ListPerfectMatchings
  * - Removed AddAtomToCrystal
  *********************************************************************)
 Print["CoulombHiggs 7.2 - A package for evaluating quiver invariants"];
@@ -714,7 +715,7 @@ SideWeight::usage="SideWeight[hMat_,Wp_,Wm_,z_] or SideWeight[hMat_,Perfs_,z_] c
 
 InternalSidePoints::usage="InternalSidePoints[unrefinedPoints_, side_] gives the number of internal points of the convex hull of unrefinedPoints along the side lying between the corners side and side+1, where the order of the corners is given by applying ExternalPoints on the corners. The points are counted without multiplicities.";
 
-DualFan::usage="DualFan[hMat_,Wp_,Wm_] or DualFan[hMat_,Perfs_] produces the fan dual to the quiver with potential, described by its height matrix hMat and its potential Wp-Wm or its complete list of perfect matchings Perfs";
+DualFan::usage="DualFan[hMat_,Wp_,Wm_] or DualFan[hMat_,Perfs_] produces the fan dual to the quiver with potential, described by its height matrix hMat and its potential Wp-Wm or its complete list of perfect matchings Perfs, normalized such that one point is at (0,0), one point is at (1,0), and the fan sits in the upper half-plane. ";
 
 PlethysticExp::usage="PlethysticExp[f_,Nn_] computes the plethystic exponential of f, assuming that it is a function of x[i] and y only";
 
@@ -894,6 +895,7 @@ PerfectMatching::incoherentWeight="There is an incoherence in the perfect matchi
 ShortestCycleWeight::noCycle="There is no cycle in the possibly cut quiver and starting from the given node.";
 
 ToricFan::CornerIndexLimit="The toric fan doesn't have enough sides/corners. The index given is too high.";
+ToricFan::Degenerate="The perfect matchings do not span a two-dimensional toric diagram.";
 ToricFan::MissingArrow="This arrow does not come from two connected sides of the toric fan, and is not associated to a corner of the toric fan.";
 
 Weight::NotGeneral="The chosen weight is not general enough. There exists some weight orthogonal to it.";
@@ -3530,10 +3532,30 @@ If[Length[sol]!=1,Message[PerfectMatching::incoherentWeight],(weight1 h1+weight2
 
 DualFan[hMat_,Wp_,Wm_]:=DualFan[hMat,ListPerfectMatchings[Wp,Wm]];
 
-DualFan[hMat_,Perfs_]:=Module[{rpoints},
-rpoints={D[#,h1],D[#,h2]}&/@(PerfectMatchingWeight[#,hMat]&/@Perfs);
-rpoints=With[{shift={MinimalBy[rpoints[[;;,1]],Abs][[1]],MinimalBy[rpoints[[;;,2]],Abs][[1]]}},(#-shift)&/@rpoints];
-LCM@@Denominator/@Flatten[rpoints]*rpoints];
+DualFan[hMat_,Perfs_]:=
+With[{rpoints={D[#,h1],D[#,h2]}&/@(PerfectMatchingWeight[#,hMat]&/@Perfs)},
+{diffs=(#-First[rpoints])&/@rpoints},
+{den=LCM@@Denominator[Flatten[diffs]]},
+Module[{basis},
+basis=Select[Last[HermiteDecomposition[den diffs]],#=!={0,0}&];
+If[Length[basis]<2,Message[ToricFan::Degenerate];Return[den diffs]];
+If[Det[basis]<0,basis={basis[[1]],-basis[[2]]}];
+With[
+  {pts=(den diffs).Inverse[basis]},
+  {corners=ExternalPoints[pts]},
+  {n=Length[corners]},
+  If[n<3,Message[ToricFan::Degenerate];Return[pts]];
+  Module[{c,e,a,b,s,t,A,q,xs,K}, With[{cands=Flatten[Table[
+c=corners[[i]];e=corners[[Mod[i,n]+1]]-c;e=e/GCD@@e;{a,b}=e;
+{s,t}=ExtendedGCD[a,b][[2]];A={{s,t},{-b,a}};
+q=(A.(#-c))&/@pts;
+K=Max[Abs[q[[All,1]]]]+1;
+Table[With[{qk=({#[[1]]+k #[[2]],#[[2]]})&/@q},
+xs=qk[[All,1]];
+{{Max[xs]-Min[xs],Max[qk[[All,2]]],Sort[DeleteDuplicates[qk]]},qk}],{k,-K,K}],
+{i,n}],1]},
+  Last[First[SortBy[cands,First]]]
+]]]]];
 
 ExternalPoints[Fan_]:=With[{mesh=ConvexHullMesh[Fan]},MeshCoordinates[mesh][[MeshCells[mesh,2][[1,1]]]]];
 
