@@ -1775,11 +1775,6 @@ The following problems were found while checking this documentation against the 
   the opposite of the sign in \eqref{defgJoyce}; one of the two should be corrected.
 \item \fun{LegCharge}: for an arrow from a node to itself ($(i,s)=(j,s')$) it returns $+1$ instead of 0, so that
   \fun{ChargeMatrixFromToricQuiver} assigns a non-zero charge to adjoint chiral multiplets (e.g.\ for $\mathbb{C}^3$).
-\item \fun{FramedJKResidue} (and \fun{D6FramedJKResidue}, \fun{D4FramedJKResidue}): the result contains terms
-  without $x_1$, coming from crystals which do not contain the framing node.
-\item \fun{D4FramedNCDTSeries}, refined case: the result is not invariant under $y\to 1/y$; the convention should be checked.
-\item \fun{LinearToMultiplicativeWeight}: the constant part is returned as a power of {\tt y'}, which
-  {\sc Mathematica} interprets as {\tt Derivative[1][y]}.
 \item \fun{CompareDSZMatrices}: compares {\tt Tally[Flatten[Mat2]]} with itself, so that the test on the
   entries never fails.
 \end{itemize}
