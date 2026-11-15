@@ -146,8 +146,8 @@
  * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
  * 
  * Release notes for 7.2:
- * - Added ThetaDerivativeAtZero
- * - Added SeriesFromInvariants, JKPotentialDegree, LinearToMultiplicativeWeight
+ * - Added ThetaDerivativeAtZero, JKPotentialDegree, LinearToMultiplicativeWeight
+ * - Added SeriesFromInvariants, JKInvariantsFromNode
  * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
  * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
  * - Removed AddAtomToCrystal
@@ -429,9 +429,11 @@ JKGenericResidueFromBlocks::usage = "JKGenericResidueFromBlocks[integrand, varia
 
 JKResidueAtSingularity::usage = "JKResidueAtSingularity[crystal_, hMat_, potential_, etas_, mode_, hrule_] computes the Jeffrey-Kirwan residue for the Euler or chi_y genus depending on mode for the crystal of the form {atoms, root} with atoms a list of {node, height}, for the quiver described by height matrix hMat, where potential is either the full superpotential, a monomial of the potential or the degree of the potential, where etas is a list of perturbed stability vectors, and where hrule can be specified to choose the formal variables in the end result. ";
 
-JKResidueFromNode::usage = "JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_, prohibitedNodes_, preventSameHeightSameNode_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, starting from node, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, prohibitedNodes optionally specifies a list of nodes that the algorithm will not visit, and preventSameHeightSameNode optionally tells the code to assume that two atoms of the same type should not have the same coordinate in a crystal";
+JKInvariantsFromNode::usage = "JKInvariantsFromNode[hMat, potential, eta, order, node, mode, prohibitedNodes, hrule] computes an associator of invariants for the BPS index/chi_y genus/elliptic genus depending on the mode up to the given order, given a quiver of height matrix hMat with potential described by either the full superpotential, a monomial of the potential or the degree of the potential, for stability vector eta, and starting at node. prohibitedNodes is an optional list of nodes that should not be visited, and hrule is an optional rule to specify the multiplicative formal variables in chi_y mode. ";
 
-JKResidueFromCrystals::usage = "JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_, preventSameHeightSameNode_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, and preventSameHeightSameNode optionally tells the code to assume that two atoms of the same type should not have the same coordinate in a crystal";
+JKResidueFromNode::usage = "JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_, simplify_, prohibitedNodes_, hrule_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, starting from node, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, prohibitedNodes optionally specifies a list of nodes that the algorithm will not visit, and hrule optionally gives custom variables for the chi_y genus. ";
+
+JKResidueFromCrystals::usage = "JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_, simplify_, hrule_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
 
 FramedJKResidue::usage = "FramedJKResidue[hMat_, potential_, eta_, order_, framingArrows_, mode_, preventSameHeightSameNode_] computes the framed partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, framingArrows lists the framing arrows, and preventSameHeightSameNode optionally tells the code to assume that two atoms of the same type should not have the same coordinate in a crystal";
 
@@ -2802,63 +2804,45 @@ JKResidueAtSingularity[crystal_, hMat_, potential_, etas_,
       ]]
 ];
 
-JKResidueFromNode[degenerateHMat_, potential_, eta_, order_, node_, mode_ : "Euler", prohibitedNodes_ : {}, preventSameHeightSameNode_ : True] := 
-  With[{hMat = Map[DeleteDuplicates, degenerateHMat, {2}],
+JKInvariantsFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", prohibitedNodes_ : {}, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
+  With[{hs = Symbol["h" <> ToString[#]] & /@ Range[3],
+  root = Prepend[ConstantArray[0, 4], node]}, 
+  {encodedHMat = Map[h |-> 
+  With[{e = Expand[h]}, 
+   Append[Coefficient[e, #] & /@ hs, e /. Thread[hs -> 0]]], 
+ Map[DeleteDuplicates, hMat, {2}], {3}],
     etas = (val |-> Table[val, order]) /@ eta + 
-    Module[{crystals = {}, queue = CreateDataStructure["Queue"]},
       Partition[RandomSample[Range[10^4], Length[eta] order], order]/10^6},
-    (* a crystal is {atoms,charges, order} where atoms is the atoms of the crystal of the form {node, height}, charges is a list of charges with pole for this atom, and order is an arbitrary order in which one can take the residues *)
-    If[order > 1, queue["Push", {{{node, 0}}, {}, {1}}]];
+      {moves = Table[Join[
+        Flatten[Table[If[MemberQ[prohibitedNodes, tt], {}, {tt, -#} & /@ encodedHMat[[nn, tt]]], {tt, Length[encodedHMat]}], 1],
+        Flatten[Table[If[MemberQ[prohibitedNodes, tt], {}, {tt, #} & /@ encodedHMat[[tt, nn]]], {tt, Length[encodedHMat]}], 1]],
+       {nn, Length[encodedHMat]}]},
+    (* atoms are expressed as {node, a1, a2, a3, a0} of height a1 h1 + a2 h2 + a3 h3 + a0 *)
+    Module[{level, crystals = {}},
     PrintTemporary["Starting to investigate all crystals starting by type ", node];
-    While[! queue["EmptyQ"], With[{crys = queue["Pop"]},
-      For[atom = 1, atom <= Length[crys[[1]]], atom++,
-       For[target = 1, target <= Length[degenerateHMat], target++, 
-        If[! MemberQ[prohibitedNodes, target],
-         For[ind = 1, ind <= Length[hMat[[crys[[1, atom, 1]], target]]],
-           ind++, If[
-           ! (MemberQ[
-               crys[[1]], {target, 
-                crys[[1, atom, 2]] - 
-                 hMat[[crys[[1, atom, 1]], target, ind]]}] && 
-              preventSameHeightSameNode),
-           With[{newCrys = 
-              AddAtomToCrystal[{target, 
-                crys[[1, atom, 2]] - 
-                 hMat[[crys[[1, atom, 1]], target, ind]]}, crys, 
-               atom]}, {crystalPos = 
-              FirstPosition[crystals, {newCrys[[1]], _, _}]},
-            If[crystalPos[[0]] === Missing,
-             crystals = Append[crystals, newCrys]; 
-             If[Length[newCrys[[1]]] < order, queue["Push", newCrys]],
-             crystals[[crystalPos[[1]], 2]] = Union[crystals[[crystalPos[[1]], 2]], newCrys[[2]]]
-             ]]]];
-         For[ind = 1, ind <= Length[hMat[[target, crys[[1, atom, 1]]]]],
-           ind++, If[
-           ! (MemberQ[
-               crys[[1]], {target, 
-                crys[[1, atom, 2]] + 
-                 hMat[[target, crys[[1, atom, 1]], ind]]}] && 
-              preventSameHeightSameNode),
-           With[{newCrys = 
-              AddAtomToCrystal[{target, 
-                crys[[1, atom, 2]] + 
-                 hMat[[target, crys[[1, atom, 1]], ind]]}, crys, atom,
-                True]}, {crystalPos = 
-              FirstPosition[crystals, {newCrys[[1]], _, _}]},
-            If[crystalPos[[0]] === Missing,
-             crystals = Append[crystals, newCrys]; 
-             If[Length[newCrys[[1]]] < order, queue["Push", newCrys]],
-             crystals[[crystalPos[[1]], 2]] = Union[crystals[[crystalPos[[1]], 2]], newCrys[[2]]]
-             ]]]]
-         ]]]]];
+     level = {{root}};
+     Do[
+      level = DeleteDuplicates[Join @@ ((crys |-> Flatten[Table[
+        With[{new = Prepend[atom[[2 ;;]] + mv[[2]], mv[[1]]]},
+         If[(new[[1]] == node && Order[new, root] === 1) || MemberQ[crys, new],
+          Nothing, Sort[Append[crys, new]]]],
+        {atom, crys}, {mv, moves[[atom[[1]]]]}], 1]) /@ level)]; 
+        crystals = Join[crystals, level], {order - 1}];
+     (* a crystal is passed on as {atoms, root}: the atoms {node, height} and the position of the root atom *)
+     crystals = (crys |-> {{#[[1]], #[[2 ;; 4]] . hs + #[[5]]} & /@ crys, First[FirstPosition[crys, root, {1}, {1}, Heads -> False]]}) /@ crystals;
     PrintTemporary["Now computing the JK contribution of the ", Length[crystals], " possible crystals"];
-    CanonicalPartitionForm[Total[(crys |-> JKResidueAtSingularity[crys, degenerateHMat, potential, etas, mode]) /@ crystals],Length[hMat],If[mode==="Euler",True,False]] + 1
+    (* contributions are summed per dimension vector directly, instead of extracting coefficients from the full sum *)
+    Merge[Join[{<||>}, (crys |-> <|Lookup[Counts[First /@ crys[[1]]], Range[Length[hMat]], 0] ->
+          (JKResidueAtSingularity[crys, degenerateHMat, potential, etas, mode] /. Subscript[x, _] -> 1)|>) /@ crystals], Total]
 ]];
 
-JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_ : "Euler", preventSameHeightSameNode_ : True] :=
-  1 + CanonicalPartitionForm[Total@Array[
-    JKResidueFromNode[hMat, potential, eta, order, #, mode, 
-      Range[# - 1], preventSameHeightSameNode]-1 &, Length[hMat]],Length[hMat],If[mode==="Euler",True,False]];
+JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", simplify_: True, prohibitedNodes_ : {}, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
+  1 + SeriesFromInvariants[JKResidueFromNodeAssociation[hMat, potential, eta, order, node, mode, prohibitedNodes, hrule], simplify];
+
+JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_ : "Euler", simplify_: True, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
+  1 + SeriesFromInvariants[Merge[Array[
+    JKResidueFromNodeAssociation[hMat, potential, eta, order, #, mode,
+      Range[# - 1], hrule] &, Length[hMat]], Total], simplify];
 
 FramedJKResidue[hMat_, potential_, eta_, order_, framingArrows_, mode_ : "Euler", preventSameHeightSameNode_ : True] := 
   With[{fMat = FramedHeightMatrix[hMat, framingArrows]}, 
