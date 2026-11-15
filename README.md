@@ -134,5 +134,22 @@ History of changes:
  * - Replaced the angle argument by a weight argument in CrystalWeight and DirectedSign
  * - Potential terms Wp and Wm are now non-commutative
  * - Added various safeguards and error messages for quiver routines 
- 
-
+ *
+ * Release notes for 7.1:
+ * - Fixed FlowTreeFormula, FlowTreeFormulaRat
+ * - Added ChargeMatrixFromToricQuiver, JKToricInitialize, UpdateJKList
+ * - Adjusted JKIndex to simplify expressions
+ * - Added ZEulerFromQuiver, ZRatFromQuiver, ZEllipticFromQuiver, FlagResidue
+ * - Added AddAtomToCrystal, EtaVectorFromEtas, CanonicalPartitionForm
+ * - JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
+ * - Added FramedHeightMatrix, FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
+ * 
+ * Release notes for 7.2:
+ * - Added ThetaDerivativeAtZero, JKPotentialDegree, LinearToMultiplicativeWeight
+ * - Added SeriesFromInvariants, JKInvariantsFromNode
+ * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
+ * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
+ * - Adjusted FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
+ * - Adjusted JKResidueFromCrystals, JKResidueFromNode, JKResidueAtSingularity
+ * - Fixed D4FramedNCDTSeries, ExpandTheta
+ * - Removed AddAtomToCrystal
