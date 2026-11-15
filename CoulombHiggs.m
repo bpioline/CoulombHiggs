@@ -2783,7 +2783,7 @@ JKGenericResidueFromBlocks[integrand_, variables_, positions_, flag_] :=
 
 JKResidueAtSingularity[crystal_, hMat_, potential_, etas_,
    mode_ : "Euler", hrule_: {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
-  With[{atomTypeList = First /@ crystal[[1]], root = crystal[[2]]},
+  With[{atomTypeList = First /@ crystal[[1]], positions = Last /@ crystal[[1]], root = crystal[[2]]},
    {nvec = Lookup[Counts[atomTypeList], Range[Length[hMat]], 0]},
    {eta = EtaVectorFromEtas[atomTypeList, etas, nvec],
     charges = With[{data = JKLinearIntegrandData[hMat, potential, nvec, "Euler"]},
@@ -2833,15 +2833,15 @@ JKInvariantsFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", pr
     PrintTemporary["Now computing the JK contribution of the ", Length[crystals], " possible crystals"];
     (* contributions are summed per dimension vector directly, instead of extracting coefficients from the full sum *)
     Merge[Join[{<||>}, (crys |-> <|Lookup[Counts[First /@ crys[[1]]], Range[Length[hMat]], 0] ->
-          (JKResidueAtSingularity[crys, degenerateHMat, potential, etas, mode] /. Subscript[x, _] -> 1)|>) /@ crystals], Total]
+          (JKResidueAtSingularity[crys, hMat, potential, etas, mode, hrule] /. Subscript[x, _] -> 1)|>) /@ crystals], Total]
 ]];
 
 JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", simplify_: True, prohibitedNodes_ : {}, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
-  1 + SeriesFromInvariants[JKResidueFromNodeAssociation[hMat, potential, eta, order, node, mode, prohibitedNodes, hrule], simplify];
+  1 + SeriesFromInvariants[JKInvariantsFromNode[hMat, potential, eta, order, node, mode, prohibitedNodes, hrule], simplify];
 
 JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_ : "Euler", simplify_: True, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
   1 + SeriesFromInvariants[Merge[Array[
-    JKResidueFromNodeAssociation[hMat, potential, eta, order, #, mode,
+    JKInvariantsFromNode[hMat, potential, eta, order, #, mode,
       Range[# - 1], hrule] &, Length[hMat]], Total], simplify];
 
 FramedJKResidue[hMat_, potential_, eta_, order_, framingArrows_, mode_ : "Euler", preventSameHeightSameNode_ : True] := 
