@@ -3287,7 +3287,7 @@ fMat];
 
 D6Framing[hMat_,i_]:={Table[If[c==i,{0},{}],{c,Length[hMat]}],Table[{},{c,Length[hMat]}]};
 
-D4Framing[hMat_,i_,j_,k_]:={Table[If[c==i,{(h3-hMat[[i,j,k]])/2},{}],{c,Length[hMat]}],Table[If[c==j,{(h3-hMat[[i,j,k]])/2},{}],{c,Length[hMat]}]};
+D4Framing[hMat_,i_,j_,k_]:={Table[If[c==i,{(h3-hMat[[i,j,k]])/2},{}],{c,Length[hMat]}],Table[If[c==j,{-(h3-hMat[[i,j,k]])/2},{}],{c,Length[hMat]}]};
 
 D4FramingDictionary[hMat_,Wp_,Wm_]:=D4FramingDictionary[hMat,ListPerfectMatchings[Wp,Wm]];
 
