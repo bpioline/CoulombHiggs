@@ -147,7 +147,7 @@
  * 
  * Release notes for 7.2:
  * - Added ThetaDerivativeAtZero, JKPotentialDegree, LinearToMultiplicativeWeight
- * - Added SeriesFromInvariants, JKInvariantsFromNode
+ * - Added SeriesFromInvariants, JKInvariantsFromNode, ChiYFromJKResidue
  * - Added JKLinearIntegrandData, JKStableFlagsFromBlocks, 
  * - Added JKResidueFromBlocks, JKGenericResidueFromBlocks, JKEllipticResidueFromBlocks
  * - Adjusted FramedJKResidue, D6FramedJKResidue, D4FramedJKResidue
@@ -444,6 +444,8 @@ FramedJKResidue::usage = "FramedJKResidue[hMat_, potential_, eta_, order_, frami
 D6FramedJKResidue::usage = "D6FramedJKResidue[hMat_, potential_, i_, eta_, Nn_, mode_, simplify_, hrule_] computes the D6-framed partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat and framed at node i up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
 
 D4FramedJKResidue::usage = "D4FramedJKResidue[hMat_, potential_, i_, j_, k_, eta_, Nn_, mode_, simplify_, hrule_] computes the D4-framed partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat and framed at arrow Phi[i,j,k] up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
+
+ChiYFromJKResidue::usage = "ChiYFromJKResidue[hMat_, potential_, eta_, order_, weight_] computes the chi_y genus for the quiver with potential described by the height matrix hMat and for the stability vector eta, up to order, with the specified weight as a two-vector or as a combination of formal variables. ";
 
 JKInitialize::usage = "JKInitialize[Mat_,RMat_,Cvec_,Nvec_] initializes the internal variables "; 
 
@@ -2866,6 +2868,12 @@ D6FramedJKResidue[hMat_, potential_, i_, eta_, Nn_, mode_ : "Euler", simplify_: 
 D4FramedJKResidue[hMat_, potential_, i_, j_, k_, eta_, Nn_, mode_ : "Euler", simplify_: True, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] := 
   FramedJKResidue[hMat, potential, eta, Nn, {{0, i, (h3 - hMat[[i, j, k]])/2}, {j, 0, (h3 - hMat[[i, j, k]])/2}}, mode, simplify, hrule];
 
+ChiYFromJKResidue[hMat_, potential_, eta_, order_, weight_:{-100, 101}, simplify_: True]:= With[{w=If[weight[[0]]===List, weight, {D[weight, h1]+D[weight, Subscript[t,1]],D[weight, h2]+D[weight, Subscript[t,2]]}]},
+1 + SeriesFromInvariants[
+  (inv |-> Limit[inv/.{Subscript[t,1]->Subscript[t,1] z^w[[1]], Subscript[t,2]->Subscript[t,2] z^w[[2]]},z->0]) /@ 
+  Merge[Array[
+    JKInvariantsFromNode[hMat, potential, eta, order, #, "ChiY",
+      Range[# - 1]] &, Length[hMat]], Total], simplify]];
 
 (* ::Section:: *)
 (*Flow tree formula*)
