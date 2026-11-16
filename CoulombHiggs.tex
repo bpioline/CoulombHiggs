@@ -347,6 +347,22 @@ For the evaluation of the residue, we note that it is often more efficient to us
 
 Finally, by setting $\var{\$QuiverTrig}$ to True and $ \var{\$QuiverMaxPower}>0$, the routine will attempt to compute the elliptic genus up to order $q^{\var{\$QuiverMaxPower}}$ using the residue prescription in \cite{Benini:2013xpa}. Note however that it will only include the same hyperplanes which contribute to the Euler number, and not hyperplanes which decouple as $\tau\to\I\infty$.
 
+\medskip
+
+Since v7.1, the package also provides the routines \fun{JKResidueFromCrystals} and \fun{FramedJKResidue}, along with the special cases \fun{D6FramedJKResidue} and \fun{D4FramedJKResidue}, which evaluate the Jeffrey-Kirwan residue formula for arbitrary unframed and framed quivers with potential, by growing crystals of atoms in the spirit of the Quiver Yangian algorithm. Depending on the mode (\var{"Euler"}, \var{"ChiY"} or \var{"Elliptic"}), they return the generating series of Euler numbers, $\chi_y$-genera or elliptic genera. The quiver with potential is specified by its height matrix \var{hMat} and potential, following the conventions of \S\ref{sec:QY}. For instance, for the Kronecker quiver with three arrows and no potential,
+
+\mathematica{1.0}{
+JKResidueFromCrystals[\{\{\{\}, \{h1, h2, -h1 - h2\}\}, \{\{\}, \{\}\}\}, h3, \{-1, 1\}, 3, "ChiY"]
+}{$1+\left(y^2+1+\frac{1}{y^2}\right) \left( x_1 x_2 + x_1^2 x_2 + x_1 x_2^2 \right)$}
+
+\noindent while the D6-framed NCDT invariants of the conifold computed in \S\ref{sec:QY} are recovered from (with \var{hMat} and \var{Wp} defined as in that section)
+
+\mathematica{1.0}{
+Expand@FullSimplify@Limit[ D6FramedJKResidue[hMat, Wp, 1, \{1, 1\}, 4], h3 -> 0]
+}{$1 + x_1 - 2 x_1 x_2 - 4 x_1^2 x_2 - 2 x_1^3 x_2 +  x_1 x_2^2 + 8 x_1^2 x_2^2 $}
+
+\noindent See \S\ref{sec:JKcrystals} for more details.
+
 
 
 \subsubsection{Flow tree  formula}
@@ -375,6 +391,7 @@ The syntax is identical to the flow tree formula,
 }
 
 \subsubsection{Quiver Yangian algorithm}
+\label{sec:QY}
 
 The algorithm relies on a matrix $\var{hMat}$ whose entry $(i,j)$ lists the heights $h_a$ of arrows
 $a:i\to j$. These heights are linear combinations of three parameters $h_1,h_2,h_3$ such that, for all vertices $i\in Q_0$
@@ -452,7 +469,7 @@ introduced  more robust implementation of the Jeffrey-Kirwan residue formula.
 Version 6.0, released along with \cite{BPMozgovoy}, introduces the attractor tree formula and the Quiver Yangian algorithm, along with many routines for dealing with brane tilings. 
 Version 6.2, released along with \cite{Beaujard:2021fsk}, includes routines for computing the index of Abelian quivers by solving deformed
 Denef equations. Version 7.0 implements formulas from \cite{Descombes:2021snc} to compute directly D4 and D6 framed refined DT invariants from quivers with potential.\footnote{The routines and functions in this version were implemented by Léo Buisine.}
-Version 7.1 adds routines for the Jeffrey--Kirwan residue formula for toric quivers and framed quivers (\fun{JKToricInitialize}, \fun{ChargeMatrixFromToricQuiver}, \fun{ZEulerFromQuiver}, \fun{ZRatFromQuiver}, \fun{ZEllipticFromQuiver}, \fun{FlagResidue}, \fun{FramedHeightMatrix}, \fun{FramedJKResidue}, \fun{D6FramedJKResidue}, \fun{D4FramedJKResidue}, \fun{JKResidueFromCrystals}, \fun{JKResidueFromNode}, \fun{JKResidueAtSingularity}), and fixes \fun{FlowTreeFormula} and \fun{FlowTreeFormulaRat}. Version 7.2 (November 2026) adds block-wise evaluation of JK residues (\fun{JKLinearIntegrandData}, \fun{JKStableFlagsFromBlocks}, \fun{JKResidueFromBlocks}, \fun{JKGenericResidueFromBlocks}, \fun{JKEllipticResidueFromBlocks}), together with \fun{ThetaDerivativeAtZero}, \fun{JKPotentialDegree}, \fun{LinearToMultiplicativeWeight}, \fun{SeriesFromInvariants} and \fun{JKInvariantsFromNode}; it fixes \fun{D4FramedNCDTSeries} and \fun{ExpandTheta}, and removes \fun{AddAtomToCrystal}. The new routines in versions 7.1 and 7.2 were also implemented by Léo Buisine.
+Version 7.1 adds routines for the Jeffrey--Kirwan residue formula for toric quivers and framed quivers (\fun{JKToricInitialize}, \fun{ChargeMatrixFromToricQuiver}, \fun{ZEulerFromQuiver}, \fun{ZRatFromQuiver}, \fun{ZEllipticFromQuiver}, \fun{FlagResidue}, \fun{FramedHeightMatrix}, \fun{FramedJKResidue}, \fun{D6FramedJKResidue}, \fun{D4FramedJKResidue}, \fun{JKResidueFromCrystals}, \fun{JKResidueFromNode}, \fun{JKResidueAtSingularity}), and fixes \fun{FlowTreeFormula} and \fun{FlowTreeFormulaRat}. Version 7.2 (November 2026) adds block-wise evaluation of JK residues (\fun{JKLinearIntegrandData}, \fun{JKStableFlagsFromBlocks}, \fun{JKResidueFromBlocks}, \fun{JKGenericResidueFromBlocks}, \fun{JKEllipticResidueFromBlocks}), together with \fun{ThetaDerivativeAtZero}, \fun{JKPotentialDegree}, \fun{LinearToMultiplicativeWeight}, \fun{SeriesFromInvariants} and \fun{JKInvariantsFromNode}; it fixes \fun{D4FramedNCDTSeries}, \fun{DualFan} and \fun{ExpandTheta}, fixes \fun{ListPerfectMatchings}, and removes \fun{AddAtomToCrystal}. The new routines in versions 7.1 and 7.2 were also implemented by Léo Buisine.
 The optional add-on {\tt CoulombHiggsFast.m} (November 2026) provides faster versions of the flow tree and
 Coulomb branch formulae, a standalone Kontsevich-Soibelman wall-crossing routine, and compiled C++ programs for
 Coulomb indices with many centres; see Section~\ref{sec:fast}.
@@ -490,7 +507,7 @@ $\Omega(\gamma,y)$;}
 $\bar\Omega(\gamma,y)$;}
 
 
-\defn{OmS}{\vardef{charge vector},\newdefy,\vardef{t} }{denotes the single-centered index 
+\defn{OmS}{\vardef{charge vector},\newdefy, \vardef{t} }{denotes the single-centered index 
 $\OmS(\gamma,y,t)$. } 
 
 \defn{OmS}{\vardef{charge vector},\newdefy}{denotes 
@@ -515,7 +532,7 @@ stack invariant $\gR(\gamma,y)$;}
 
 
 
-\defn{CoulombH}{\vardef{list of charge vectors},\vardef{multiplicity vector},\newdefy }{denotes the (unevaluated) factor $H(\{\alpha_i\},\{n_i\},y)$ appearing in the formula  for 
+\defn{CoulombH}{\vardef{list of charge vectors}, \vardef{multiplicity vector},\newdefy }{denotes the (unevaluated) factor $H(\{\alpha_i\},\{n_i\},y)$ appearing in the formula  for 
 $\Omega_{\rm tot}(\sum n_i\alpha_i,y)$  in terms of 
 $\OmS(\alpha_i,y)$.}
 
@@ -540,7 +557,7 @@ exponentiated version $e^{2\pi i u_{i,s}}$ of the same when a rational represent
 
 \defvar{x[\vardef{i}]}{fugacity conjugate to the $i$-th rank, used in \fun{HuaFormula};}
 
-\defvar{Phi[\vardef{i},\vardef{j},\vardef{k}]}{chiral field associated to the $k$-th arrow from node $i$ to node $j$, used in the superpotential $W=\var{Wp}-\var{Wm}$ for brane tilings}
+\defvar{Phi[\vardef{i}, \vardef{j}, \vardef{k}]}{chiral field associated to the $k$-th arrow from node $i$ to node $j$, used in the superpotential $W=\var{Wp}-\var{Wm}$ for brane tilings}
 
 \defvar{Eisenstein[\vardef{n}]}{Eisenstein series $E_n(\tau)$ for $n$ even, normalized as $E_n=1+\mathcal{O}(q)$}
 
@@ -674,7 +691,7 @@ vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSp
 
 \section{Higgs branch formula}
 
-\defn{HiggsBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec} }
+\defn{HiggsBranchFormula}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec} }
 	                                   {standalone routine which computes the Poincar\'e-Laurent
                    polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$ (possibly              rescaled by \var{{\tt \$QuiverMultiplier}}), dimension vector $N_i=\var{Nvec}[[i]]$, 
                    FI parameters $\zeta_i=\var{Cvec}[[i]]$, using Reineke's formula. 
@@ -682,7 +699,7 @@ vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSp
                    loop. The obsolete syntax with a fourth argument \var{y} is still accepted, with a warning. If $\sum_i N_i\zeta_i\neq 0$, a uniform shift is applied to \var{Cvec};}
 
 
-\defn{StackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy }{gives 
+\defn{StackInvariant}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec},\newdefy }{gives 
                  the stack 
                   invariant $G_{\rm Higgs}(\gamma,\zeta,y)$
                   of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
@@ -691,7 +708,7 @@ vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSp
                   FI parameters $\zeta_i=\var{Cvec}[[i]]$,  dimension vector $N_i=\var{Nvec}[[i]]$, 		using Reineke's formula; the answer is written in terms of unevaluated
 		$q$-deformed factorials \var{QFact[n,y]};}
 		
-		\defn{AbelianStackInvariant}{\vardef{Mat},\vardef{Cvec},\newdefy }{gives 
+		\defn{AbelianStackInvariant}{\vardef{Mat}, \vardef{Cvec},\newdefy }{gives 
                  the Abelian stack 
                   invariant 
                   of a quiver with DSZ matrix $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled 
@@ -701,29 +718,29 @@ vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSp
                   using Reineke's formula; identical to \fun{\tt StackInvariant}[\var{Mat},\var{Cvec},\{1,\dots,1\},\var{y}] (since v5.2);
                   }
 
-\defn{StackInvariantGen}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy}{gives the stack invariant of a quiver with exchange matrix \var{Mat} (not necessarily antisymmetric; the Euler form is $\delta_{kl}-\max(\var{Mat}[[k,l]],0)$, see \fun{EulerForm}), FI parameters \var{Cvec} and dimension vector \var{Nvec}, using Reineke's formula; differs from \fun{StackInvariant} by $y\to 1/y$, and the $q$-factorials are evaluated;}
+\defn{StackInvariantGen}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec},\newdefy}{gives the stack invariant of a quiver with exchange matrix \var{Mat} (not necessarily antisymmetric; the Euler form is $\delta_{kl}-\max(\var{Mat}[[k,l]],0)$, see \fun{EulerForm}), FI parameters \var{Cvec} and dimension vector \var{Nvec}, using Reineke's formula; differs from \fun{StackInvariant} by $y\to 1/y$, and the $q$-factorials are evaluated;}
 
-\defn{StackInvariantFast}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy}{same as \fun{StackInvariantGen}, computed with Reineke's fast algorithm (inversion of a triangular matrix indexed by the sub-dimension vectors \var{v} with $\var{v}\cdot\var{Cvec}>0$);}
+\defn{StackInvariantFast}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec},\newdefy}{same as \fun{StackInvariantGen}, computed with Reineke's fast algorithm (inversion of a triangular matrix indexed by the sub-dimension vectors \var{v} with $\var{v}\cdot\var{Cvec}>0$);}
 
 \defn{StackInvariantToOmb}{\vardef{gam},\newdefy}{expresses the stack invariant $\gR(\gamma,y)$ as a sum of products of $\bOm(\gamma/k,y)$ along the ray of $\gamma$; coincides with \var{Omb[gam,y]} if $\gamma$ is primitive;}
 
-\defn{EvalHiggsG}{\vardef{Mat},\vardef{Cvec},\vardef{f}}{evaluates any \var{HiggsG[gam,y]} in \var{f} as \fun{StackInvariant}[\var{Mat},\var{Cvec},\var{gam},\var{y}];}
+\defn{EvalHiggsG}{\vardef{Mat}, \vardef{Cvec}, \vardef{f}}{evaluates any \var{HiggsG[gam,y]} in \var{f} as \fun{StackInvariant}[\var{Mat},\var{Cvec},\var{gam},\var{y}];}
 
-\defn{EvalHiggsGGen}{\vardef{Mat},\vardef{Cvec},\vardef{f}}{evaluates any \var{HiggsG[gam,y]} in \var{f} as \fun{StackInvariantGen}[\var{Mat},\var{Cvec},\var{gam},\var{y}];}
+\defn{EvalHiggsGGen}{\vardef{Mat}, \vardef{Cvec}, \vardef{f}}{evaluates any \var{HiggsG[gam,y]} in \var{f} as \fun{StackInvariantGen}[\var{Mat},\var{Cvec},\var{gam},\var{y}];}
 
-\defn{EvalHiggsg}{\vardef{Mat},\vardef{Cvec},\vardef{f}}{evaluates any \var{Higgsg[Li,y]} in \var{f} as \fun{AbelianStackInvariant}[\var{Mat2},\var{Cvec2},\var{y}], where $\var{Mat2}_{ij}=\langle\alpha_i,\alpha_j\rangle$ and $\var{Cvec2}_i=\alpha_i\cdot\var{Cvec}$ are computed from the list of vectors $\var{Li}=\{\alpha_i\}$;}
+\defn{EvalHiggsg}{\vardef{Mat}, \vardef{Cvec}, \vardef{f}}{evaluates any \var{Higgsg[Li,y]} in \var{f} as \fun{AbelianStackInvariant}[\var{Mat2},\var{Cvec2},\var{y}], where $\var{Mat2}_{ij}=\langle\alpha_i,\alpha_j\rangle$ and $\var{Cvec2}_i=\alpha_i\cdot\var{Cvec}$ are computed from the list of vectors $\var{Li}=\{\alpha_i\}$;}
 
-\defn{HuaFormula}{\vardef{Mat},\vardef{Nvec}}{computes the generating function of Kac's A-polynomials, in variables \var{x[i]} and $y$, for all dimension vectors up to \var{Nvec}, using Hua's formula (positive entries of \var{Mat} count arrows);}
+\defn{HuaFormula}{\vardef{Mat}, \vardef{Nvec}}{computes the generating function of Kac's A-polynomials, in variables \var{x[i]} and $y$, for all dimension vectors up to \var{Nvec}, using Hua's formula (positive entries of \var{Mat} count arrows);}
 
-\defn{HuaTermMult}{\vardef{Mat},\vardef{ListPa}}{computes the contribution to Hua's formula of one list of partitions \var{ListPa} (one partition per node);}
+\defn{HuaTermMult}{\vardef{Mat}, \vardef{ListPa}}{computes the contribution to Hua's formula of one list of partitions \var{ListPa} (one partition per node);}
 
 \defn{AllPartitions}{\vardef{d}}{gives the list of all integer partitions of size at most $d$ (including the empty partition), each represented as a multiplicity vector $(k_1,\dots,k_d)$ with $\sum_i i\,k_i\leq d$; used by \fun{HuaFormula};}
 
 \defn{PartitionWeight}{\vardef{pa}}{gives the size $\sum_i i\,k_i$ of the partition with multiplicity vector $\var{pa}=(k_1,k_2,\dots)$;}
 
-\defn{PartitionPairing}{\vardef{pa1},\vardef{pa2}}{gives $\sum_{i,j}\min(i,j)\,k_i\,k'_j$ for partitions with multiplicity vectors $\var{pa1}=(k_i)$, $\var{pa2}=(k'_j)$;}
+\defn{PartitionPairing}{\vardef{pa1}, \vardef{pa2}}{gives $\sum_{i,j}\min(i,j)\,k_i\,k'_j$ for partitions with multiplicity vectors $\var{pa1}=(k_i)$, $\var{pa2}=(k'_j)$;}
 
-\defn{HirzebruchR}{\vardef{J},\vardef{v}}{gives the function $R_v(J)=\left(\frac{1-v}{1-e^{-(1-v)J}}+v\right)^{-1}$ entering the Hirzebruch--Riemann--Roch formula;}
+\defn{HirzebruchR}{\vardef{J}, \vardef{v}}{gives the function $R_v(J)=\left(\frac{1-v}{1-e^{-(1-v)J}}+v\right)^{-1}$ entering the Hirzebruch--Riemann--Roch formula;}
 
 \defn{OmToOmb}{\vardef{f}}{expresses any $\Omega(\gamma,y)$ in $f$
  in terms of $\bar\Omega(\gamma,y)$'s;}
@@ -731,23 +748,23 @@ vector multiplet determinant will be ignored in \fun{JKIndex} and \fun{JKIndexSp
 \defn{OmbToOm}{\vardef{f}}{expresses  any $\bar\Omega(\gamma,y)$ in $f$
  in terms of $\Omega(\gamma,y)$'s;}
 
-\defn{OmbToHiggsG}{\vardef{Cvec},\vardef{f} }{expresses  any $\bar\Omega(\gamma,y)$ in $\var{f}$
+\defn{OmbToHiggsG}{\vardef{Cvec}, \vardef{f} }{expresses  any $\bar\Omega(\gamma,y)$ in $\var{f}$
 in terms of the (unevaluated) stack invariants $\gR(\gamma,y)$  using \cite[(4.1)]{Manschot:2013sya};
 if the first argument is omitted, a generic stability condition is assumed.}
 
-\defn{HiggsGToOmb}{\vardef{Cvec},\vardef{f} }{expresses  any
+\defn{HiggsGToOmb}{\vardef{Cvec}, \vardef{f} }{expresses  any
 $\gR(\gamma,y)$ in $\var{f}$ in terms of the rational refined indices $\bar\Omega(\gamma,y)$ using \cite[(4.5)]{Manschot:2013sya}; if the first argument is omitted, a generic stability condition is assumed.}
 
-\defn{EvalReinekeIndex}{\vardef{Mat},\vardef{Cvec},\vardef{f} }{evaluates
+\defn{EvalReinekeIndex}{\vardef{Mat}, \vardef{Cvec}, \vardef{f} }{evaluates
 any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as \fun{ReinekeIndex}[\var{Mat2},\var{Cvec2},\var{y}], where $\var{Mat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{Cvec}$. }
 
-\defn{ReinekeIndex}{\vardef{Mat},\vardef{Cvec},\newdefy}{computes the Abelian stack invariant after a small random perturbation (of size $1/\var{\$QuiverPerturb2}$) of the stability parameters \var{Cvec}.}
+\defn{ReinekeIndex}{\vardef{Mat}, \vardef{Cvec},\newdefy}{computes the Abelian stack invariant after a small random perturbation (of size $1/\var{\$QuiverPerturb2}$) of the stability parameters \var{Cvec}.}
 
 
 
 \section{Coulomb branch formula}
 
- \defn{CoulombBranchFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}
+ \defn{CoulombBranchFormula}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}
 	                                   {computes  the Dolbeault %Poincar\'e-Laurent
                    polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,
                    dimension vector $N_i=\var{Nvec}[[i]]$, 
@@ -780,7 +797,7 @@ If \var{{\tt \$QuiverDisplayCoulombH}} is
 \defn{QuiverPoincarePolynomialRat}{\vardef{Nvec},\newdefy }{constructs the rational Poincar\'e-Laurent
                    polynomial $\bOm(\gamma,\zeta,y,t)$  as a sum over all partitions of the dimension vector $\var{Nvec}$ ;}
          
-\defn{QuiverPoincarePolynomialExpand}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},
+\defn{QuiverPoincarePolynomialExpand}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec},
 \vardef{Nvec}, \vardef{Q}}{
                   evaluates the Coulomb 
                   indices $\gref$ and   total 
@@ -820,10 +837,10 @@ Coincides with the latter if $\gamma$ is primitive.}
 \subsection{Computing the Coulomb index}
 
 
-\defn{SubDSZ}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{Li}}{gives the
+\defn{SubDSZ}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec}, \vardef{Li}}{gives the
                     DSZ matrix, perturbed DSZ matrix and FI parameters of the subquiver whose nodes are the charge vectors in list \var{Li};}
 
-\defn{CoulombF}{\vardef{Mat},\vardef{Cvec}}{returns the index of collinear solutions 
+\defn{CoulombF}{\vardef{Mat}, \vardef{Cvec}}{returns the index of collinear solutions 
 $F(\{\ta_1,\cdots \ta_n\}, \{\cc_1,\cdots \cc_n\})$ with 
                    DSZ products $\ta_{ij}=\var{Mat}[[i,j]]$, FI terms $\cc_i=\var{Cvec}[[i]]$ 
                    and trivial ordering.}
@@ -833,7 +850,7 @@ $G(\{\ha_1,\cdots \ha_n\})$
 with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total angular momentum 
                    $\sum_{i<j} Mat[[i,j]]$ must vanish;}
 
-\defn{CoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy }{evaluates the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
+\defn{CoulombIndex}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec},\newdefy }{evaluates the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
                    with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$, perturbed to \var{PMat}[[i,j]] so as to lift 
                    accidental degeneracies, possibly rescaled by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}}, 
@@ -841,39 +858,39 @@ with  DSZ products $\ha_{ij}=\var{Mat}[[i,j]]$ and trivial ordering. The total a
                    }
 
 
-\defn{CoulombFNum}{\vardef{Mat},\vardef{Cvec}}{returns the list of signs of the Hessian determinant at each collinear solution with trivial ordering, found numerically (calls \fun{CoulombTestOrdering}); their sum is the index $F(\{\ta_1,\dots \ta_n\},\{\cc_1,\dots \cc_n\})$  with DSZ matrix $\ta_{ij}=\var{Mat}[[i,j]]$ and FI parameters $\cc_i=\var{Cvec}[[i]]$. For testing purposes only, works for up to 5 centers.}
+\defn{CoulombFNum}{\vardef{Mat}, \vardef{Cvec}}{returns the list of signs of the Hessian determinant at each collinear solution with trivial ordering, found numerically (calls \fun{CoulombTestOrdering}); their sum is the index $F(\{\ta_1,\dots \ta_n\},\{\cc_1,\dots \cc_n\})$  with DSZ matrix $\ta_{ij}=\var{Mat}[[i,j]]$ and FI parameters $\cc_i=\var{Cvec}[[i]]$. For testing purposes only, works for up to 5 centers.}
 
 \defn{CoulombGNum}{\vardef{Mat}}{computes numerically the scaling index $G(\ha_1,\dots \ha_n)$  with DSZ matrix $\ha_{ij}=\var{Mat}[[i,j]]$. For testing purposes only, works for up to 6 centers.}
                    
 
-\defn{CoulombIndexNum}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy }{returns the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
+\defn{CoulombIndexNum}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec},\newdefy }{returns the Coulomb index $\gref(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
                    with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  possibly rescaled by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}},  
                    FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y}, by searching
                    collinear solutions numerically;    For testing purposes only, works for up to 6 centers. The output is a list of contributions from each collinear solution.              }
 
-\defn{CoulombFOpt}{\vardef{Mat},\vardef{Cvec}}{optimized version of \fun{CoulombF}, with the same arguments and output; the sum over scaling subsets is skipped altogether when \var{\tt \$QuiverNoLoop} is True.}
+\defn{CoulombFOpt}{\vardef{Mat}, \vardef{Cvec}}{optimized version of \fun{CoulombF}, with the same arguments and output; the sum over scaling subsets is skipped altogether when \var{\tt \$QuiverNoLoop} is True.}
 
 \defn{CoulombGOpt}{\vardef{Mat}}{optimized version of \fun{CoulombG}, with the same argument and output. The total angular momentum $\sum_{i<j}\var{Mat}[[i,j]]$ must vanish.}
 
-\defn{CoulombIndexOpt}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\newdefy}{same as \fun{CoulombIndex}, but uses \fun{CoulombFOpt} and \fun{CoulombGOpt}. It is the routine called by \fun{EvalCoulombIndex} and \fun{EvalCoulombIndexAtt} when \var{\tt \$QuiverCoulombOpt} is 1 (the default).}
+\defn{CoulombIndexOpt}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec},\newdefy}{same as \fun{CoulombIndex}, but uses \fun{CoulombFOpt} and \fun{CoulombGOpt}. It is the routine called by \fun{EvalCoulombIndex} and \fun{EvalCoulombIndexAtt} when \var{\tt \$QuiverCoulombOpt} is 1 (the default).}
 
-\defn{CoulombTestOrdering}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{searches numerically for collinear solutions of the Denef equations with DSZ matrix \var{Mat} and FI parameters \var{Cvec}, with the centers ordered as in \var{Li} (a permutation of {\tt Range[Length[Mat]]}). Returns the list of signs of the Hessian determinant, one per solution, or $\{\}$ if there is none. Used by \fun{CoulombFNum}; for testing only, up to 5 centers.}
+\defn{CoulombTestOrdering}{\vardef{Mat}, \vardef{Cvec}, \vardef{Li}}{searches numerically for collinear solutions of the Denef equations with DSZ matrix \var{Mat} and FI parameters \var{Cvec}, with the centers ordered as in \var{Li} (a permutation of {\tt Range[Length[Mat]]}). Returns the list of signs of the Hessian determinant, one per solution, or $\{\}$ if there is none. Used by \fun{CoulombFNum}; for testing only, up to 5 centers.}
 
 
-\defn{EvalCoulombIndex}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{f} }{evaluates
+\defn{EvalCoulombIndex}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec}, \vardef{f} }{evaluates
 any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat},\var{Cvec}$. If \var{\tt \$QuiverCoulombOpt}=1 (default), \fun{CoulombIndexOpt} is used instead of \fun{CoulombIndex}.}
 
-\defn{EvalCoulombIndexAtt}{\vardef{Mat},\vardef{PMat},\vardef{f} }{evaluates
+\defn{EvalCoulombIndexAtt}{\vardef{Mat}, \vardef{PMat}, \vardef{f} }{evaluates
 any $\var{Coulombg[Li,y]}$ appearing in $\var{f}$ as $\var{CoulombIndex[\var{Mat2},\var{PMat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{PMat2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{PMat}$ and $\var{Cvec2}$ are the respective attractor moduli. If \var{\tt \$QuiverCoulombOpt}=1 (default), \fun{CoulombIndexOpt} is used instead of \fun{CoulombIndex}.}
 
-\defn{EvalCoulombIndexNum}{\vardef{Mat},\vardef{PMat},\vardef{Cvec},\vardef{f}}{same as \fun{EvalCoulombIndex}, but evaluates each $\var{Coulombg[Li,y]}$ in \var{f} with \fun{CoulombIndexNum}, i.e.\ by searching collinear solutions numerically. For testing only.}
+\defn{EvalCoulombIndexNum}{\vardef{Mat}, \vardef{PMat}, \vardef{Cvec}, \vardef{f}}{same as \fun{EvalCoulombIndex}, but evaluates each $\var{Coulombg[Li,y]}$ in \var{f} with \fun{CoulombIndexNum}, i.e.\ by searching collinear solutions numerically. For testing only.}
   
 
 
 \subsection{Contributions from scaling solutions}
                    
- \defn{CoulombBranchFormulaFromH}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{R} }
+ \defn{CoulombBranchFormulaFromH}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}, \vardef{R} }
 	                                   {returns the Dolbeault
                    polynomial  of a quiver with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$,  
                    dimension vector $N_i=\var{Nvec}[[i]]$, 
@@ -883,11 +900,11 @@ FI parameters $\zeta_i=\var{Cvec}[[i]]$, using the rule
 
 
 
-\defn{CoulombHSubQuivers}{\vardef{Mat},\vardef{PMat},\vardef{Nvec},\newdefy }{computes recursively all \var{CoulombH} factors for DSZ matrix \var{Mat}, perturbed to \var{PMat},
+\defn{CoulombHSubQuivers}{\vardef{Mat}, \vardef{PMat}, \vardef{Nvec},\newdefy }{computes recursively all \var{CoulombH} factors for DSZ matrix \var{Mat}, perturbed to \var{PMat},
 and any dimension vector strictly less than \var{Nvec}; relies on the next two routines:}
 
                   
-                   \defn{ListCoulombH}{\vardef{Nvec},\vardef{Q}}{ returns
+                   \defn{ListCoulombH}{\vardef{Nvec}, \vardef{Q}}{ returns
                    a pair $\{\var{ListH},\var{ListC}\}$ where \var{ListH} is a list of \var{CoulombH}
                     factors possibly
                    appearing in the Poincar\'e-Laurent polynomial \var{Q }of a quiver with dimension vector 
@@ -895,7 +912,7 @@ and any dimension vector strictly less than \var{Nvec}; relies on the next two r
                    $\OmS(\alpha_i,y)$ canonically associated to the $H$ factors in \var{Q}.}
 
          
-\defn{SolveCoulombH}{\vardef{ListH},\vardef{ListC},
+\defn{SolveCoulombH}{\vardef{ListH}, \vardef{ListC},
 \vardef{R}}{ returns
                    a list of replacement rules for the \var{CoulombH} factors 
                    listed in \var{ListH}, by applying the minimal modification hypothesis
@@ -921,7 +938,7 @@ If \var{{\tt \$QuiverMultiplier}} is an integer, the residue at $u=0$ is compute
                    }
 
 
-                   \defn{EvalCoulombH3}{\vardef{Mat},\vardef{f}}{ evaluates any 3-center $H$ factor with multiplicity vector $\{1,1,1\}$ 
+                   \defn{EvalCoulombH3}{\vardef{Mat}, \vardef{f}}{ evaluates any 3-center $H$ factor with multiplicity vector $\{1,1,1\}$ 
                appearing   in $f$. No longer in use.}
 
 
@@ -935,19 +952,19 @@ If \var{{\tt \$QuiverMultiplier}} is an integer, the residue at $u=0$ is compute
 
 
 
-\defn{CoulombHNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $H$
+\defn{CoulombHNoLoopToZero}{\vardef{Mat}, \vardef{f}}{sets to zero any $H$
                   factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False}
 
 
-\defn{OmTNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\Omega_{\rm tot}$
+\defn{OmTNoLoopToZero}{\vardef{Mat}, \vardef{f}}{sets to zero any $\Omega_{\rm tot}$
                   factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
                   }
 
-\defn{OmSNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\OmS$  
+\defn{OmSNoLoopToZero}{\vardef{Mat}, \vardef{f}}{sets to zero any $\OmS$  
                   factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
@@ -968,45 +985,45 @@ If \var{{\tt \$QuiverMultiplier}} is an integer, the residue at $u=0$ is compute
 The following routines and environment variables were introduced in  {\tt CoulombHiggs.m} v1.1,
 to allow investigation of mutations of generalized quivers \cite{Manschot:2013dua}:
 
-\defn{Mutate}{\vardef{Mat},\vardef{k}}{
+\defn{Mutate}{\vardef{Mat}, \vardef{k}}{
 Computes the  DSZ matrix of the quiver obtained
 by applying a right-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
 right mutations $k_i$ are applied successively, starting from the first entry in \var{k}. }
 
-\defn{MutateRight}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{k}}{
+\defn{MutateRight}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}, \vardef{k}}{
 Computes the  DSZ matrix, FI parameters and dimension vector of the quiver obtained
 by applying a right-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
 right mutations $k_i$ are applied successively, starting from the first entry in \var{k}.  No
 consistency check on the FI parameters is performed.}
 
-\defn{MutateLeft}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{k}}{
+\defn{MutateLeft}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}, \vardef{k}}{
 Computes the  DSZ matrix, FI parameters and dimension vector of the quiver obtained
 by applying a left-mutation with respect to the node $k$. If \var{k} is a list $\{k_i\}$,  then the
 left mutations $k_i$ are applied successively, starting from the first entry in \var{k}. No
 consistency check on the FI parameters is performed.} 
 
-\defn{OmS2}{\vardef{charge vector},\newdefy,\vardef{t}}{denotes the single-centered index of the mutated quiver (unevaluated symbol), produced by \fun{OmSToOmS2}, \fun{MutateRightOmS} and \fun{MutateLeftOmS}.}
+\defn{OmS2}{\vardef{charge vector},\newdefy, \vardef{t}}{denotes the single-centered index of the mutated quiver (unevaluated symbol), produced by \fun{OmSToOmS2}, \fun{MutateRightOmS} and \fun{MutateLeftOmS}.}
 
 \defn{OmSToOmS2}{\vardef{f}}{replaces $\var{\tt OmS[gam,...]}$ by $\var{\tt OmS2[gam,...]}$ (any number of arguments)
 anywhere in $\var{f}$. This is useful for distinguishing the single-centered invariants of the mutated
 quiver from those of the original one.}
 
-\defn{MutateRightOmS}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+\defn{MutateRightOmS}{\vardef{Mat}, \vardef{k}, \vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS[gam,y,t]}$ of the original quiver with DSZ matrix \var{Mat} in terms of the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ of the quiver obtained by right-mutation with respect to node $k$,
 using Eq. 1.13 in \cite{Manschot:2013dua}.}
 
-\defn{MutateLeftOmS}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+\defn{MutateLeftOmS}{\vardef{Mat}, \vardef{k}, \vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS[gam,y,t]}$ of the original quiver with DSZ matrix \var{Mat} in terms of the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ of the quiver obtained by left-mutation with respect to node $k$,
 using Eq. 1.13 in \cite{Manschot:2013dua}.}
 
-\defn{MutateRightOmS2}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+\defn{MutateRightOmS2}{\vardef{Mat}, \vardef{k}, \vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ of a quiver with DSZ matrix \var{Mat} in terms of the single-centered
 invariants $\var{\tt OmS[gam,y,t]}$ of the quiver obtained by right-mutation with respect to node $k$.
 Identical to \fun{\tt MutateRightOmS}, except for swapping $\var{\tt OmS[gam,y,t]}$ and $\var{\tt OmS2[gam,y,t]}$.}
 
-\defn{MutateLeftOmS2}{\vardef{Mat},\vardef{k},\vardef{f}}{expresses the single-centered
+\defn{MutateLeftOmS2}{\vardef{Mat}, \vardef{k}, \vardef{f}}{expresses the single-centered
 invariants $\var{\tt OmS2[gam,y,t]}$ of a quiver with DSZ matrix \var{Mat} in terms of the single-centered
 invariants $\var{\tt OmS[gam,y,t]}$ of the quiver obtained by left-mutation with respect to node $k$.
 Identical to \fun{\tt MutateLeftOmS}, except for swapping $\var{\tt OmS[gam,y,t]}$ and $\var{\tt OmS2[gam,y,t]}$.}
@@ -1014,7 +1031,7 @@ Identical to \fun{\tt MutateLeftOmS}, except for swapping $\var{\tt OmS[gam,y,t]
 \defn{DropOmSNeg}{\vardef{f}}{equates to 0 any $\OmS(\gamma,y,t)$ where the dimension
 vector associated to $\gamma$ has negative components.}
 
-\defn{CompareDSZMatrices}{\vardef{Mat1},\vardef{Mat2}}{gives a list of permutations $P$ such that $\var{Mat1}=\var{Mat2}[[P,P]]$, or an empty list if no such permutation exists; For $\var{Mat1}=\var{Mat2}$, gives the list of automorphisms of the antisymmetric matrix $\var{Mat1}$. 
+\defn{CompareDSZMatrices}{\vardef{Mat1}, \vardef{Mat2}}{gives a list of permutations $P$ such that $\var{Mat1}=\var{Mat2}[[P,P]]$, or an empty list if no such permutation exists; For $\var{Mat1}=\var{Mat2}$, gives the list of automorphisms of the antisymmetric matrix $\var{Mat1}$. 
 }
 
 
@@ -1028,54 +1045,54 @@ vector associated to $\gamma$ has negative components.}
 
 The routines below fall into two groups. For a general GLSM or quiver without potential, run \fun{JKInitialize} (or \fun{JKToricInitialize} for a toric quiver, possibly framed), then \fun{JKIndex}[\var{JKChargeMatrix},\var{Nvec},\var{JKEta}] or \fun{JKIndexSplit}; these enumerate singular hyperplanes and stable flags and evaluate the residues with \fun{JKResidueTrig} or \fun{JKResidueRational}. For quivers with potential described by a height matrix, \fun{JKResidueFromCrystals}, \fun{FramedJKResidue}, \fun{D6FramedJKResidue} and \fun{D4FramedJKResidue} need no initialization: they enumerate the singularities as molten crystals and compute the residues block by block (Subsection~\ref{sec:JKcrystals}).
 
-\defn{JKInitialize}{\vardef{Mat},\vardef{RMat},\vardef{Cvec},\vardef{Nvec}}{sets \var{JKFrozenCartan} to $\{\{1,1\}\}$ and initializes the global variables \var{JKFrozenMask}, \var{JKFrozenRuleEuler}, \var{JKFrozenRuleRational}, \var{JKListuAll}, \var{JKListuDisplay}, \var{JKListu}, \var{JKListut}, \var{JKChargeMatrix} (via \fun{ChargeMatrixFromQuiver}), \var{JKEta} (a small random perturbation of the diagonal embedding of \var{Cvec}), \var{JKVertexCoordinates} and \var{JKVertexLabels}. To be run before \fun{JKIndex} or \fun{JKIndexSplit}, e.g.\ {\tt JKIndex[JKChargeMatrix,Nvec,JKEta]}. For toric quivers use \fun{JKToricInitialize} instead.}
+\defn{JKInitialize}{\vardef{Mat}, \vardef{RMat}, \vardef{Cvec}, \vardef{Nvec}}{sets \var{JKFrozenCartan} to $\{\{1,1\}\}$ and initializes the global variables \var{JKFrozenMask}, \var{JKFrozenRuleEuler}, \var{JKFrozenRuleRational}, \var{JKListuAll}, \var{JKListuDisplay}, \var{JKListu}, \var{JKListut}, \var{JKChargeMatrix} (via \fun{ChargeMatrixFromQuiver}), \var{JKEta} (a small random perturbation of the diagonal embedding of \var{Cvec}), \var{JKVertexCoordinates} and \var{JKVertexLabels}. To be run before \fun{JKIndex} or \fun{JKIndexSplit}, e.g.\ {\tt JKIndex[JKChargeMatrix,Nvec,JKEta]}. For toric quivers use \fun{JKToricInitialize} instead.}
+
+\defn{JKToricInitialize}{\vardef{hMat}, \vardef{fMat}, \vardef{Cvec}, \vardef{Nvec}, \vardefo{Weights}\{$\sqrt2$,$\sqrt3$\}}{same as \fun{JKInitialize} for a toric quiver with height matrix \var{hMat}, framing data \var{fMat} (as returned by \fun{D6Framing} or \fun{D4Framing}, or 0 for an unframed quiver), stability parameters \var{Cvec} and dimension vector \var{Nvec} (framing node excluded); \var{Weights} is passed to \fun{ChargeMatrixFromToricQuiver}. If the quiver is framed, the framing node is added in first position, its Cartan variable {\tt u[1,1]} is frozen and the other nodes are shifted by one; otherwise, the first node with $N_i>0$ is frozen. If \var{Cvec} has one entry per node of the unframed quiver, the framing node gets stability $-\sum_i \var{Cvec}[[i]]\,\var{Nvec}[[i]]$ (non-commutative chamber); otherwise \var{Cvec} must include the framing node first. Sets \var{JKChargeMatrix}, \var{JKEta} and the other global variables listed under \fun{JKInitialize}. For a framed quiver, \fun{JKIndex} and \fun{JKIndexSplit} must then be called with dimension vector {\tt Join[\{1\},Nvec]}.}
+
+\defn{UpdateJKList}{\vardef{Nvec}}{resets \var{JKListuAll} to the list of all $u[i,s]$ for dimension vector \var{Nvec}. Called by \fun{ZEuler}, \fun{ZRational}, \fun{ZTrig}, \fun{ZElliptic} and their partial versions.}
 
 
-\defn{JKIndex}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter. The list of stable flags whose contributions are non-zero is stored in \var{JKRelevantStableFlags}, their contributions to the Euler number in \var{JKEuler}, and the list of contributions to the $\chi_y$ genus, which is also the output, in \var{JKChiGenus}. All singularities and stable flags are stored in \var{JKListAllSings} and \var{JKListAllStableFlags}.}
+\defn{JKIndex}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{Etavec}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter. The list of stable flags whose contributions are non-zero is stored in \var{JKRelevantStableFlags}, their contributions to the Euler number in \var{JKEuler}, and the list of contributions to the $\chi_y$ genus, which is also the output, in \var{JKChiGenus}. All singularities and stable flags are stored in \var{JKListAllSings} and \var{JKListAllStableFlags}.}
 
-\defn{JKIndexSplit}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{Etavec},\vardef{SplitNodes}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinants associated to the nodes listed in \var{SplitNodes} \cite{Beaujard:2019pkn}. The output is a list with one entry per multi-partition, listed with its multiplicity in \var{JKListAllPerms}.}
+\defn{JKIndexSplit}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{Etavec}, \vardef{SplitNodes}}{standalone routine, which computes the $\chi_y$ genus of the GLSM with given charge matrix, dimension vector and stability parameter, using Cauchy's formula to split the vector multiplet determinants associated to the nodes listed in \var{SplitNodes} \cite{Beaujard:2019pkn}. The output is a list with one entry per multi-partition, listed with its multiplicity in \var{JKListAllPerms}.}
 
 \subsection{Constructing the integrand and extracting the residue}
 
-\defn{ZEuler}{\vardef{ChargeMatrix},\vardef{Nvec}}{computes the integrand in the residue formula for the Euler number}
+\defn{ZEuler}{\vardef{ChargeMatrix}, \vardef{Nvec}}{computes the integrand in the residue formula for the Euler number}
  
-\defn{ZRational}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the integrand in the residue formula for the $\chi_y$ genus in rational representation}
+\defn{ZRational}{\vardef{ChargeMatrix}, \vardef{Nvec}}{constructs the integrand in the residue formula for the $\chi_y$ genus in rational representation}
 
-\defn{ZTrig}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation}
+\defn{ZTrig}{\vardef{ChargeMatrix}, \vardef{Nvec}}{constructs the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation}
 
-\defn{ZElliptic}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the integrand in the residue formula for the elliptic genus}
-
-\defn{ZEulerFromQuiver}{\vardef{hMat},\vardef{Potential},\vardef{Nvec}}{constructs the integrand in the residue formula for the Euler number of the quiver with height matrix \var{hMat} (see \fun{NCDTSeriesFromCrystal}) and dimension vector \var{Nvec}, without frozen variables or prefactor $1/\prod_i N_i!$. \var{Potential} is either the degree of the superpotential (an expression in $h_1,h_2,h_3$), one of its monomials, written as a product of {\tt Phi[i,j,k]}, or the full superpotential (whose first term is then used); see \fun{JKPotentialDegree}.}
-
-\defn{ZRatFromQuiver}{\vardef{hMat},\vardef{Potential},\vardef{Nvec}}{same as \fun{ZEulerFromQuiver}, for the $\chi_y$ genus in rational representation; the heights $h_a$ are replaced by $\log_y y_a$, so that the result depends on the symbols {\tt y1}, {\tt y2}, {\tt y3}.}
-
-\defn{ZEllipticFromQuiver}{\vardef{hMat},\vardef{Potential},\vardef{Nvec}}{same as \fun{ZEulerFromQuiver}, for the elliptic genus, in terms of \var{Theta} and \var{Eta}.}
-
-\defn{JKLinearIntegrandData}{\vardef{hMat},\vardef{Potential},\vardef{Nvec},\vardefo{mode}"Euler",\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{returns the integrand of the residue formula for the quiver with height matrix \var{hMat} and dimension vector \var{Nvec} as a list $\{\var{prefactor}, \var{variables}, \var{const}, \var{vector}, \var{power}\}$, where the last three lists have one entry per factor $(\var{const}+\var{vector}\cdot\var{variables})^{\var{power}}$ (argument of a Theta function in elliptic mode). \var{mode} is \var{"Euler"} (index), \var{"ChiY"} ($\chi_y$ genus, multiplicative variables, translated by \var{hrule} through \fun{LinearToMultiplicativeWeight}) or \var{"Elliptic"} (elliptic genus); \var{Potential} is as in \fun{ZEulerFromQuiver}. The result is cached. This is the input of \fun{JKResidueFromBlocks} and \fun{JKEllipticResidueFromBlocks}.}
-
-\defn{JKPotentialDegree}{\vardef{hMat},\vardef{Potential}}{returns the degree of the superpotential, i.e.\ the sum of the heights of the arrows in one of its monomials. \var{Potential} is either the degree itself, a monomial (product of {\tt Phi[i,j,k]}, commutative or non-commutative) or the full superpotential, in which case its first term is used.}
-
-\defn{LinearToMultiplicativeWeight}{\vardef{weight},\vardef{rules}}{converts a weight written additively, linear in formal variables such as $h_1,h_2,h_3$, into a monomial in the multiplicative variables given by \var{rules} (a list of rules additive variable $\to$ multiplicative variable). The constant part becomes a power of {\tt y'}.}
-
+\defn{ZElliptic}{\vardef{ChargeMatrix}, \vardef{Nvec}}{constructs the integrand in the residue formula for the elliptic genus}
 
 \defn{ListPermutationsWithMultiplicity}{\vardef{Nvec}}{computes the list of all multi-partitions of \var{Nvec}, represented by a standard permutation, and their multiplicity}
 
 \defn{PartitionMultiplicity}{\vardef{pa}}{computes the multiplicity of a partition in Cauchy-Bose formula}
 
-\defn{ZEulerPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}.}
+\defn{ZEulerPartial}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the index, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}.}
 
-\defn{ZTrigPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
+\defn{ZTrigPartial}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in trigonometric representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
 
-\defn{ZRationalPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in rational representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
+\defn{ZRationalPartial}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the $\chi_y$ genus in rational representation, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
 
-\defn{ZEllipticPartial}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the elliptic genus, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
+\defn{ZEllipticPartial}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{ListPerm}}{constructs the partial contribution to the integrand in the residue formula for the elliptic genus, corresponding to the list of (possibly empty) permutations associated to each node \var{Listperm}}
 
 
-\defn{JKResidueRational}{\vardef{StableFlag},\vardef{f}}{computes ${\rm sign}(\det\kappa)$ times the iterated residue of \var{f} (in rational representation) at the stable flag \var{StableFlag}$=\{\var{Inter},\var{Flag},\var{QT},\kappa\}$, as produced by \fun{FindStableFlags}. Frozen variables are set to 1.}
+\defn{JKResidueRational}{\vardef{StableFlag}, \vardef{f}}{computes ${\rm sign}(\det\kappa)$ times the iterated residue of \var{f} (in rational representation) at the stable flag \var{StableFlag}$=\{\var{Inter},\var{Flag},\var{QT},\kappa\}$, as produced by \fun{FindStableFlags}. Frozen variables are set to 1.}
 
-\defn{JKResidueTrig}{\vardef{StableFlag},\vardef{f}}{computes ${\rm sign}(\det\kappa)$ times the iterated residue of \var{f} (in trigonometric representation) at the stable flag \var{StableFlag}$=\{\var{Inter},\var{Flag},\var{QT},\kappa\}$, as produced by \fun{FindStableFlags}. Frozen variables are set to 0.}
+\defn{JKResidueTrig}{\vardef{StableFlag}, \vardef{f}}{computes ${\rm sign}(\det\kappa)$ times the iterated residue of \var{f} (in trigonometric representation) at the stable flag \var{StableFlag}$=\{\var{Inter},\var{Flag},\var{QT},\kappa\}$, as produced by \fun{FindStableFlags}. Frozen variables are set to 0.}
 
-\defn{FlagResidue}{\vardef{Integrand},\vardef{positions},\vardef{order},\vardef{correspondence}}{computes the iterated residue of \var{Integrand}: the variable {\tt correspondence[[order[[1]]]]} is set to its position, and the residues in the other variables {\tt correspondence[[n]]} at {\tt positions[[n]]} are then taken in the order given by the rest of \var{order}.}
+\defn{FlagResidue}{\vardef{Integrand}, \vardef{positions}, \vardef{order}, \vardef{correspondence}}{computes the iterated residue of \var{Integrand}: the variable {\tt correspondence[[order[[1]]]]} is set to its position, and the residues in the other variables {\tt correspondence[[n]]} at {\tt positions[[n]]} are then taken in the order given by the rest of \var{order}.}
+
+\defn{JKPotentialDegree}{\vardef{hMat}, \vardef{Potential}}{returns the degree of the superpotential of the quiver with height matrix \var{hMat}, as a linear combination of $h_1,h_2,h_3$. \var{Potential} is either the degree itself, one of the monomials of the superpotential (product of {\tt Phi[i,j,k]}, commutative or non-commutative) or the full superpotential.}
+
+\defn{ZEulerFromQuiver}{\vardef{hMat}, \vardef{Potential}, \vardef{Nvec}}{constructs the integrand in the residue formula for the Euler number of the quiver with height matrix \var{hMat} (see \fun{NCDTSeriesFromCrystal}), superpotential described by \var{Potential} (see \fun{JKPotentialDegree}) and dimension vector \var{Nvec}.}
+
+\defn{ZRatFromQuiver}{\vardef{hMat}, \vardef{Potential}, \vardef{Nvec}}{same as \fun{ZEulerFromQuiver}, for the $\chi_y$ genus in rational representation. The heights $h_a$ are replaced by $\log_y y_a$, so that the result is a rational function of {\tt u[i,s]}, $y$ and the symbols {\tt y1}, {\tt y2}, {\tt y3}.}
+
+\defn{ZEllipticFromQuiver}{\vardef{hMat}, \vardef{Potential}, \vardef{Nvec}}{same as \fun{ZEulerFromQuiver}, for the elliptic genus. The result is expressed in terms of {\tt u[i,s]}, $h_1,h_2,h_3$, $z$, {\tt Theta} and {\tt Eta}.}
+
 
 \subsection{Enumerating stable flags}
 
@@ -1083,26 +1100,26 @@ The routines below fall into two groups. For a general GLSM or quiver without po
 
 \defn{FindIntersection}{\vardef{Sing}}{computes the intersection points of the hyperplanes listed in \var{Sing}; this may include points on the cylinder, which contribute to the $\chi_y$ genus but not to the Euler number ! Ultimately, this will be generalized for the computation of the elliptic genus to include all points on the torus.  }
 
-\defn{ListHyperplanesIntersectingAt}{\vardef{ListSings},\vardef{Inter}}{collects all the hyperplanes in \var{ListSings} which intersect at \var{Inter}}
+\defn{ListHyperplanesIntersectingAt}{\vardef{ListSings}, \vardef{Inter}}{collects all the hyperplanes in \var{ListSings} which intersect at \var{Inter}}
 
-\defn{TestProjectiveIntersection}{\vardef{ListSings},\vardef{Inter}}{tests if the intersection point \var{Inter} of the list of hyperplanes \var{ListSings} is projective}
+\defn{TestProjectiveIntersection}{\vardef{ListSings}, \vardef{Inter}}{tests if the intersection point \var{Inter} of the list of hyperplanes \var{ListSings} is projective}
 
-\defn{CollectHyperplanes}{\vardef{ListInterrplets},\vardef{Inter}}{collects all the hyperplanes from \var{ListInterrplets}, which intersect at the point \var{Inter}}
+\defn{CollectHyperplanes}{\vardef{ListInterrplets}, \vardef{Inter}}{collects all the hyperplanes from \var{ListInterrplets}, which intersect at the point \var{Inter}}
 
-\defn{TestStableFlag}{\vardef{ListHyper},\vardef{Flag},\vardef{Etavec}}{tests if the flag \var{Flag} constructed out of the hyperplanes in \var{ListHyper} is stable with respect to \var{Etavec}; returns ${\rm sign}(\det\kappa)$ if it is stable, 0 otherwise.}
+\defn{TestStableFlag}{\vardef{ListHyper}, \vardef{Flag}, \vardef{Etavec}}{tests if the flag \var{Flag} constructed out of the hyperplanes in \var{ListHyper} is stable with respect to \var{Etavec}; returns ${\rm sign}(\det\kappa)$ if it is stable, 0 otherwise.}
 
-\defn{FindStableFlags}{\vardef{Inter},\vardef{ListSing},\vardef{Nvec},\vardef{Etavec}}{constructs the list of stable flags with stability parameter \var{Etavec} from the specified list of singular hyperplanes intersecting at \var{Inter}. Each item in the output is a list containing the intersection point, a list of basis vectors, the reduced charge matrix and the $\kappa$ matrix.}
+\defn{FindStableFlags}{\vardef{Inter}, \vardef{ListSing}, \vardef{Nvec}, \vardef{Etavec}}{constructs the list of stable flags with stability parameter \var{Etavec} from the specified list of singular hyperplanes intersecting at \var{Inter}. Each item in the output is a list containing the intersection point, a list of basis vectors, the reduced charge matrix and the $\kappa$ matrix.}
 
-\defn{SameFlagQ}{\vardef{Q1},\vardef{Q2}}{tests if the flags \var{$Q_1$} and \var{$Q_2$} (represented by square charge matrices) are equivalent}
+\defn{SameFlagQ}{\vardef{Q1}, \vardef{Q2}}{tests if the flags \var{$Q_1$} and \var{$Q_2$} (represented by square charge matrices) are equivalent}
 
-\defn{FindStableDomains}{\vardef{Inter},\vardef{ListSing},\vardef{Nvec},\vardef{Etavec}}{
+\defn{FindStableDomains}{\vardef{Inter}, \vardef{ListSing}, \vardef{Nvec}, \vardef{Etavec}}{
 Construct all the  flags  from the specified list of singular hyperplanes intersecting at \var{Inter},
 and compute their stability domain. Each item in the output is a list $\{\var{Inter}, \var{QT}, \kappa, \var{hyperplanes}, {\rm sign}(\det\kappa), \var{condition}\}$, where \var{condition} is the stability condition on \var{Etavec}. Unlike the routine
 \fun{FindStableFlags}, no attempt is made to eliminate equivalent flags.}
 
-\defn{FindDegrees}{\vardef{ListSings},\vardef{NumSing}}{constructs a list of singularities and their degree, combining the poles from \var{ListSings} with the zeros from the list of hyperplanes \var{NumSing}; each item is $\{\var{intersection point}, \var{degree}\}$}
+\defn{FindDegrees}{\vardef{ListSings}, \vardef{NumSing}}{constructs a list of singularities and their degree, combining the poles from \var{ListSings} with the zeros from the list of hyperplanes \var{NumSing}; each item is $\{\var{intersection point}, \var{degree}\}$}
 
-\defn{FindMultiDegree}{\vardef{ListSings},\vardef{NumSing},\vardef{Inter},\vardef{StableFlag}}{computes the multi-degree of the pole at the intersection point \var{Inter} along the stable flag \var{StableFlag}: for $i=1,\dots,r$, the number of denominator hyperplanes (from \var{ListSings}) minus the number of numerator hyperplanes (from \var{NumSing}) that vanish after the first $i$ rotated variables \var{ut} are set to zero.}
+\defn{FindMultiDegree}{\vardef{ListSings}, \vardef{NumSing}, \vardef{Inter}, \vardef{StableFlag}}{computes the multi-degree of the pole at the intersection point \var{Inter} along the stable flag \var{StableFlag}: for $i=1,\dots,r$, the number of denominator hyperplanes (from \var{ListSings}) minus the number of numerator hyperplanes (from \var{NumSing}) that vanish after the first $i$ rotated variables \var{ut} are set to zero.}
 
 
 \subsection{Conversion and visualisation}
@@ -1115,7 +1132,7 @@ and compute their stability domain. Each item in the output is a list $\{\var{In
 
 \defn{DisplayFlagList}{\vardef{ListFlags}}{Displays the list of flags in human-readable form: intersection point, list of hyperplanes associated to the basis vectors, and ${\rm sign}(\det\kappa)$. Use \fun{DisplayFlagListDegrees} to display the degrees as well.}
 
-\defn{DisplayFlagListDegrees}{\vardef{ListSings},\vardef{NumSing},\vardef{ListFlags}}{displays the list of flags in human-readable form: intersection point, hyperplanes of the flag, ${\rm sign}(\det\kappa)$ and multi-degree computed by \fun{FindMultiDegree}.}
+\defn{DisplayFlagListDegrees}{\vardef{ListSings}, \vardef{NumSing}, \vardef{ListFlags}}{displays the list of flags in human-readable form: intersection point, hyperplanes of the flag, ${\rm sign}(\det\kappa)$ and multi-degree computed by \fun{FindMultiDegree}.}
 
 \defn{DisplaySingList}{\vardef{ListSings}}{Displays the list of singularities in human-readable form. The first column gives the intersection point, the second the list of hyperplanes intersecting at that point, and the last columns gives True if the intersection is projective, False otherwise.}
 
@@ -1123,24 +1140,24 @@ and compute their stability domain. Each item in the output is a list $\{\var{In
 
 \subsection{Constructing charge matrices}
 
-\defn{ChargeMatrixFromQuiver}{\vardef{Mat},\vardef{RMat},\vardef{Nvec}}{constructs the charge matrix for a quiver with DSZ matrix \var{Mat}, R-charge matrix \var{RMat}, and dimension vector \var{Nvec}; the last two columns are the R-charge and multiplicity. If \var{RMat}[[i,j]] is a list, each arrow $i\to j$ gets its own R-charge (multiplicity 1), as produced by \fun{FlavoredRMatrix}. Do not forget to set $\var{JKFrozenCartan}=\{\{1,1\}\}$ to decouple the overall $U(1)$. For non-quiver gauge theories, \var{ChargeMatrix} must be provided by hand.}
+\defn{ChargeMatrixFromQuiver}{\vardef{Mat}, \vardef{RMat}, \vardef{Nvec}}{constructs the charge matrix for a quiver with DSZ matrix \var{Mat}, R-charge matrix \var{RMat}, and dimension vector \var{Nvec}; the last two columns are the R-charge and multiplicity. If \var{RMat}[[i,j]] is a list, each arrow $i\to j$ gets its own R-charge (multiplicity 1), as produced by \fun{FlavoredRMatrix}. Do not forget to set $\var{JKFrozenCartan}=\{\{1,1\}\}$ to decouple the overall $U(1)$. For non-quiver gauge theories, \var{ChargeMatrix} must be provided by hand.}
 
-\defn{ChargeMatrixFromToricQuiver}{\vardef{hMat},\vardef{fMat},\vardef{Nvec},\vardefo{Weights}\{$\sqrt2$,$\sqrt3$\}}{constructs the charge matrix of a toric quiver with height matrix \var{hMat}, framing data \var{fMat} (as returned by \fun{D6Framing} or \fun{D4Framing}) and dimension vector \var{Nvec}, with one row per chiral multiplet. The R-charge (next-to-last column) is the height of the arrow with $h_1,h_2,h_3$ set to $\var{Weights}[[1]], \var{Weights}[[2]], 2$, and the multiplicity is 1. If \var{fMat} is a list, a first column is added for the framing node; if it is not a list (e.g.\ 0), the quiver is unframed. Do not forget to set \var{JKFrozenCartan} to decouple the overall $U(1)$ (this is done by \fun{JKToricInitialize}).}
+\defn{ChargeMatrixFromToricQuiver}{\vardef{hMat}, \vardef{fMat}, \vardef{Nvec}, \vardefo{Weights}\{$\sqrt2$,$\sqrt3$\}}{constructs the charge matrix of a toric quiver with height matrix \var{hMat}, framing data \var{fMat} (as returned by \fun{D6Framing} or \fun{D4Framing}) and dimension vector \var{Nvec}, with one row per chiral multiplet. The R-charge (next-to-last column) is the height of the arrow with $h_1,h_2,h_3$ set to $\var{Weights}[[1]], \var{Weights}[[2]], 2$, and the multiplicity is 1. If \var{fMat} is a list, a first column is added for the framing node; if it is not a list (e.g.\ 0), the quiver is unframed. Do not forget to set \var{JKFrozenCartan} to decouple the overall $U(1)$ (this is done by \fun{JKToricInitialize}).}
 
 \defn{FlavoredRMatrix}{\vardef{Mat}}{Constructs a matrix of R-charges with generic flavor potentials $\theta_i$, assuming no oriented closed loop}
 
-\defn{AbelianSubQuiver}{\vardef{Mat},\vardef{RMat},\vardef{Cvec},\vardef{Nvec},\vardef{perm}}{Constructs the DSZ matrix, R-charge matrix  and FI parameters for the Abelian quiver associated to the list of permutations \var{perm}
+\defn{AbelianSubQuiver}{\vardef{Mat}, \vardef{RMat}, \vardef{Cvec}, \vardef{Nvec}, \vardef{perm}}{Constructs the DSZ matrix, R-charge matrix  and FI parameters for the Abelian quiver associated to the list of permutations \var{perm}
 in $\prod_{i=1}^K \Sigma_{N_i}$}
 
-\defn{CompleteChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplets}
+\defn{CompleteChargeMatrix}{\vardef{ChargeMatrix}, \vardef{Nvec}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplets}
 
-\defn{PartialChargeMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm}
+\defn{PartialChargeMatrix}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{perm}}{constructs the extended charge matrix consisting of chiral multiplets and vector multiplet contributions associated to the permutations perm}
 
-\defn{CompleteChargeNumMatrix}{\vardef{ChargeMatrix},\vardef{Nvec}}{constructs the extended charge matrix for the numerators, including both chiral multiplets and vector multiplets}
+\defn{CompleteChargeNumMatrix}{\vardef{ChargeMatrix}, \vardef{Nvec}}{constructs the extended charge matrix for the numerators, including both chiral multiplets and vector multiplets}
 
-\defn{PartialChargeNumMatrix}{\vardef{ChargeMatrix},\vardef{Nvec},\vardef{perm}}{constructs the extended charge matrix for the numerators, consisting of chiral multiplets and vector multiplet contributions associated to unsplit nodes (in which case  the permutation is empty)}
+\defn{PartialChargeNumMatrix}{\vardef{ChargeMatrix}, \vardef{Nvec}, \vardef{perm}}{constructs the extended charge matrix for the numerators, consisting of chiral multiplets and vector multiplet contributions associated to unsplit nodes (in which case  the permutation is empty)}
 
-\defn{LegCharge}{\vardef{Nvec},\{\vardef{i1},\vardef{s1}\},\{\vardef{i2},\vardef{s2}\}}{constructs a charge vector with 1 in position $(i_1,s_1)$ and $-1$ in position $(i_2,s_2)$}
+\defn{LegCharge}{\vardef{Nvec},\{\vardef{i1}, \vardef{s1}\},\{\vardef{i2}, \vardef{s2}\}}{constructs a charge vector with 1 in position $(i_1,s_1)$ and $-1$ in position $(i_2,s_2)$}
 
 \defn{TrimChargeTable}{\vardef{ChargeMatrix}}{removes the last two columns and frozen entries in charge matrix, corresponding to the R-charge and multiplicity.}
 
@@ -1148,47 +1165,31 @@ in $\prod_{i=1}^K \Sigma_{N_i}$}
 \subsection{Toric quivers and molten crystals}
 \label{sec:JKcrystals}
 
-\defn{JKToricInitialize}{\vardef{hMat},\vardef{fMat},\vardef{Cvec},\vardef{Nvec},\vardefo{Weights}\{$\sqrt2$,$\sqrt3$\}}{same as \fun{JKInitialize} for a toric quiver with height matrix \var{hMat}, framing data \var{fMat} and dimension vector \var{Nvec} (framing node excluded). If \var{fMat} is a list, the framing node is added in first position, its Cartan variable $u[1,1]$ is frozen and the other nodes are shifted by one; if not (e.g.\ 0), the first node with $N_i>0$ is frozen. If \var{Cvec} has one entry per node of the unframed quiver, the framing node gets stability $-\sum_i \var{Cvec}[[i]]\,\var{Nvec}[[i]]$ (non-commutative chamber); otherwise \var{Cvec} must include the framing node first. Sets \var{JKChargeMatrix} (using \fun{ChargeMatrixFromToricQuiver}), \var{JKEta} and the variables listed under \fun{JKInitialize}. For a framed quiver, call \fun{JKIndex} or \fun{JKIndexSplit} with dimension vector {\tt Join[\{1\},Nvec]}.}
+\defn{JKResidueFromCrystals}{\vardef{hMat}, \vardef{Potential}, \vardef{eta}, \vardef{order}, \vardefo{mode}"Euler", \vardefo{simplify}True, \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{computes the partition function of the quiver with height matrix \var{hMat} and superpotential described by \var{Potential} (see \fun{JKPotentialDegree}), for the stability parameters \var{eta} (one per node), up to total dimension \var{order}. The invariants are Euler numbers, $\chi_y$ genera or elliptic genera for \var{mode} {\tt "Euler"}, {\tt "ChiY"} or {\tt "Elliptic"} respectively; in {\tt "ChiY"} mode they are expressed in the multiplicative variables given by \var{hrule} (see \fun{LinearToMultiplicativeWeight}), and in {\tt "Elliptic"} mode in terms of {\tt Theta} and its derivatives, {\tt Eta}, {\tt Eisenstein}, $z$ and $h_1,h_2,h_3$. Set \var{simplify} to False to leave the coefficients unsimplified.}
 
-\defn{UpdateJKList}{\vardef{Nvec}}{resets \var{JKListuAll} to the list of all $u[i,s]$ for dimension vector \var{Nvec}. Called by \fun{ZEuler}, \fun{ZRational}, \fun{ZTrig}, \fun{ZElliptic} and their partial versions.}
+\defn{JKResidueFromNode}{\vardef{hMat}, \vardef{Potential}, \vardef{eta}, \vardef{order}, \vardef{node}, \vardefo{mode}"Euler", \vardefo{simplify}True, \vardefo{prohibitedNodes}\{\}, \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{same as \fun{JKResidueFromCrystals}, but only includes the crystals whose root atom sits at \var{node} and which contain no atom at the nodes listed in \var{prohibitedNodes}.}
 
-\defn{FramedHeightMatrix}{\vardef{hMat},\vardefo{Arrows}\{\}}{returns the height matrix of the quiver \var{hMat} with an extra framing node in first position. \var{Arrows} is a list of arrows $\{i,j,w\}$ from $i$ to $j$ with height $w$, where the framing node is labelled 0.}
+\defn{JKInvariantsFromNode}{\vardef{hMat}, \vardef{Potential}, \vardef{eta}, \vardef{order}, \vardef{node}, \vardefo{mode}"Euler", \vardefo{prohibitedNodes}\{\}, \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{same as \fun{JKResidueFromNode}, but returns an association $\{\gamma\rightarrow\Omega(\gamma)\}$, matching each dimension vector $\gamma$ to its invariant, instead of the partition function, which can be converted with \fun{SeriesFromInvariants}.}
 
-\defn{JKResidueFromCrystals}{\vardef{hMat},\vardef{Potential},\vardef{eta},\vardef{order},\vardefo{mode}"Euler",\vardefo{simplify}True,\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{computes the unframed partition function $1+\sum_{\gamma}\Omega(\gamma)\prod_i x_i^{N_i}$ ($x_i$ is {\tt Subscript[x,i]}) of the quiver with height matrix \var{hMat} and superpotential described by \var{Potential} (see \fun{JKPotentialDegree}), for stability parameters \var{eta} (one per node), by summing Jeffrey-Kirwan residues over molten crystals with up to \var{order} atoms. \var{mode} is \var{"Euler"}, \var{"ChiY"} or \var{"Elliptic"}; \var{simplify} controls the simplification of the coefficients and \var{hrule} the multiplicative variables in \var{"ChiY"} mode. Calls \fun{JKInvariantsFromNode} for each node $k$, with nodes $1,\dots,k-1$ prohibited.}
+\defn{FramedJKResidue}{\vardef{hMat}, \vardef{Potential}, \vardef{eta}, \vardef{order}, \vardef{framingArrows}, \vardefo{mode}"Euler", \vardefo{simplify}True, \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{same as \fun{JKResidueFromCrystals} for the quiver framed by the arrows \var{framingArrows}, given in the format of \fun{FramedHeightMatrix}. The framing node has dimension 1 and stability parameter $-\sum_i\var{eta}[[i]]$, and does not appear in the result, so that $x_i$ corresponds to node $i$ of \var{hMat} and \var{order} bounds the total dimension excluding the framing node.}
 
-\defn{JKResidueFromNode}{\vardef{hMat},\vardef{Potential},\vardef{eta},\vardef{order},\vardef{node},\vardefo{mode}"Euler",\vardefo{simplify}True,\vardefo{prohibitedNodes}\{\},\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{same as \fun{JKResidueFromCrystals}, but only includes crystals whose root atom sits at \var{node} and which avoid the nodes in \var{prohibitedNodes}.}
+\defn{D6FramedJKResidue}{\vardef{hMat}, \vardef{Potential}, \vardef{i}, \vardef{eta}, \vardef{Nn}, \vardefo{mode}"Euler", \vardefo{simplify}True, \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{same as \fun{FramedJKResidue} up to order \var{Nn}, for the D6 framing at node \var{i}.}
 
-\defn{JKInvariantsFromNode}{\vardef{hMat},\vardef{Potential},\vardef{eta},\vardef{order},\vardef{node},\vardefo{mode}"Euler",\vardefo{prohibitedNodes}\{\},\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{grows all crystals with root at \var{node} and at most \var{order} atoms, avoiding \var{prohibitedNodes}, evaluates each with \fun{JKResidueAtSingularity} (with random perturbations of \var{eta}), and returns an association \{dimension vector $\to$ invariant\}. Used by \fun{JKResidueFromNode}, \fun{JKResidueFromCrystals} and \fun{FramedJKResidue}; convert with \fun{SeriesFromInvariants}.}
+\defn{D4FramedJKResidue}{\vardef{hMat}, \vardef{Potential}, \vardef{i}, \vardef{j}, \vardef{k}, \vardef{eta}, \vardef{Nn}, \vardefo{mode}"Euler", \vardefo{simplify}True, \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{same as \fun{FramedJKResidue} up to order \var{Nn}, for the D4 framing associated to the arrow {\tt Phi[i,j,k]}.}
 
-\defn{JKResidueAtSingularity}{\vardef{crystal},\vardef{hMat},\vardef{Potential},\vardef{etas},\vardefo{mode}"Euler",\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{computes the Jeffrey-Kirwan residue at the singularity given by \var{crystal} $=\{\var{atoms},\var{root}\}$, where \var{atoms} is a list of $\{\var{node},\var{height}\}$ and \var{root} the position of the root atom. \var{etas} is a list of perturbed stability parameters per node, turned into a stability vector by \fun{EtaVectorFromEtas}. The stable flags are found by \fun{JKStableFlagsFromBlocks} and the residues computed by \fun{JKResidueFromBlocks} (\var{"Euler"}, \var{"ChiY"}) or \fun{JKEllipticResidueFromBlocks} (\var{"Elliptic"}). The result is multiplied by $\prod_i x_i^{N_i}$.}
+\defn{EtaVectorFromEtas}{\vardef{atomTypeList}, \vardef{etas}, \vardef{Nvec}}{returns the extended stability vector, with one entry per atom, for a list of atoms whose nodes are listed in \var{atomTypeList} and with dimension vector \var{Nvec}. \var{etas} is a list with one entry per node, each being a list of at least $N_i$ stability parameters: the $n$-th atom of node $i$ in \var{atomTypeList} gets $\var{etas}[[i,n]]$, and the mean is then subtracted so that the entries sum to zero.}
 
-\defn{FramedJKResidue}{\vardef{hMat},\vardef{Potential},\vardef{eta},\vardef{order},\vardef{framingArrows},\vardefo{mode}"Euler",\vardefo{simplify}True,\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{same as \fun{JKResidueFromCrystals} for the quiver framed by \var{framingArrows} (see \fun{FramedHeightMatrix}); the framing node is node 1 (variable $x_1$), with stability $-\sum_i\var{eta}[[i]]$, and the nodes of \var{hMat} are shifted by one. Crystals have up to $\var{order}+1$ atoms. The result may also contain terms without $x_1$, coming from crystals that do not contain the framing node.}
+\defn{JKLinearIntegrandData}{\vardef{hMat}, \vardef{Potential}, \vardef{Nvec}, \vardefo{mode}"Euler", \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{returns the Jeffrey-Kirwan integrand for the quiver with height matrix \var{hMat} and dimension vector \var{Nvec} as a list of five elements \{{\tt prefactor}, {\tt variables}, {\tt const}, {\tt vector}, {\tt power}\}, where {\tt variables} is the list of Cartan variables {\tt u[i,s]}, and {\tt const}, {\tt vector}, {\tt power} are lists with one entry per factor $({\tt const}+{\tt vector}\cdot{\tt variables})^{\tt power}$ of the integrand (to be put in a {\tt Theta} function in elliptic mode). \var{mode} is {\tt "Euler"} (Euler number), {\tt "ChiY"} ($\chi_y$ genus, in multiplicative variables given by \var{hrule}, see \fun{LinearToMultiplicativeWeight}) or {\tt "Elliptic"} (elliptic genus); \var{Potential} is as in \fun{JKPotentialDegree}. The output is the input of \fun{JKResidueFromBlocks} and \fun{JKEllipticResidueFromBlocks}.}
 
-\defn{D6FramedJKResidue}{\vardef{hMat},\vardef{Potential},\vardef{i},\vardef{eta},\vardef{Nn},\vardefo{mode}"Euler",\vardefo{simplify}True,\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{\fun{FramedJKResidue} with a D6 framing, i.e.\ one arrow of height 0 from the framing node to node \var{i}, up to order \var{Nn}.}
+\defn{JKStableFlagsFromBlocks}{\vardef{dim}, \vardef{charges}, \vardef{eta}, \vardef{root}}{lists the stable flags of dimension $\var{dim}-1$ spanned by \var{charges} (vectors of length \var{dim}, each with one entry 1 and one entry $-1$; the \var{root} entry is dropped) for the stability vector \var{eta} of length \var{dim}. Each flag is of the form $\{{\tt merges}, {\rm sign}(\det\kappa)\}$, where {\tt merges} is a list of operations of the form $\{{\tt root\ block},{\tt new\ block}\}$ (blocks are lists of atoms, labelled from 1 to \var{dim}) attaching a new block to a root block. Returns an empty list if \var{charges} do not connect all atoms.}
 
-\defn{D4FramedJKResidue}{\vardef{hMat},\vardef{Potential},\vardef{i},\vardef{j},\vardef{k},\vardef{eta},\vardef{Nn},\vardefo{mode}"Euler",\vardefo{simplify}True,\vardefo{hrule}\{h1->$t_1$, h2->$t_2$, h3->y\}}{\fun{FramedJKResidue} with the D4 framing associated with the arrow {\tt Phi[i,j,k]}: arrows $0\to i$ and $j\to 0$, both of height $(h_3-\var{hMat}[[i,j,k]])/2$, up to order \var{Nn}.}
+\defn{JKResidueFromBlocks}{\vardef{data}, \vardef{positions}, \vardef{flag}, \vardef{root}, \vardefo{jacobian}False}{computes the iterated Jeffrey-Kirwan residue of the integrand \var{data} (output of \fun{JKLinearIntegrandData} in {\tt "Euler"} or {\tt "ChiY"} mode) at the pole where the variables take the values \var{positions}, along \var{flag} (the list {\tt merges} of an output of \fun{JKStableFlagsFromBlocks}), with the variable of atom \var{root} frozen. Set \var{jacobian} to True in {\tt "ChiY"} mode to take the residue with respect to ${\rm d}u/u$. The result does not include the sign ${\rm sign}(\det\kappa)$ of the flag.}
 
-\defn{EtaVectorFromEtas}{\vardef{atomTypeList},\vardef{etas},\vardef{Nvec}}{builds the extended stability vector, one entry per atom: the $n$-th atom of node $i$ in \var{atomTypeList} gets $\var{etas}[[i,n]]$; the mean is then subtracted so that the entries sum to zero.}
+\defn{JKEllipticResidueFromBlocks}{\vardef{data}, \vardef{positions}, \vardef{flag}, \vardef{root}}{same as \fun{JKResidueFromBlocks}, for \var{data} produced by \fun{JKLinearIntegrandData} in {\tt "Elliptic"} mode. The result is expressed in terms of {\tt Theta}, its derivatives, {\tt Eta}, {\tt Eisenstein} and $z$.}
 
-\defn{JKStableFlagsFromBlocks}{\vardef{dim},\vardef{charges},\vardef{eta},\vardef{root}}{lists the stable flags of dimension $\var{dim}-1$ spanned by \var{charges} (vectors of length \var{dim}, each with one entry 1 and one entry $-1$; the \var{root} entry is dropped) for the stability vector \var{eta} of length \var{dim}. Each flag is $\{\var{merges}, {\rm sign}(\det\kappa)\}$, where \var{merges} lists block operations $\{\var{root block},\var{new block}\}$ (blocks are lists of nodes), each attaching a new block to a root block. Issues {\tt JKResidue::SumRegular} if \var{eta} is not sum-regular.}
+\defn{JKGenericResidueFromBlocks}{\vardef{integrand}, \vardef{variables}, \vardef{positions}, \vardef{flag}}{computes the iterated residue of an arbitrary \var{integrand} in the list of \var{variables}, at the pole where they take the values \var{positions}, taking the residues block by block in the order given by \var{flag} (the list {\tt merges} of an output of \fun{JKStableFlagsFromBlocks}).}
 
-\defn{JKResidueFromBlocks}{\vardef{data},\vardef{positions},\vardef{flag},\vardef{root},\vardefo{jacobian}True}{computes the iterated Jeffrey-Kirwan residue of the integrand \var{data} (output of \fun{JKLinearIntegrandData}) at the point \var{positions}, along \var{flag} (the first element of an output of \fun{JKStableFlagsFromBlocks}), with the variable of atom \var{root} frozen. With \var{jacobian} True (multiplicative variables, \var{"ChiY"} mode) the residue is taken with respect to ${\rm d}u/u$; use False in \var{"Euler"} mode.}
-
-\defn{JKEllipticResidueFromBlocks}{\vardef{data},\vardef{positions},\vardef{flag},\vardef{root}}{elliptic version of \fun{JKResidueFromBlocks}, for data produced by \fun{JKLinearIntegrandData} in \var{"Elliptic"} mode; the result is expressed in terms of \var{Theta} and its derivatives, using \fun{ThetaDerivativeAtZero}.}
-
-\defn{ThetaDerivativeAtZero}{\vardef{k}}{returns the $k$-th derivative of \var{Theta} at $z=0$, in terms of \var{Eta} and \var{Eisenstein}; zero for even $k$. Results are cached.}
-
-\defn{JKGenericResidueFromBlocks}{\vardef{integrand},\vardef{variables},\vardef{positions},\vardef{flag}}{computes the iterated residue of an arbitrary \var{integrand} in \var{variables} at \var{positions}, taking the residues block by block in the order of \var{flag} (as returned by \fun{JKStableFlagsFromBlocks}). Slower than \fun{JKResidueFromBlocks}, and useful for checking it.}
-
-\defn{SeriesFromInvariants}{\vardef{invariants},\vardefo{simplify}True}{converts an association \{dimension vector $\to$ invariant\} into the series $\sum \var{invariant}\,\prod_i x_i^{N_i}$ (without the constant term 1), dropping zero invariants; set \var{simplify} to False to leave the coefficients unsimplified.}
-
-\defn{CanonicalPartitionForm}{\vardef{expr},\vardef{n},\vardefo{simplify}True}{rewrites the partition function \var{expr} as a polynomial in $x_1,\dots,x_n$ (\var{n} is the number of variables), collecting and optionally simplifying the coefficients.}
-
-
-
-
-
-
+\defn{JKResidueAtSingularity}{\vardef{crystal}, \vardef{hMat}, \vardef{Potential}, \vardef{etas}, \vardefo{mode}"Euler", \vardefo{hrule}\{$h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y$\}}{computes the Jeffrey-Kirwan residue for the Euler number, $\chi_y$ genus or elliptic genus (depending on \var{mode}, see \fun{JKResidueFromCrystals}) of the quiver with height matrix \var{hMat} and superpotential described by \var{Potential}, at the singularity described by \var{crystal}. \var{crystal} is of the form $\{{\tt atoms},{\tt root}\}$, where {\tt atoms} is a list of pairs $\{{\tt node},{\tt height}\}$, one per atom, and {\tt root} is the position of the root atom in that list, whose variable is frozen. \var{etas} is a list with one entry per node, each being a list of (perturbed) stability parameters for the successive atoms at that node, as in \fun{EtaVectorFromEtas}. }
 
 
 \section{Flow tree formula}
@@ -1196,39 +1197,39 @@ Note: starting with version 6.1, following a suggestion of S. Mozgovoy we no lon
 algorithm which only keeps contributions of splittings $\gamma=\gamma_L+\gamma_R$ with 
 $\langle\gamma_L,\gamma_R\rangle>0$.
 
-\defn{FlowTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of attractor indices, using the formula \cite[(2.21)]{Alexandrov:2018iao}; returns 0 if $\sum_i N_i=0$. The result is obtained from \fun{FlowTreeFormulaRat} by M\"obius inversion and expressed in terms of $\Omega_*(\gamma,y)$}
+\defn{FlowTreeFormula}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes the index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of attractor indices, using the formula \cite[(2.21)]{Alexandrov:2018iao}; returns 0 if $\sum_i N_i=0$. The result is obtained from \fun{FlowTreeFormulaRat} by M\"obius inversion and expressed in terms of $\Omega_*(\gamma,y)$}
 
-\defn{FlowTreeFormulaRat}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\vardef{y}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices; returns 0 if $\sum_i N_i=0$ and \var{OmAttb[Nvec,y]} if $\sum_i N_i=1$. If the FI parameters do not satisfy $\sum_i N_i\zeta_i=0$, they are first shifted by a common constant}
+\defn{FlowTreeFormulaRat}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}, \vardef{y}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec}, as a function of the fugacity \var{y}, in terms of the rational attractor indices \fun{OmAttb}[$\gamma$, \var{y}]; returns 0 if $\sum_i N_i=0$ and \fun{OmAttb}[\var{Nvec}, \var{y}] if $\sum_i N_i=1$. If the stability parameters do not satisfy $\sum_i N_i\zeta_i=0$, they are first shifted by a common constant.}
 
 
-\defn{TropicalVertex}{\vardef{m},\{\vardef{n1},\vardef{n2}\},\vardef{LiOm1},\vardef{LiOm2}}{computes the index $\Omega(n_1 \gamma_1+n_2 \gamma_2)$ for an outgoing ray created by scattering of 2 vectors $\gamma_1, \gamma_2$ with Dirac product $m>0$, assuming that the attractor index $\Omega_*(p \gamma_1,y)$ is given by the $p$-th entry in \var{LiOm1}, and similarly for $\gamma_2$.}
+\defn{TropicalVertex}{\vardef{m},\{\vardef{n1}, \vardef{n2}\}, \vardef{LiOm1}, \vardef{LiOm2}}{computes the index $\Omega(n_1 \gamma_1+n_2 \gamma_2)$ for an outgoing ray created by scattering of 2 vectors $\gamma_1, \gamma_2$ with Dirac product $m>0$, assuming that the attractor index $\Omega_*(p \gamma_1,y)$ is given by the $p$-th entry in \var{LiOm1}, and similarly for $\gamma_2$.}
 
 
 
 \defn{TreePoincarePolynomialRat}{\vardef{gam},\newdefy}{expresses the rational BPS index as $\sum_{\gamma=\sum\alpha_i}\frac{1}{|{\rm Aut}\{\alpha_i\}|}\,\var{Treeg}[\{\alpha_i\},y]\prod_i\bOm_*(\alpha_i,y)$, summing over unordered partitions of \var{gam}}
 
-\defn{EvalTreeIndex}{\vardef{Mat},\vardef{Cvec},\vardef{f}}{evaluates any \var{Treeg[Li,y]} appearing in \var{f} using \fun{TreeIndexOpt} with arguments computed from the full DSZ matrix \var{Mat} and the stability parameters \var{Cvec}; if \var{\$QuiverFlowTreeOpt}$\neq 3$ (default 3), \fun{EvalTreeIndex} instead
+\defn{EvalTreeIndex}{\vardef{Mat}, \vardef{Cvec}, \vardef{f}}{evaluates any \var{Treeg[Li,y]} appearing in \var{f} using \fun{TreeIndexOpt} with arguments computed from the full DSZ matrix \var{Mat} and the stability parameters \var{Cvec}; if \var{\$QuiverFlowTreeOpt}$\neq 3$ (default 3), \fun{EvalTreeIndex} instead
 calls \fun{TreeIndex}}
 
-\defn{TreeIndexOpt}{\vardef{Mat},\vardef{Cvec},\newdefy}{computes the tree index by summing all planar binary trees with $\langle\gamma_L,\gamma_R\rangle>0$ at each vertex, after perturbing
+\defn{TreeIndexOpt}{\vardef{Mat}, \vardef{Cvec},\newdefy}{computes the tree index by summing all planar binary trees with $\langle\gamma_L,\gamma_R\rangle>0$ at each vertex, after perturbing
 the stability parameters}
 
-\defn{TreeIndexRecursive}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec},\newdefy}{recursively constructs
+\defn{TreeIndexRecursive}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec},\newdefy}{recursively constructs
 the sum over planar binary trees with leaves decorated by basis vectors summing up to \var{Nvec}.}
 
-\defn{TreeIndex}{\vardef{Mat},\vardef{Cvec},\newdefy}{computes the tree index, after perturbing the stability parameters, by summing all partial tree indices computed using \fun{TreeF}, \fun{TreeFAlt1} or \fun{TreeFAlt2} when \var{\$QuiverFlowTreeOpt} is 0, 1 or 2; calls \fun{TreeIndexOpt} when it is 3}
+\defn{TreeIndex}{\vardef{Mat}, \vardef{Cvec},\newdefy}{computes the tree index, after perturbing the stability parameters, by summing all partial tree indices computed using \fun{TreeF}, \fun{TreeFAlt1} or \fun{TreeFAlt2} when \var{\$QuiverFlowTreeOpt} is 0, 1 or 2; calls \fun{TreeIndexOpt} when it is 3}
 
-\defn{TreeF}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using \fun{PlaneTreeSign}}
+\defn{TreeF}{\vardef{Mat}, \vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using \fun{PlaneTreeSign}}
 
-\defn{PlaneTreeSign}{\vardef{Mat},\vardef{Cvec},\vardef{Li}}{computes the contribution to the partial tree index from the grouping \var{Li} recursively}
+\defn{PlaneTreeSign}{\vardef{Mat}, \vardef{Cvec}, \vardef{Li}}{computes the contribution to the partial tree index from the grouping \var{Li} recursively}
 
-\defn{TreeFAlt1}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}. Will be
+\defn{TreeFAlt1}{\vardef{Mat}, \vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}. Will be
 used by \fun{TreeIndex} if  \var{\$QuiverFlowTreeOpt} is set to 1.}
 
 \defn{TreeFAlt1Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the first alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
 
 
-\defn{TreeFAlt2}{\vardef{Mat},\vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}. Will be
+\defn{TreeFAlt2}{\vardef{Mat}, \vardef{Cvec}}{computes the partial tree index by summing over stable planar trees using the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao}. Will be
 used by \fun{TreeIndex} if  \var{\$QuiverFlowTreeOpt} is set to 2.}
 
 \defn{TreeFAlt2Att}{\vardef{Mat}}{computes  the attractor contribution to the partial tree index appearing in the second alternative recursion in  \cite[(2.64)]{Alexandrov:2018iao} }
@@ -1236,11 +1237,11 @@ used by \fun{TreeIndex} if  \var{\$QuiverFlowTreeOpt} is set to 2.}
 \defn{PlaneTreeSplitList}{\vardef{n}}{constructs all splittings of $\{1,\dots, n\}$ appearing in the alternative recursions for the partial tree index}
 
 
-\defn{DSZProdAbelian}{\vardef{Mat},\vardef{Li1},\vardef{Li2}}{computes the DSZ product for two vectors labelled by list of vertices}
+\defn{DSZProdAbelian}{\vardef{Mat}, \vardef{Li1}, \vardef{Li2}}{computes the DSZ product for two vectors labelled by list of vertices}
 
-\defn{SubDSZAbelian}{\vardef{Mat},\vardef{Li}}{computes the DSZ matrix $\gamma_{ij}$ for the subquiver whose $i$-th node is the sum of the original nodes in \var{Li[[i]]}}
+\defn{SubDSZAbelian}{\vardef{Mat}, \vardef{Li}}{computes the DSZ matrix $\gamma_{ij}$ for the subquiver whose $i$-th node is the sum of the original nodes in \var{Li[[i]]}}
 
-\defn{SubFIAbelian}{\vardef{Cvec},\vardef{Li}}{computes the stability parameters $c_i$ for the subquiver whose $i$-th node is the sum of the original nodes in \var{Li[[i]]} (formerly called \fun{SubCvecAbelian}, still available but obsolete)}
+\defn{SubFIAbelian}{\vardef{Cvec}, \vardef{Li}}{computes the stability parameters $c_i$ for the subquiver whose $i$-th node is the sum of the original nodes in \var{Li[[i]]} (formerly called \fun{SubCvecAbelian}, still available but obsolete)}
 
 \defn{OmAttToOmAttb}{\vardef{f}}{expresses any $\Omega_*(\gamma,y)$ in $f$
  in terms of $\bar\Omega_*(\gamma,y)$'s} 
@@ -1250,9 +1251,9 @@ used by \fun{TreeIndex} if  \var{\$QuiverFlowTreeOpt} is set to 2.}
 
 \defn{DSZkappa}{\vardef{m},\newdefy}{returns $\kappa(m)=(y^m-y^{-m})/(y-1/y)$; used in \fun{LFactor} and \fun{JoyceIndexAlt}}
 
-\defn{NonAbelianFlowTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices, using the general (non-necessarily primitive) wall-crossing formula at each wall of marginal stability. The wall-crossing at each wall is computed using \fun{EvalReinekeIndex} if \var{\$QuiverFlowTreeMethod} is True (default), or \fun{EvalCoulombIndex} if it is False. Returns \var{OmAttb[Nvec,y]} if \var{Nvec} is supported on a single node or $\sum_i N_i\zeta_i^2=0$.}
+\defn{NonAbelianFlowTreeFormula}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices, using the general (non-necessarily primitive) wall-crossing formula at each wall of marginal stability. The wall-crossing at each wall is computed using \fun{EvalReinekeIndex} if \var{\$QuiverFlowTreeMethod} is True (default), or \fun{EvalCoulombIndex} if it is False. Returns \var{OmAttb[Nvec,y]} if \var{Nvec} is supported on a single node or $\sum_i N_i\zeta_i^2=0$.}
 
-\defn{ListFirstWalls}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{gives the list of relevant walls 
+\defn{ListFirstWalls}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{gives the list of relevant walls 
 $W_{\gamma_L,\gamma_R}$ for the non-Abelian flow tree formula for $\bOm(\gamma,z)$, as a list of $\{ \{ \gamma_L,n_L\}, \{ \gamma_R,n_R\}\}$ such that $\gamma=n_L \gamma_L+n_R \gamma_R$ where $\gamma_L,\gamma_R$ are primitive vectors and $n_L, n_R$ positive integers.}
 
 \defn{BinarySplits}{\vardef{Nvec}}{gives the list of dimension vectors $\gamma_L$ less than $\gamma$, quotiented by the equivalence relation $\gamma_L \to \gamma-\gamma_L$ (in practice the first half of the list of non-zero proper subvectors of \var{Nvec}); returns \var{Nvec} itself if $\sum_i N_i=1$.}
@@ -1262,22 +1263,22 @@ $W_{\gamma_L,\gamma_R}$ for the non-Abelian flow tree formula for $\bOm(\gamma,z
 %This implements the Attractor Tree formula from \cite{BPMozgovoy}. Just like the Flow Tree formula,
 %this computes the index for any stability parameters in terms of attractor indices, but it does not rely on perturbing the DSZ matrix.
 
-\defn{AttractorTreeFormula}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index $\bOm(\gamma,\zeta,y)$ of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of (integer) attractor indices $\Omega_*$. Note: unlike \fun{FlowTreeFormula}, no M\"obius inversion is performed, so the result differs from the integer index for non-primitive \var{Nvec}.}
+\defn{AttractorTreeFormula}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes the rational index $\bOm(\gamma,\zeta,y)$ of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of (integer) attractor indices $\Omega_*$. Note: unlike \fun{FlowTreeFormula}, no M\"obius inversion is performed, so the result differs from the integer index for non-primitive \var{Nvec}.}
 
-\defn{AttractorTreeFormulaRat}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices; returns 0 if $\sum_i N_i=0$ and 1 if $\sum_i N_i=1$}
+\defn{AttractorTreeFormulaRat}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices; returns 0 if $\sum_i N_i=0$ and 1 if $\sum_i N_i=1$}
 
-\defn{AttractorIndex}{\vardef{Mat},\vardef{Cvec},\newdefy }{evaluates the Attractor index $g_{Sch}(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
+\defn{AttractorIndex}{\vardef{Mat}, \vardef{Cvec},\newdefy }{evaluates the Attractor index $g_{Sch}(\{\alpha_1,\cdots $ $\alpha_n\};$ $\{\dx_1,\cdots \dx_n\},y)$ 
                    with DSZ products $\alpha_{ij}=\var{Mat}[[i,j]]$, possibly rescaled by an overall factor of 
                    \var{{\tt \$QuiverMultiplier}}, 
                    FI terms $\dx_i=\var{Cvec}[[i]]$, angular momentum fugacity \var{y}, as a sum over rooted  trees with valency greater or equal to 3.
                    }
 
-\defn{EvalAttractorIndex}{\vardef{Mat},\vardef{Cvec},\vardef{f} }{evaluates
+\defn{EvalAttractorIndex}{\vardef{Mat}, \vardef{Cvec}, \vardef{f} }{evaluates
 any $\var{Treeg[Li,y]}$ appearing in $\var{f}$ as $\var{AttractorIndex[\var{Mat2},\var{Cvec2},y]}$, where $\var{Mat2},\var{Cvec2}$ are computed from the list of vectors $\var{Li}$ and the quiver data $\var{Mat},\var{Cvec}$. }
 
-\defn{AttractorF}{\vardef{Li},\vardef{Mat},\vardef{Cvec}}{computes the partial Attractor index by summing over Attractor trees; the first argument supplies the list of vertices in each Attractor tree, constructed once and for all by \fun{AttractorIndex} using \fun{AttractorTreeVertices}.}
+\defn{AttractorF}{\vardef{Li}, \vardef{Mat}, \vardef{Cvec}}{computes the partial Attractor index by summing over Attractor trees; the first argument supplies the list of vertices in each Attractor tree, constructed once and for all by \fun{AttractorIndex} using \fun{AttractorTreeVertices}.}
 
-\defn{Attractorg}{\vardef{Mat},\vardef{Cvec}}{computes the sign factor assigned to a given
+\defn{Attractorg}{\vardef{Mat}, \vardef{Cvec}}{computes the sign factor assigned to a given
 vertex in a Attractor tree, using the prescription from  \cite[(3.23)]{Alexandrov:2019rth}, $({\rm sign}(0))^m \to 1/(m+1)$ if $m$ is even, or zero if $m$ is odd. If second argument missing, uses
 attractor stability condition instead.}
 
@@ -1290,7 +1291,7 @@ a grouping $\var{t}$ of the list $\{1,\dots, n\}$, constructs the list of $\{ {\
 \defn{AttractorTreeTriples}{\vardef{t}}{For a given Attractor tree represented as
 a grouping $\var{t}$ of the list $\{1,\dots, n\}$, constructs the list of $\{ {\rm left vertex},  {\rm right vertex},  {\rm parent} \}$. Used by \fun{AttractorTreeVertices} to construct the list of vertices. }
 
-\defn{OmAttNoLoopToZero}{\vardef{Mat},\vardef{f}}{sets to zero any $\Omega_*$  
+\defn{OmAttNoLoopToZero}{\vardef{Mat}, \vardef{f}}{sets to zero any $\Omega_*$  
                   factor in \var{f} corresponding to subquivers without loop, assuming DSZ products
                   $\alpha_{ij}=\var{Mat}[[i,j]]$
                   ; active only on 2-node subquivers if \var{{\tt \$QuiverTestLoop}} is set to False
@@ -1320,31 +1321,31 @@ The extent of the validity of this formula, beyond the simple wall-crossing case
 
 \medskip
 
-\defn{JoyceFormula}{\vardef{Mat},\vardef{Cvec1},\vardef{Cvec2},\vardef{f}}{
+\defn{JoyceFormula}{\vardef{Mat}, \vardef{Cvec1}, \vardef{Cvec2}, \vardef{f}}{
 replaces all $\bOm(\gamma,y)$ and $\gR(\gamma,y)$ in \var{f}, all assumed to refer to stability 
 \var{Cvec1}, with their corresponding values at \var{Cvec2}, using the formula \eqref{JSformula}
 or its analogue for stack invariants (formerly called \fun{JoyceSongFormula});
 }
 
-\defn{JoyceSongFormula}{\vardef{Mat},\vardef{Cvec1},\vardef{Cvec2},\vardef{f}}{obsolete, same as \fun{JoyceFormula}}
+\defn{JoyceSongFormula}{\vardef{Mat}, \vardef{Cvec1}, \vardef{Cvec2}, \vardef{f}}{obsolete, same as \fun{JoyceFormula}}
 
 
-\defn{JoyceIndex}{\vardef{Mat},\vardef{Li},\vardef{Cvec1},\vardef{Cvec2},\vardef{y}}
+\defn{JoyceIndex}{\vardef{Mat}, \vardef{Li}, \vardef{Cvec1}, \vardef{Cvec2}, \vardef{y}}
 {computes the index 
 $g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2,y)$ defined in 
 \eqref{defgJoyce}.}
 
 
-\defn{UFactor}{\vardef{Li},\vardef{Cvec1},\vardef{Cvec2}}{computes the factor $U(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{joyce2008configurations}, using stability condition defined by \fun{Slope}
+\defn{UFactor}{\vardef{Li}, \vardef{Cvec1}, \vardef{Cvec2}}{computes the factor $U(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{joyce2008configurations}, using stability condition defined by \fun{Slope}
 }
 
-\defn{SFactor}{\vardef{Li},\vardef{Cvec1},\vardef{Cvec2}}{computes the  factor $S(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{joyce2008configurations}, using stability condition defined by \fun{Slope}
+\defn{SFactor}{\vardef{Li}, \vardef{Cvec1}, \vardef{Cvec2}}{computes the  factor $S(\{\gamma_i\},\zeta_1,\zeta_2)$ defined in \cite[\S 4]{joyce2008configurations}, using stability condition defined by \fun{Slope}
 }
 
-\defn{LFactor}{\vardef{Mat},\vardef{Li},\vardef{y}}{computes the  factor $\mathcal{L}(\{\gamma_i\})$ defined in \cite[(5.4)]{Manschot:2010qz}, as a sum over labelled trees (generated with \fun{CodeToLabeledTreeAlt}) of $\prod_{\rm edges}\kappa(\langle\gamma_i,\gamma_j\rangle)$ with $\kappa$ given by \fun{DSZkappa}
+\defn{LFactor}{\vardef{Mat}, \vardef{Li}, \vardef{y}}{computes the  factor $\mathcal{L}(\{\gamma_i\})$ defined in \cite[(5.4)]{Manschot:2010qz}, as a sum over labelled trees (generated with \fun{CodeToLabeledTreeAlt}) of $\prod_{\rm edges}\kappa(\langle\gamma_i,\gamma_j\rangle)$ with $\kappa$ given by \fun{DSZkappa}
 }
 
-\defn{JoyceIndexAlt}{\vardef{Mat},\vardef{Li},\vardef{Cvec1},\vardef{Cvec2},\vardef{y}}
+\defn{JoyceIndexAlt}{\vardef{Mat}, \vardef{Li}, \vardef{Cvec1}, \vardef{Cvec2}, \vardef{y}}
 {computes the index 
 $g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2,y) $ defined using the naive extension
 of  \cite[(5.5)]{Manschot:2010qz} to $y\neq 1$}
@@ -1357,16 +1358,16 @@ of  \cite[(5.5)]{Manschot:2010qz} to $y\neq 1$}
 \defn{CodeToLabeledTreeAlt}{\vardef{li}}{constructs the labelled tree with Pr\"ufer code \var{li},
 substitute for \fun{CodeToLabeledTree} in Combinatorica package}
 
-\defn{DTSpectrumFromOmAtt}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes, using \fun{AttractorTreeFormula}, all rational invariants with non-zero dimension vector less or equal to \var{Nvec}; the result is a list of replacement rules 
+\defn{DTSpectrumFromOmAtt}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes, using \fun{AttractorTreeFormula}, all rational invariants with non-zero dimension vector less or equal to \var{Nvec}; the result is a list of replacement rules 
 $\{\var{Omb[gam_,y_]} :> \bOm(\gamma,\zeta,y) \}$}
 
-\defn{TrivialStackInvariant}{\vardef{Mat},\vardef{Cvec},\vardef{Nvec}}{computes the stack invariant
+\defn{TrivialStackInvariant}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes the stack invariant
 $G_{\rm Higgs}(\gamma,0,y,t)$ for dimension vector $\gamma=\var{Nvec}$ and 
 trivial stability condition, in terms of the rational invariants 
 $\bOm(\alpha_i,\zeta,y)$ for stability $\zeta=\var{Cvec}$}
 
 
-\defn{GaugeMotive}{\vardef{Nvec},\vardef{y}}{computes the motive $\prod_i \left( y^{2N_i^2} \prod_{j=1}^{N_i} (1-y^{-2j})\right)$
+\defn{GaugeMotive}{\vardef{Nvec}, \vardef{y}}{computes the motive $\prod_i \left( y^{2N_i^2} \prod_{j=1}^{N_i} (1-y^{-2j})\right)$
 of the gauge group $\prod_i GL(N_i,\mathbb{C})$}
 
 
@@ -1375,19 +1376,19 @@ of the gauge group $\prod_i GL(N_i,\mathbb{C})$}
 
 \defnNA{ListKnownBraneTilings}{}{prints the names of brane tilings already coded in the package. The data for each can be extracted from the corresponding item in the global variable \var{BraneTilingsData}}
 
-\defn{NCDTSeriesFromOmS}{\vardef{Mat}, \vardef{Framing}, \vardef{Nmin},\vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with DSZ matrix 
+\defn{NCDTSeriesFromOmS}{\vardef{Mat}, \vardef{Framing}, \vardef{Nmin}, \vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with DSZ matrix 
 $\var{Mat}$ and framing $\var{Framing}$ using the  Coulomb branch formula, for dimension
 vectors from $\var{Nmin}$ up to $\var{Nmax}$. Here $\var{Framing}$ is a vector
 of integers $f_i$, giving the total number of arrows $q_i^\alpha:\infty\to i$ (when $f_i>0$), or
 $p_i^\beta:i\to \infty$ (when $f_i<0$)  } 
 
-\defn{NCDTSeriesFromOmAtt}{\vardef{Mat}, \vardef{Framing}, \vardef{Nmin},\vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with DSZ matrix 
+\defn{NCDTSeriesFromOmAtt}{\vardef{Mat}, \vardef{Framing}, \vardef{Nmin}, \vardef{Nmax}}{constructs the generating function of NCDT invariants for the quiver with DSZ matrix 
 $\var{Mat}$ and framing $\var{Framing}$ using the Flow Tree formula, for dimension
 vectors from $\var{Nmin}$ up to $\var{Nmax}$. Here $\var{Framing}$ is a vector
 of integers $f_i$, giving the total number of arrows $q_i^\alpha:\infty\to i$ (when $f_i>0$), or
 $p_i^\beta:i\to \infty$ (when $f_i<0$)  } 
 
-\defn{UnrefinedSeriesFromCrystal}{\vardef{hMat}, \vardef{fMat},\vardef{Nn}}{constructs the generating function of unrefined NCDT invariants for the quiver with height matrix 
+\defn{UnrefinedSeriesFromCrystal}{\vardef{hMat}, \vardef{fMat}, \vardef{Nn}}{constructs the generating function of unrefined NCDT invariants for the quiver with height matrix 
 $\var{hMat}$ and framing data $\var{fMat}$ using 
 the Quiver Yangian algorithm, for dimension
 vectors with height up to $\var{Nn}$. Here $\var{fMat}$ is a list of two elements: the first is
@@ -1400,29 +1401,31 @@ which reduces to the unrefined DT invariants at $y=1$, and to the number of molt
 a matrix of weights $h(q_i^\alpha)$  of arrows $q_i^\alpha:\infty\to i$, and the second is  
 a matrix of weights $h(p_i)$  of arrows $p_i^\beta:i\to\infty$. }
 
-\defn{D4FramedNCDTSeries}{\vardef{hMat}, \vardef{Wp},\vardef{Wm}, \vardef{i}, \vardef{j}, \vardef{k}, \vardef{Nmax}}{constructs the generating function of the D4 framed (motivic) refined NCDT invariants for the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$ and for the framing defined by the arrow $\Phi_{i,j}^k$, for dimension vectors with height up to $\var{Nmax}$. The refinement here is motivic/cohomological. If the arrow $\Phi_{i,j}^k$ does not correspond to any non-compact 4-cycle and cannot be used as a D4 framing, a message will say it. The $\mathbb{C}^\times$ weight is chosen automatically from \fun{SideWeight} of the two sides adjacent to the corresponding corner.}
+\defn{FramedHeightMatrix}{\vardef{hMat}, \vardefo{Arrows}\{\}}{returns the height matrix of the quiver with height matrix \var{hMat} and an extra framing node in first position, so that node $i$ of \var{hMat} becomes node $i+1$. \var{Arrows} is a list of additional arrows $\{i,j,w\}$ from $i$ to $j$ with height $w$, where the framing node is labelled 0 and the other nodes are labelled as in \var{hMat}.}
 
-\defn{D6FramedNCDTSeries}{\vardef{hMat}, \vardef{Wp},\vardef{Wm}, \vardef{i}, \vardef{Nmax}, \vardef{weight}, \vardef{maxWeightIter}}{constructs the generating function of the D6 framed (motivic) refined NCDT invariants for the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$ and for the framing defined by the node $i$, for dimension vectors with height up to $\var{Nmax}$. The refinement here is motivic/cohomological. $\var{weight}$ is an optional $\mathbb{C}^\times$ weight (default $-h_1+h_2/\sqrt2$) whose value should not affect the result; a message is issued if \fun{GeneralWeight}[\var{hMat},\var{weight},Min[\var{Nmax},\var{maxWeightIter}]] fails, with \var{maxWeightIter}=4 by default.}
+\defn{D4FramedNCDTSeries}{\vardef{hMat}, \vardef{Wp}, \vardef{Wm}, \vardef{i}, \vardef{j}, \vardef{k}, \vardef{Nn}}{constructs the generating function of the D4 framed (motivic) refined NCDT invariants for the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$, for the framing defined by the arrow {\tt Phi[i,j,k]} (see \fun{D4Framing}), for dimension vectors with height up to $\var{Nn}$. The result is a polynomial in $x_i$ ({\tt Subscript[x,i]}) whose coefficients are Laurent polynomials in $y$. If the arrow {\tt Phi[i,j,k]} does not correspond to any non-compact 4-cycle and thus cannot be used as a D4 framing, a message is issued.}
+
+\defn{D6FramedNCDTSeries}{\vardef{hMat}, \vardef{Wp}, \vardef{Wm}, \vardef{i}, \vardef{Nmax}, \vardef{weight}, \vardef{maxWeightIter}}{constructs the generating function of the D6 framed (motivic) refined NCDT invariants for the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$ and for the framing defined by the node $i$, for dimension vectors with height up to $\var{Nmax}$. The refinement here is motivic/cohomological. $\var{weight}$ is an optional $\mathbb{C}^\times$ weight (default $-h_1+h_2/\sqrt2$) whose value should not affect the result; a message is issued if \fun{GeneralWeight}[\var{hMat},\var{weight},Min[\var{Nmax},\var{maxWeightIter}]] fails, with \var{maxWeightIter}=4 by default.}
 
 See also \fun{D6FramedJKResidue}, \fun{D4FramedJKResidue} for the same series computed by JK residues.
 
-\defn{D6Framing}{\vardef{hMat},\vardef{i}}{constructs the framing data \var{fMat} for a D6-brane associated to node $i$, with only one arrow $q_i:\infty\to i$.} 
+\defn{D6Framing}{\vardef{hMat}, \vardef{i}}{constructs the framing data \var{fMat} for a D6-brane associated to node $i$, with only one arrow $q_i:\infty\to i$.} 
 
-\defn{D4Framing}{\vardef{hMat},\vardef{i},\vardef{j},\vardef{k}}{constructs the framing data \var{fMat} for a non-compact D4-brane associated to the $k$-th arrow $i\to j$,  with one arrow $q_i:\infty\to i$,
+\defn{D4Framing}{\vardef{hMat}, \vardef{i}, \vardef{j}, \vardef{k}}{constructs the framing data \var{fMat} for a non-compact D4-brane associated to the $k$-th arrow $i\to j$,  with one arrow $q_i:\infty\to i$,
 one arrow $p_j:j \to \infty$ and superpotential $W=W_0+ p_j \Phi_{ij}^k q_i$.} 
 
-\defn{D4FramingDictionary}{\vardef{hMat},\vardef{Wp},\vardef{Wm}}{given a quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$, constructs a list with as many entries as there are non-compact 4-cycles in the associated variety, such that the $i^{\text{th}}$ element of the list is the list of arrows in the quiver whose associated D4 framing is the framing by the non-compact 4-cycle associated to the $i^{\text{th}}$ corner of the toric diagram. The ordering of the corners is given by applying successively \fun{DualFan} and \fun{ExternalPoints}. Alternatively \fun{D4FramingDictionary}[\var{hMat},\var{Perfs}] takes the list of perfect matchings \var{Perfs} (as produced by \fun{ListPerfectMatchings}) instead of \var{Wp},\var{Wm}.}
+\defn{D4FramingDictionary}{\vardef{hMat}, \vardef{Wp}, \vardef{Wm}}{given a quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$, constructs a list with as many entries as there are non-compact 4-cycles in the associated variety, such that the $i^{\text{th}}$ element of the list is the list of arrows in the quiver whose associated D4 framing is the framing by the non-compact 4-cycle associated to the $i^{\text{th}}$ corner of the toric diagram. The ordering of the corners is given by applying successively \fun{DualFan} and \fun{ExternalPoints}. Alternatively \fun{D4FramingDictionary}[\var{hMat},\var{Perfs}] takes the list of perfect matchings \var{Perfs} (as produced by \fun{ListPerfectMatchings}) instead of \var{Wp},\var{Wm}.}
 
-\defn{FramedDSZ}{\vardef{Mat},\vardef{Framing}}{starting from a quiver with DSZ matrix $\var{Mat}$, constructs the DSZ matrix of the framed quiver with $f_i$ arrows from the framing node (labelled 0) to the node $i$.} 
+\defn{FramedDSZ}{\vardef{Mat}, \vardef{Framing}}{starting from a quiver with DSZ matrix $\var{Mat}$, constructs the DSZ matrix of the framed quiver with $f_i$ arrows from the framing node (labelled 0) to the node $i$.} 
 
 \defn{FramedFI}{\vardef{Nvec}}{constructs a random FI parameter for a framed quiver with dimension vector $[1;\var{Nvec}]$, with first entry much larger than the other ones.}
 
-\defn{BondFactor}{\vardef{hMat},\vardef{i},\vardef{j},\vardef{z}}{evaluates the bond factor $\varphi^{i\Rightarrow j}(z)$ in the notations of \cite{Li:2020rij}, where $\var{hMat}$ is a matrix
+\defn{BondFactor}{\vardef{hMat}, \vardef{i}, \vardef{j}, \vardef{z}}{evaluates the bond factor $\varphi^{i\Rightarrow j}(z)$ in the notations of \cite{Li:2020rij}, where $\var{hMat}$ is a matrix
 whose $(i,j)$-entry is the list of heights of the arrows from node $i$ to node $j$. The heights
 are in turn linear combinations of parameters $h_1,h_2,h_3$.}
 
 
-\defn{ChargeFunction}{\vardef{hMat},\vardef{fMat}, \vardef{Crys}, \vardef{i}, \vardef{z}}
+\defn{ChargeFunction}{\vardef{hMat}, \vardef{fMat}, \vardef{Crys}, \vardef{i}, \vardef{z}}
 {constructs the charge function $\Psi_{\cC}^i(z)$ for the molten crystal $\cC=\var{Crys}$ in the notations of \cite{Li:2020rij}. The crystal $\cC$ is encoded in a list of $\{ {\rm color}, {\rm height} \}$ 
 for each atom.}
 
@@ -1435,7 +1438,7 @@ to construct the  list of molten crystals with one additional atom of color $i$.
 starting from the list of molten crystals $\var{CrysList}$, apply the Quiver Yangian algorithm
 to construct the larger list of molten crystals with up to one additional atom of any color.}
 
-\defn{CrystalDim}{\vardef{r},\vardef{Crys}}{computes the dimension vector of the
+\defn{CrystalDim}{\vardef{r}, \vardef{Crys}}{computes the dimension vector of the
 crystal $\var{Crys}$, assuming that the colors can take values $1$ up to $r$.}
 
 \defn{CrystalWeight}{\vardef{hMat}, \vardef{fMat}, \vardef{actionWeight}, \vardef{Crys}}
@@ -1453,30 +1456,29 @@ crystal $\var{Crys}$, assuming that the colors can take values $1$ up to $r$.}
 \defn{SideWeight}{\vardef{hMat}, \vardef{Wp}, \vardef{Wm}, \vardef{i}}
 {computes the weight associated to the $\var{i}^{\text{th}}$ side of the toric fan, defining the character of the set of zig-zag paths associated to the given side of the toric fan, for the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$. The $\var{i}^{\text{th}}$ side is between the $\var{i}$ and $\var{i}+1$ corners, where the ordering of the corners is given by applying successively \fun{DualFan} and \fun{ExternalPoints}. Alternatively \fun{SideWeight}[\var{hMat},\var{Perfs},\var{i}] takes the list of perfect matchings \var{Perfs} (as produced by \fun{ListPerfectMatchings}) instead of \var{Wp},\var{Wm}.}
 
-\defn{ListPerfectMatchings}{\vardef{Wp},\vardef{Wm}}{produces the list of cuts for the potential $W=W_+-W_-=\var{Wp}-\var{Wm}$; each term in $W_\pm$ must be a sum of monomials in $\var{Phi[i,j,k]}$ with unit coefficient; each perfect matching is represented by a list of triplets $\{i,j,k\}$
-such that $W$ is linear in each $\var{Phi[i,j,k]}$}
+\defn{ListPerfectMatchings}{\vardef{Wp}, \vardef{Wm}}{produces the list of perfect matchings (cuts) for the potential $W=W_+-W_-=\var{Wp}-\var{Wm}$, where \var{Wp} and \var{Wm} must be sums of monomials in {\tt Phi[i,j,k]} with unit coefficients. Each perfect matching is represented by a list of triplets $\{i,j,k\}$, such that each monomial of $W$ contains exactly one of the corresponding {\tt Phi[i,j,k]}.}
 
-\defn{PerfectMatchingWeight}{\vardef{Perf},\vardef{hMat}}{computes the dual of the character of the perfect matching $\var{Perf}$ for the quiver with height matrix $\var{hMat}$, used in \fun{DualFan}.}
+\defn{PerfectMatchingWeight}{\vardef{Perf}, \vardef{hMat}}{computes the dual of the character of the perfect matching $\var{Perf}$ for the quiver with height matrix $\var{hMat}$, used in \fun{DualFan}.}
 
-\defn{DualFan}{\vardef{hMat},\vardef{Wp},\vardef{Wm}}{computes the dual fan of the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$ by computing the characters of the perfect matchings. Since this fan is defined up to an invertible linear transformation, the result is non-canonical. Alternatively \fun{DualFan}[\var{hMat},\var{Perfs}] takes the list of perfect matchings \var{Perfs} (as produced by \fun{ListPerfectMatchings}) instead of \var{Wp},\var{Wm}.}
+\defn{DualFan}{\vardef{hMat}, \vardef{Wp}, \vardef{Wm}}{computes the toric diagram dual to the quiver with height matrix $\var{hMat}$ and superpotential $\var{Wp}-\var{Wm}$, as a list of points in $\mathbb{Z}^2$, one for each perfect matching (in the order of \fun{ListPerfectMatchings}), possibly with repetitions. The result is normalized such that one corner sits at $(0,0)$, an adjacent corner lies in the direction $(1,0)$ and the diagram lies in the upper half-plane. Alternatively \fun{DualFan}[\var{hMat}, \var{Perfs}] takes the list of perfect matchings \var{Perfs} (as produced by \fun{ListPerfectMatchings}) instead of \var{Wp}, \var{Wm}.}
 
 \defn{ExternalPoints}{\vardef{Fan}}{gives a list of the corners of the fan $\var{Fan}$, ordered by going clockwise through the corners.}
 
-\defn{InternalSidePoints}{\vardef{points},\vardef{i}}{gives the number of different points lying on the $\var{i}^{\text{th}}$ side of the fan defined by the list $\var{points}$, possibly containing some points with multiplicities. The corners are excluded in the count. The $\var{i}^{\text{th}}$ side is the side lying between the $\var{i}$ and $\var{i}+1$ corners, where the order of the corners is given by applying \fun{ExternalPoints} to $\var{points}$.}
+\defn{InternalSidePoints}{\vardef{points}, \vardef{i}}{gives the number of different points lying on the $\var{i}^{\text{th}}$ side of the fan defined by the list $\var{points}$, possibly containing some points with multiplicities. The corners are excluded in the count. The $\var{i}^{\text{th}}$ side is the side lying between the $\var{i}$ and $\var{i}+1$ corners, where the order of the corners is given by applying \fun{ExternalPoints} to $\var{points}$.}
 
-\defn{EulerNorm}{\vardef{hMat},\vardef{Nvec}}{computes the Ringel-Tits norm of the dimension
+\defn{EulerNorm}{\vardef{hMat}, \vardef{Nvec}}{computes the Ringel-Tits norm of the dimension
 vector $\var{Nvec}$ from the quiver with height matrix $\var{hMat}$}
 
-\defn{DimensionVectors}{\vardef{hMat},\vardef{Cut}}{gives a list of the dimension vectors corresponding to each connected component of the quiver with height matrix $\var{hMat}$ whose arrows in $\var{Cut}$ have been removed. The list is non-canonically ordered such that a dimension vector comes after another one in the list if there is an arrow going from the first one to the second one in the uncut quiver.}
+\defn{DimensionVectors}{\vardef{hMat}, \vardef{Cut}}{gives a list of the dimension vectors corresponding to each connected component of the quiver with height matrix $\var{hMat}$ whose arrows in $\var{Cut}$ have been removed. The list is non-canonically ordered such that a dimension vector comes after another one in the list if there is an arrow going from the first one to the second one in the uncut quiver.}
 
-\defn{PlotTiling}{\vardef{hMat},\vardef{Nn}, \vardef{v}, \vardef{Range},\vardef{Shor},\vardef{Perf}}{produces a 2D plot of the brane tiling defined by the matrix $\var{hMat}$, by iterating the arrows $\var{Nn}$ times, removing those which belong to the perfect matching $\var{Perf}$. The 
+\defn{PlotTiling}{\vardef{hMat}, \vardef{Nn}, \vardef{v}, \vardef{Range}, \vardef{Shor}, \vardef{Perf}}{produces a 2D plot of the brane tiling defined by the matrix $\var{hMat}$, by iterating the arrows $\var{Nn}$ times, removing those which belong to the perfect matching $\var{Perf}$. The 
 argument \var{v} should be a list of 
 2D vectors $\{\var{v1},\var{v2}\}$ determining the vector $v$ associated to an 
 arrow with weight $x_1 h_1 + x_2 h_2 + x_3 h_3$, according to $v=x_1 v_1+x_2 v_2$. The plot 
 range is set to \var{Range} and arrows are shortened by \var{Shor}. If the argument $\var{Perf}$ is omitted, all arrows are included. The vertices are labelled from $1$ to $K$, unless specified by 
 \var{\$QuiverVertexLabels} } 
 
-\defn{PlotTiling3D}{\vardef{hMat},\vardef{Nn}, \vardef{v},  \vardef{Range},\vardef{Perf}}{produces a 3D plot of the Calabi-Yau crystal defined by the matrix $\var{hMat}$, by iterating the arrows $\var{Nn}$ times, removing those which belong to the perfect matching $\var{Perf}$. The  argument \var{v} should be a list of 3D vectors $\{\var{v1},\var{v2},\var{v3}\}$ determining the vector $v$ associated to an 
+\defn{PlotTiling3D}{\vardef{hMat}, \vardef{Nn}, \vardef{v},  \vardef{Range}, \vardef{Perf}}{produces a 3D plot of the Calabi-Yau crystal defined by the matrix $\var{hMat}$, by iterating the arrows $\var{Nn}$ times, removing those which belong to the perfect matching $\var{Perf}$. The  argument \var{v} should be a list of 3D vectors $\{\var{v1},\var{v2},\var{v3}\}$ determining the vector $v$ associated to an 
 arrow with weight $x_1 h_1 + x_2 h_2 + x_3 h_3$, according to $v=x_1 v_1+x_2 v_2+x_3v_3$. 
 The plot range is set to \var{Range}. If the argument $\var{Perf}$ is omitted, all arrows are included.} 
 
@@ -1486,13 +1488,13 @@ The plot range is set to \var{Range}. If the argument $\var{Perf}$ is omitted, a
 
 \defn{HeightMatrixToDSZ}{\vardef{hMat}}{computes the DSZ matrix associated to the height matrix \var{hMat}}
 
-\defn{HeightMatrixFromPotential}{\vardef{Wp},\vardef{Wm},\{\vardef{i1},\vardef{j1},\vardef{k1}\},
-\{\vardef{i2},\vardef{j2},\vardef{k2}\}}{construct the matrix of heights \var{hMat} 
+\defn{HeightMatrixFromPotential}{\vardef{Wp}, \vardef{Wm},\{\vardef{i1}, \vardef{j1}, \vardef{k1}\},
+\{\vardef{i2}, \vardef{j2}, \vardef{k2}\}}{construct the matrix of heights \var{hMat} 
 such that the arrow 
 $\Phi_{i_1,j_1}^{k_1}$ has height $h_1$,the arrow 
 $\Phi_{i_2,j_2}^{k_2}$ has height $h_2$  and all monomials in the potential $W=\var{Wp}-\var{Wm}$ have height $h_3$}
 
-\defn{GeneralWeight}{\vardef{hMat},\vardef{weight},\vardef{Nmax}}{tells whether the weight $\var{weight}$ is general up to order $\var{Nmax}$ (default 10), i.e.\ whether \fun{WeightScalarProduct} of \var{weight} with the $(h_1,h_2)$-projection of every non-zero combination $\sum_a n_a h(\Phi_a)$ of arrow weights in the quiver with height matrix \var{hMat}, with $0\le n_a\le\var{Nmax}$, is non-zero.}
+\defn{GeneralWeight}{\vardef{hMat}, \vardef{weight}, \vardef{Nmax}}{tells whether the weight $\var{weight}$ is general up to order $\var{Nmax}$ (default 10), i.e.\ whether \fun{WeightScalarProduct} of \var{weight} with the $(h_1,h_2)$-projection of every non-zero combination $\sum_a n_a h(\Phi_a)$ of arrow weights in the quiver with height matrix \var{hMat}, with $0\le n_a\le\var{Nmax}$, is non-zero.}
 
 
 \section{Index from deformed Denef equations}
@@ -1505,10 +1507,10 @@ In \cite{Beaujard:2021fsk}, a procedure was proposed for computing the index of 
 \ee
 This is implemented in the following routines (due to G. Beaujard):
 
-\defn{ExtendedCoulombIndex}{\vardef{Mat}, \vardef{PMat}, \vardef{RMat}, \vardef{Cvec}, \vardef{r},\vardef{y}}
+\defn{ExtendedCoulombIndex}{\vardef{Mat}, \vardef{PMat}, \vardef{RMat}, \vardef{Cvec}, \vardef{r}, \vardef{y}}
 {computes the index of an Abelian quiver with (or without) oriented loops by summing over solutions to \eqref{Denefdef0}, and computing the contribution of each by residue calculus. The result is a list of contributions associated to the various cluster shapes.}
 
-\defn{CoulombIndexResidue}{\vardef{ListSol},\vardef{Mat}, \vardef{RMat},\vardef{r},\vardef{y}}
+\defn{CoulombIndexResidue}{\vardef{ListSol}, \vardef{Mat}, \vardef{RMat}, \vardef{r}, \vardef{y}}
 {computes the contributions of each collinear solution in \var{ListSol} by evaluating the 
  residues of the one-loop determinant of chiral fields at suitable poles.}
 
@@ -1516,15 +1518,15 @@ This is implemented in the following routines (due to G. Beaujard):
 \defn{FindCollinearSolutions}{\vardef{Mat}, \vardef{PMat}, \vardef{RMat}, \vardef{Cvec}, \vardef{r}}
 {numerically solves the deformed Denef equations with adjacency matrix \var{Mat} (perturbed to \var{PMat}), R-charges \var{RMat}, stability parameters \var{Cvec} and deformation parameter $\var{r}=\pi \Im z/\beta$. The algorithm goes through all possible signs of $z_i-z_j- \frac{\pi \Im z}{\beta} R_{ij}  $, uses Mathematica \fun{NSolve} function and checks that the resulting solutions are consistent with assumed signs. The result is a list of solutions $\{ \{z_i\to\dots\}, \sigma \}$ where $\sigma$ is the sign of the Hessian around the corresponding solution.}
 
-\defn{ListClusters}{\vardef{ListPos},\vardef{r}}
+\defn{ListClusters}{\vardef{ListPos}, \vardef{r}}
 {produces a list of lists (or clusters) of indices $i$ such that the positions $z_i=\var{ListPos}[[i]]$ have relative square distances less than $|\var{r}|$ in each cluster. }
 
-\defn{CoulombBranchFormulaNum}{\vardef{Mat}, \vardef{PMat}, \vardef{RMat}, \vardef{Cvec}, \vardef{Nvec},\vardef{r},\vardef{y}}
+\defn{CoulombBranchFormulaNum}{\vardef{Mat}, \vardef{PMat}, \vardef{RMat}, \vardef{Cvec}, \vardef{Nvec}, \vardef{r}, \vardef{y}}
 {computes the index of a non-Abelian quiver with (or without) oriented loops by summing over solutions to \eqref{Denefdef0}, and computing the contribution of each by residue calculus. The result is a list of contributions associated to the various cluster shapes. The algorithm is less robust
 than for Abelian quivers.}
 
 
-\defn{CoulombBranchResidue}{\vardef{ListSol},\vardef{Mat}, \vardef{RMat}, \vardef{Nvec},\vardef{r},\vardef{y}}
+\defn{CoulombBranchResidue}{\vardef{ListSol}, \vardef{Mat}, \vardef{RMat}, \vardef{Nvec}, \vardef{r}, \vardef{y}}
 {non-Abelian analogue of \fun{CoulombIndexResidue}: computes the contributions of each collinear solution in \var{ListSol} for a quiver with dimension vector \var{Nvec}, by evaluating residues of the one-loop determinant at suitable poles. It is called by \fun{CoulombBranchFormulaNum}.}
 
 
@@ -1545,18 +1547,18 @@ used in v2.1, however a warning is still issued if one encounters a Heaviside fu
 with zero argument in the evaluation of the Coulomb indices. %bp
 }
 
-\defn{GrassmannianPoincare}{\vardef{k},\vardef{n},\newdefy}{computes the Poincar\'e
+\defn{GrassmannianPoincare}{\vardef{k}, \vardef{n},\newdefy}{computes the Poincar\'e
 polynomial of the Grassmannian $G(k,n)$ via Eq. (6.22) in \cite{Manschot:2012rx}.} 
 
 \defn{CyclicQuiverDSZ}{\vardef{Vec}}{constructs the DSZ matrix
 for a cyclic quiver with $a_i$ arrows from node $i$ to node $i+1$} 
 
-\defn{CyclicQuiverOmS}{\vardef{Vec},\vardef{t}}{computes the refined single-centered index 
+\defn{CyclicQuiverOmS}{\vardef{Vec}, \vardef{t}}{computes the refined single-centered index 
 $\OmS(\gamma_1,\dots, \gamma_K,t)$ associated
 to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,i+1}=\var{Vec}[[i]]$ via Eq
 (4.29) in \cite{Manschot:2012rx}} 
 
-\defn{CyclicQuiverOmAtt}{\vardef{Vec},\vardef{y}}{computes the refined attractor index 
+\defn{CyclicQuiverOmAtt}{\vardef{Vec}, \vardef{y}}{computes the refined attractor index 
 $\Omega_*(\gamma_1,\dots, \gamma_K,y)$ associated
 to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,i+1}=\var{Vec}[[i]]$ via Eq
 (4.21) in \cite{Manschot:2012rx}} 
@@ -1567,22 +1569,30 @@ to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,i+1}=\var{Vec}[[i]]$ usin
 generalization of  Eq (E.2)
 in \cite{Denef:2007vg}. This is much faster than \fun{CyclicQuiverOmAtt}.} 
 
-\defn{CyclicQuiverTrivialStacky}{\vardef{Vec},\vardef{y}}{computes the stacky invariant associated
+\defn{CyclicQuiverTrivialStacky}{\vardef{Vec}, \vardef{y}}{computes the stacky invariant associated
 to a cyclic Abelian quivers with DSZ matrix $\alpha_{i,i+1}=\var{Vec}[[i]]$ with trivial stability condition via Eq (4.23) in \cite{Beaujard:2021fsk}} 
 
-\defn{DerangementIndex}{\vardef{Vec},\vardef{y}}{
+\defn{DerangementIndex}{\vardef{Vec}, \vardef{y}}{
 computes the number of derangements of a set of \var{Vec[i]} objects of color $i$, weighted by $y^{n_+-n_-}$ where $n_+/n_-$ are the number of objects which are displaced forward/backward with respect to the standard ordering $11\dots 222\dots K$ \cite{Beaujard:2021fsk}} 
 
 
-\defn{FIFromZ}{\vardef{Nvec},\vardef{Zvec}}{computes the FI parameters $\{\zeta_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $\zeta_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $\zeta_i$ are rationalized to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}, and then shifted so that $\sum_i N_i\zeta_i=0$}
+\defn{FIFromZ}{\vardef{Nvec}, \vardef{Zvec}}{computes the FI parameters $\{\zeta_i\}$ from the vector of central charges $\var{Zvec}=\{Z_i\}$ and dimension vector $\var{Nvec}=\{N_i\}$ via $\zeta_i = \Im(e^{-i\phi} Z_i)$, where $\phi$ is the argument of $\sum_i N_i Z_i$. The parameters $\zeta_i$ are rationalized to the nearest rational number with denominator less than \var{\tt \$QuiverPerturb1}, and then shifted so that $\sum_i N_i\zeta_i=0$}
 
-\defn{AttractorFI}{\vardef{Mat},\vardef{Nvec}}{gives the attractor point $\zeta_i^*=-\sum_{j} \gamma_{ij} N_j$}
+\defn{AttractorFI}{\vardef{Mat}, \vardef{Nvec}}{gives the attractor point $\zeta_i^*=-\sum_{j} \gamma_{ij} N_j$}
 
 \defn{QDeformedFactorial}{\vardef{n},\newdefy }{gives the $q$-deformed factorial $[n,y]!$}
 
 \defn{EvalQFact}{\vardef{f}}{evaluates any \var{QFact[n,y]} appearing in \var{f}}
 
-\defn{ExpandTheta}{\vardef{f}}{replaces $\var{Theta}$ (and its derivatives), $\var{Eta}$ and $\var{Eisenstein[n]}$ by their $q$-expansions, truncated at order $\var{\$QuiverMaxPower}$}
+\defn{LinearToMultiplicativeWeight}{\vardef{weight}, \vardef{rules}}{converts a weight written additively (linear in formal variables such as {\tt h1}, {\tt h2}, {\tt h3}) into a monomial in the multiplicative variables given by \var{rules}, a list of rules matching additive variables to multiplicative variables, e.g.\ $\{h_1\rightarrow t_1, h_2\rightarrow t_2, h_3\rightarrow y\}$. The constant part becomes a power of {\tt y'}. \var{weight} can also be a (nested) list of weights, which are then converted entrywise.}
+
+\defn{SeriesFromInvariants}{\vardef{invariants}, \vardefo{simplify}True}{converts an association $\{\gamma\rightarrow\Omega(\gamma)\}$ matching dimension vectors to invariants, as returned by \fun{JKInvariantsFromNode}, into the series $\sum_\gamma \Omega(\gamma)\prod_i x_i^{N_i}$ ($x_i$ is {\tt Subscript[x,i]}), without the constant term 1 and dropping vanishing invariants. Set \var{simplify} to False to leave the coefficients unsimplified.}
+
+\defn{CanonicalPartitionForm}{\vardef{expr}, \vardef{variables}, \vardefo{simplify}True}{rewrites the partition function \var{expr} as a polynomial in $x_1,\dots,x_n$ ($x_i$ is {\tt Subscript[x,i]}), where $n$ is given by \var{variables}, collecting and optionally simplifying the coefficients.}
+
+\defn{ThetaDerivativeAtZero}{\vardef{k}}{returns the \var{k}-th derivative of {\tt Theta} at $z=0$ in terms of {\tt Eta} and {\tt Eisenstein[n]}, which vanishes for even \var{k}.}
+
+\defn{ExpandTheta}{\vardef{f}}{replaces {\tt Theta} (and its derivatives), {\tt Eta} and {\tt Eisenstein[n]} in \var{f} by their $q$-expansions, truncated at order $q^{\var{\$QuiverMaxPower}}$.}
 
 \defn{qSeries}{\vardef{f}}{Taylor expands $f$ around $q=0$ up to order $\var{\$QuiverMaxPower}$}
 
@@ -1594,17 +1604,17 @@ computes the number of derangements of a set of \var{Vec[i]} objects of color $i
 \defn{ToPrimitive}{\vardef{Nvec}}{gives the pair $\{\gamma', d\}$ such that $\gamma'$ is primitive, $d\geq 1$ and $\gamma=d \gamma'$}
 
 
-\defn{ListLoopRCharges}{\vardef{Mat},\vardef{RMat}}{Lists the oriented closed loops and corresponding R-charge}
+\defn{ListLoopRCharges}{\vardef{Mat}, \vardef{RMat}}{Lists the oriented closed loops and corresponding R-charge}
 
-\defn{TestNoLoop}{\vardef{Mat},\vardef{Li}}{returns True if the subquiver associated to the charge vectors $\var{Li}$ has no oriented closed loop (always True for 2 centers, or if \var{\$QuiverNoLoop} is True; False for 1 center, or if \var{\$QuiverTestLoop} is False or \var{\$QuiverOmSbasis}=0)}
+\defn{TestNoLoop}{\vardef{Mat}, \vardef{Li}}{returns True if the subquiver associated to the charge vectors $\var{Li}$ has no oriented closed loop (always True for 2 centers, or if \var{\$QuiverNoLoop} is True; False for 1 center, or if \var{\$QuiverTestLoop} is False or \var{\$QuiverOmSbasis}=0)}
 
-\defn{TestNoFullLoop}{\vardef{Mat},\vardef{Li}}{returns True if the subquiver associated to the charge vectors $\var{Li}$ has no oriented loop going through all nodes, i.e.\ if there is a proper subset of the nodes with all arrows pointing from it to its complement (same special cases as \fun{TestNoLoop})}
+\defn{TestNoFullLoop}{\vardef{Mat}, \vardef{Li}}{returns True if the subquiver associated to the charge vectors $\var{Li}$ has no oriented loop going through all nodes, i.e.\ if there is a proper subset of the nodes with all arrows pointing from it to its complement (same special cases as \fun{TestNoLoop})}
 
 \defn{TestMultipleBasisVector}{\vardef{Li}}{returns True if all elements of the list of vectors \var{Li} are multiples of basis vectors; used by \fun{ListAllPartitions} when \var{\$QuiverOnlyMultipleBasisVector} is True}
 
-\defn{RandomDSZWithNoLoop}{\vardef{n},\vardef{kmax}}{generates a random antisymmetric $n\times n$ matrix obtained as $M-M^T$ with $M$ a random integer matrix with entries in $[-\var{kmax},\var{kmax}]$, ensuring that the quiver has no loop}
+\defn{RandomDSZWithNoLoop}{\vardef{n}, \vardef{kmax}}{generates a random antisymmetric $n\times n$ matrix obtained as $M-M^T$ with $M$ a random integer matrix with entries in $[-\var{kmax},\var{kmax}]$, ensuring that the quiver has no loop}
 
-\defn{RandomDSZWithLoop}{\vardef{n},\vardef{kmax}}{generates a random antisymmetric $n\times n$ matrix obtained as $M-M^T$ with $M$ a random integer matrix with entries in $[-\var{kmax},\var{kmax}]$, ensuring that the quiver has at least one loop}
+\defn{RandomDSZWithLoop}{\vardef{n}, \vardef{kmax}}{generates a random antisymmetric $n\times n$ matrix obtained as $M-M^T$ with $M$ a random integer matrix with entries in $[-\var{kmax},\var{kmax}]$, ensuring that the quiver has at least one loop}
 
 
 
@@ -1613,21 +1623,21 @@ computes the number of derangements of a set of \var{Vec[i]} objects of color $i
 \defn{ResidueFast}{\vardef{f},\{ \vardef{x}, \vardef{x0} \}}{computes the residue of $f$ at $x=x_0$ via \fun{Series}, without simplifying the result}
 
 
-\defn{DSZProd}{\vardef{Mat},\vardef{Nvec1}, \vardef{Nvec2}}{computes the Dirac product $\sum_{i,j} \alpha_{ij} N_i^1 N_j^2$ (see Section~\ref{sec:issues} on the multiplier $m_{ij}$)}
+\defn{DSZProd}{\vardef{Mat}, \vardef{Nvec1}, \vardef{Nvec2}}{computes the Dirac product $\sum_{i,j} \alpha_{ij} N_i^1 N_j^2$ (see Section~\ref{sec:issues} on the multiplier $m_{ij}$)}
 
-\defn{ReduceDSZMatrix}{\vardef{Mat},\vardef{Li}}{sets $\var{Mat}[[i,j]]=\var{Mat}[[j,i]]=0$ for all elements $\{i,j\}$ in \var{Li}, and returns the resulting matrix. If $i=j$, then the $i$-th row and column of $\var{Mat}$ are set to 0.}
+\defn{ReduceDSZMatrix}{\vardef{Mat}, \vardef{Li}}{sets $\var{Mat}[[i,j]]=\var{Mat}[[j,i]]=0$ for all elements $\{i,j\}$ in \var{Li}, and returns the resulting matrix. If $i=j$, then the $i$-th row and column of $\var{Mat}$ are set to 0.}
 
-\defn{HiggsedDSZ}{\vardef{Mat},\vardef{i},\vardef{j}}{starting from a quiver with DSZ matrix 
+\defn{HiggsedDSZ}{\vardef{Mat}, \vardef{i}, \vardef{j}}{starting from a quiver with DSZ matrix 
 $\var{Mat}$, constructs the DSZ matrix of the quiver where the node $j$ has been merged with the node $i$. }
 
-\defn{ConnectedQuiverQ}{\vardef{Mat},\vardef{Nvec}}{returns True if the restriction of the quiver 
+\defn{ConnectedQuiverQ}{\vardef{Mat}, \vardef{Nvec}}{returns True if the restriction of the quiver 
 with DSZ matrix $\var{Mat}$ to the nodes where $\var{Nvec}$ has non-trivial support is connected.}
 
-\defn{PlethysticExp}{\vardef{f},\vardef{Nmax}}{computes the plethystic exponential of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only, keeping the first \var{Nmax} terms in the sum.}
+\defn{PlethysticExp}{\vardef{f}, \vardef{Nmax}}{computes the plethystic exponential of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only, keeping the first \var{Nmax} terms in the sum.}
 
-\defn{PlethysticLog}{\vardef{f},\vardef{Nmax}}{computes the plethystic logarithm of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only,  keeping the first \var{Nmax} terms in the sum.}
+\defn{PlethysticLog}{\vardef{f}, \vardef{Nmax}}{computes the plethystic logarithm of $f$, assuming that it is a function of $\var{x[i]}$ and $\var{y}$ only,  keeping the first \var{Nmax} terms in the sum.}
 
-\defn{QuiverMultiplierMat}{\vardef{i},\vardef{j}}{Returns $\var{\$QuiverMultiplier}$ if it is a scalar,
+\defn{QuiverMultiplierMat}{\vardef{i}, \vardef{j}}{Returns $\var{\$QuiverMultiplier}$ if it is a scalar,
 or $\var{\$QuiverMultiplier}[[i,j]]$ if $\var{\$QuiverMultiplier}$ is a matrix.}
 
 
@@ -1765,11 +1775,6 @@ The following problems were found while checking this documentation against the 
   the opposite of the sign in \eqref{defgJoyce}; one of the two should be corrected.
 \item \fun{LegCharge}: for an arrow from a node to itself ($(i,s)=(j,s')$) it returns $+1$ instead of 0, so that
   \fun{ChargeMatrixFromToricQuiver} assigns a non-zero charge to adjoint chiral multiplets (e.g.\ for $\mathbb{C}^3$).
-\item \fun{FramedJKResidue} (and \fun{D6FramedJKResidue}, \fun{D4FramedJKResidue}): the result contains terms
-  without $x_1$, coming from crystals which do not contain the framing node.
-\item \fun{D4FramedNCDTSeries}, refined case: the result is not invariant under $y\to 1/y$; the convention should be checked.
-\item \fun{LinearToMultiplicativeWeight}: the constant part is returned as a power of {\tt y'}, which
-  {\sc Mathematica} interprets as {\tt Derivative[1][y]}.
 \item \fun{CompareDSZMatrices}: compares {\tt Tally[Flatten[Mat2]]} with itself, so that the test on the
   entries never fails.
 \end{itemize}

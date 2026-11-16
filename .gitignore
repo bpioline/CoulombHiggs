@@ -1,3 +1,16 @@
 c/coulombph
 c/coulombidx
 c/*.exe
+
+combined.bib
+utphys.bst
+JHEP3.cls
+
+CoulombHiggs.aux
+CoulombHiggs.bbl
+CoulombHiggs.blg
+CoulombHiggs.fdb_latexmk
+CoulombHiggs.fls
+CoulombHiggs.log
+CoulombHiggs.toc
+CoulombHiggs.synctex.gz
