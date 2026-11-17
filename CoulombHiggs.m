@@ -2829,16 +2829,17 @@ JKInvariantsFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", pr
      Do[
       level = DeleteDuplicates[Join @@ ((crys |-> Flatten[Table[
         With[{new = Prepend[atom[[2 ;;]] + mv[[2]], mv[[1]]]},
-         If[(new[[1]] == node && Order[new, root] === 1) || MemberQ[crys, new],
+         If[new[[1]] == node && Order[new, root] === 1,
           Nothing, Sort[Append[crys, new]]]],
         {atom, crys}, {mv, moves[[atom[[1]]]]}], 1]) /@ level)]; 
         crystals = Join[crystals, level], {order - 1}];
      (* a crystal is passed on as {atoms, root}: the atoms {node, height} and the position of the root atom *)
-     crystals = (crys |-> {{#[[1]], #[[2 ;; 4]] . hs + #[[5]]} & /@ crys, First[FirstPosition[crys, root, {1}, {1}, Heads -> False]]}) /@ crystals;
+     crystals = (crys |-> {{{#[[1]], #[[2 ;; 4]] . hs + #[[5]]} & /@ crys, First[FirstPosition[crys, root, {1}, {1}, Heads -> False]]},
+          1/(Times @@ (Factorial /@ Values[Counts[crys]]))}) /@ crystals;
     PrintTemporary["Now computing the JK contribution of the ", Length[crystals], " possible crystals"];
     (* contributions are summed per dimension vector directly, instead of extracting coefficients from the full sum *)
-    Merge[Join[{<||>}, (crys |-> <|Lookup[Counts[First /@ crys[[1]]], Range[Length[hMat]], 0] ->
-          (JKResidueAtSingularity[crys, hMat, potential, etas, mode, hrule] /. Subscript[x, _] -> 1)|>) /@ crystals], Total]
+    Merge[Join[{<||>}, (cw |-> With[{nv = Lookup[Counts[First /@ cw[[1, 1]]], Range[Length[hMat]], 0]}, <|nv ->
+          (cw[[2]] JKResidueAtSingularity[cw[[1]], hMat, potential, etasOf[nv], mode, hrule] /. Subscript[x, _] -> 1)|>]) /@ crystals], Total]
 ]];
 
 JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", simplify_: True, prohibitedNodes_ : {}, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
