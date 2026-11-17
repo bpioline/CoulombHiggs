@@ -2717,15 +2717,14 @@ JKResidueFromBlocks[data_, positions_, flag_, root_, jacobian_: False] :=
 ]];
 
 JKEllipticResidueFromBlocks[data_, positions_, flag_, root_] :=
-  With[{dim = Length[data[[2]]]},
-  Module[{s, a, beta, repOf, terms, newTerms, add, col, vanish, nonv, inv, entries},
-   s = data[[5]];
-   a = Expand[data[[3]] + data[[4]] . positions]; beta = data[[4]];
+  With[{dim = Length[data[[2]]],
+  a = Expand[data[[3]] + data[[4]] . positions]},
+  Module[{repOf, beta, terms, newTerms, add, col, vanish, nonv, inv, entries},
+   beta = data[[4]];
   (* the root column: its variable is frozen to z0 *)
    beta[[All, root]] = 0;
-   (* all atoms of a block share one variable, stored in the column repOf[atom] *)
    repOf = Range[dim];
-   terms = <|{s} -> data[[1]]|>;
+   terms = <|{data[[5]]} -> data[[1]]|>;
    (* exponent matrices are stored without trailing zero rows, so that equal terms share one key *)
    add[e_, v_] := Module[{ee = e},
      While[Length[ee] > 1 && FreeQ[Last[ee], Except[0], {1}, Heads -> False], ee = Most[ee]];
@@ -2763,7 +2762,7 @@ JKEllipticResidueFromBlocks[data_, positions_, flag_, root_] :=
             Do[If[mon =!= 0,
               Module[{e3 = e2},
                Do[With[{k = v[[1]], f = v[[2]]},
-                  If[k >= Length[e3], e3 = PadRight[e3, {k + 1, nf}]];
+                  If[k >= Length[e3], e3 = PadRight[e3, {k + 1, Length[data[[5]]]}]];
                   e3[[k + 1, f]] += Together[v D[mon, v]/mon]],
                  {v, Union[Cases[{mon}, _JKThetaD, Infinity]]}];
                add[e3, base (mon /. _JKThetaD -> 1)]]],
