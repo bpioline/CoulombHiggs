@@ -2098,7 +2098,7 @@ JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Su
    facs = Reap[
       Switch[mode, "Euler",
        const = d^(1-Total[Nvec]);
-       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d + u[nn, i] - u[nn, j], -1}]],
+       Do[If[i != j, Sow[{u[nn, i] - u[nn, j], 1}]; Sow[{u[nn, j] - u[nn, i] - d, -1}]],
         {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
        Do[With[{hh = hMat[[a, b, nn]]},
          Sow[{d - hh + u[a, ttt] - u[b, hhh], 1}]; Sow[{hh + u[b, hhh] - u[a, ttt], -1}]],
@@ -2106,14 +2106,14 @@ JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Su
        "ChiY",
        d = LinearToMultiplicativeWeight[d, hrule]; heights = LinearToMultiplicativeWeight[hMat, hrule];
        const = (d - d^(-1))^(1-Total[Nvec]);
-       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d u[nn, i] - d^(-1) u[nn, j], -1}]],
+       Do[If[i != j, Sow[{u[nn, i] - u[nn, j], 1}]; Sow[{d^(-1) u[nn, j] - d u[nn, i], -1}]],
         {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
        Do[With[{hh = heights[[a, b, nn]]},
          Sow[{d hh^(-2) u[a, ttt] - u[b, hhh] d^(-1), 1}]; Sow[{u[b, hhh] - u[a, ttt] hh^(-2), -1}]],
         {a, Length[hMat]}, {b, Length[hMat]}, {nn, Length[hMat[[a, b]]]}, {ttt, Nvec[[a]]}, {hhh, Nvec[[b]]}],
         "Elliptic",
         const = (2 Pi Eta^3 z/Theta[d z])^(Total[Nvec] - 1);
-       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d + u[nn, i] - u[nn, j], -1}]],
+       Do[If[i != j, Sow[{u[nn, i] - u[nn, j], 1}]; Sow[{u[nn, j] - u[nn, i] - d, -1}]],
         {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
        Do[With[{hh = hMat[[a, b, nn]]},
          Sow[{d - hh + u[a, ttt] - u[b, hhh], 1}]; Sow[{hh + u[b, hhh] - u[a, ttt], -1}]],
