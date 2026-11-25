@@ -1251,7 +1251,7 @@ used by \fun{TreeIndex} if  \var{\$QuiverFlowTreeOpt} is set to 2.}
 \defn{OmAttbToOmAtt}{\vardef{f}}{expresses  any $\bar\Omega_*(\gamma,y)$ in $f$
  in terms of $\Omega_*(\gamma,y)$'s}
 
-\defn{DSZkappa}{\vardef{m},\newdefy}{returns $\kappa(m)=(y^m-y^{-m})/(y-1/y)$; used in \fun{LFactor} and \fun{JoyceIndexAlt}}
+\defn{DSZkappa}{\vardef{m},\newdefy}{returns $\kappa(m)=(y^m-y^{-m})/(y-1/y)$; used in \fun{LFactor}}
 
 \defn{NonAbelianFlowTreeFormula}{\vardef{Mat}, \vardef{Cvec}, \vardef{Nvec}}{computes the rational index of a quiver with DSZ matrix \var{Mat}, stability parameters \var{Cvec} and dimension vector \var{Nvec} in terms of rational attractor indices, using the general (non-necessarily primitive) wall-crossing formula at each wall of marginal stability. The wall-crossing at each wall is computed using \fun{EvalReinekeIndex} if \var{\$QuiverFlowTreeMethod} is True (default), or \fun{EvalCoulombIndex} if it is False. Returns \var{OmAttb[Nvec,y]} if \var{Nvec} is supported on a single node or $\sum_i N_i\zeta_i^2=0$.}
 
@@ -1317,9 +1317,16 @@ where
 \be
 \label{defgJoyce}
 g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2,y) := \frac{(-1)^{n-1}}{(y-1/y)^{n-1}} \sum_{\sigma\in S_n} 
-(-y)^{\sum_{i<j} \langle \gamma_{\sigma(i)}, \gamma_{\sigma(j)}\rangle} U(\{\gamma_{\sigma(i)}\},\zeta_1,\zeta_2)
+(-y)^{-\sum_{i<j} \langle \gamma_{\sigma(i)}, \gamma_{\sigma(j)}\rangle} U(\{\gamma_{\sigma(i)}\},\zeta_1,\zeta_2)
 \ee
-The extent of the validity of this formula, beyond the simple wall-crossing case considered in \cite{Manschot:2010qz}, is not yet clear to the author.
+Here $U$ is the combinatorial factor of \cite[\S 4]{joyce2008configurations} (see \fun{UFactor}). The implementation
+was checked in November 2026 against Reineke's formula evaluated directly at $\zeta_2$, for Kronecker quivers and random
+quivers without oriented loops with up to three nodes, both for \eqref{JSformula} and for its analogue for stack
+invariants. When $\zeta_1$ is not generic, $\bOm(\gamma_i,\zeta_1,y,t)$ must be understood as Joyce's invariant, i.e.\ the
+logarithm of the generating function of semi-stable stack invariants, including products of non-parallel charges of
+the same slope (with the twisted product $(-y)^{-\langle\gamma,\gamma'\rangle}$); this differs from the result of
+\fun{HiggsBranchFormula} or \fun{OmbToHiggsG}, which only combine parallel charges. The formula for stack invariants
+holds for arbitrary $\zeta_1$.
 
 \medskip
 
@@ -1347,10 +1354,6 @@ $g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2,y)$ defined in
 \defn{LFactor}{\vardef{Mat}, \vardef{Li}, \vardef{y}}{computes the  factor $\mathcal{L}(\{\gamma_i\})$ defined in \cite[(5.4)]{Manschot:2010qz}, as a sum over labelled trees (generated with \fun{CodeToLabeledTreeAlt}) of $\prod_{\rm edges}\kappa(\langle\gamma_i,\gamma_j\rangle)$ with $\kappa$ given by \fun{DSZkappa}
 }
 
-\defn{JoyceIndexAlt}{\vardef{Mat}, \vardef{Li}, \vardef{Cvec1}, \vardef{Cvec2}, \vardef{y}}
-{computes the index 
-$g_{\rm Joyce}(\{\gamma_i\}, \zeta_1,\zeta_2,y) $ defined using the naive extension
-of  \cite[(5.5)]{Manschot:2010qz} to $y\neq 1$}
 
 
 \defn{Slope}{\vardef{Nvec}, \vardef{Cvec}}{computes the slope $\sum_i N_i \zeta_i/\sum_i N_i$.}
@@ -1773,8 +1776,6 @@ The following problems were found while checking this documentation against the 
   {\tt Last::nolast}. Moreover, unlike \fun{FlowTreeFormula}, no M\"obius inversion is performed, so the
   result is the rational index $\bOm$ (on which \fun{DTSpectrumFromOmAtt} relies), and
   \fun{AttractorTreeFormulaRat} returns 1, rather than {\tt OmAttb[Nvec,y]}, for total dimension 1.
-\item \fun{JoyceIndex}: the exponent of $(-y)$ in the code is $-\sum_{i<j}\langle\gamma_{\sigma(i)},\gamma_{\sigma(j)}\rangle$,
-  the opposite of the sign in \eqref{defgJoyce}; one of the two should be corrected.
 \item \fun{LegCharge}: for an arrow from a node to itself ($(i,s)=(j,s')$) it returns $+1$ instead of 0, so that
   \fun{ChargeMatrixFromToricQuiver} assigns a non-zero charge to adjoint chiral multiplets (e.g.\ for $\mathbb{C}^3$).
 \item \fun{CompareDSZMatrices}: compares {\tt Tally[Flatten[Mat2]]} with itself, so that the test on the
