@@ -433,11 +433,11 @@ JKGenericResidueFromBlocks::usage = "JKGenericResidueFromBlocks[integrand, varia
 
 JKResidueAtSingularity::usage = "JKResidueAtSingularity[crystal_, hMat_, potential_, etas_, mode_, hrule_] computes the Jeffrey-Kirwan residue for the Euler or chi_y genus depending on mode for the crystal of the form {atoms, root} with atoms a list of {node, height}, for the quiver described by height matrix hMat, where potential is either the full superpotential, a monomial of the potential or the degree of the potential, where etas is a list of perturbed stability vectors, and where hrule can be specified to choose the formal variables in the end result. ";
 
-JKInvariantsFromNode::usage = "JKInvariantsFromNode[hMat, potential, eta, order, node, mode, prohibitedNodes, hrule] computes an associator of invariants for the BPS index/chi_y genus/elliptic genus depending on the mode up to the given order, given a quiver of height matrix hMat with potential described by either the full superpotential, a monomial of the potential or the degree of the potential, for stability vector eta, and starting at node. prohibitedNodes is an optional list of nodes that should not be visited, and hrule is an optional rule to specify the multiplicative formal variables in chi_y mode. ";
+JKInvariantsFromNode::usage = "JKInvariantsFromNode[hMat, potential, eta, order, node, mode, prohibitedNodes, hrule] computes an associator of invariants for the BPS index/chi_y genus/elliptic genus depending on the mode up to the given order, given a quiver of height matrix hMat with potential described by either the full superpotential, a monomial of the potential or the degree of the potential, starting at node, where eta is either the stability vector or a function associating to any dimension vector a stability vector. prohibitedNodes is an optional list of nodes that should not be visited, and hrule is an optional rule to specify the multiplicative formal variables in chi_y mode. ";
 
-JKResidueFromNode::usage = "JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_, simplify_, prohibitedNodes_, hrule_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, starting from node, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, prohibitedNodes optionally specifies a list of nodes that the algorithm will not visit, and hrule optionally gives custom variables for the chi_y genus. ";
+JKResidueFromNode::usage = "JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_, simplify_, prohibitedNodes_, hrule_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, starting from node, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, where eta is either the stability vector or a function associating to any dimension vector a stability vector, simplify optionally simplifies the coefficients, prohibitedNodes optionally specifies a list of nodes that the algorithm will not visit, and hrule optionally gives custom variables for the chi_y genus. ";
 
-JKResidueFromCrystals::usage = "JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_, simplify_, hrule_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
+JKResidueFromCrystals::usage = "JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_, simplify_, hrule_] computes the partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, where eta is either the stability vector or a function associating to any dimension vector a stability vector, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
 
 FramedJKResidue::usage = "FramedJKResidue[hMat_, potential_, eta_, order_, framingArrows_, mode_, simplify_, hrule_] computes the framed partition function for the index (chi_y genus if mode is 'ChiY' or elliptic genus if mode is 'Elliptic' instead of 'Euler' as by default) of the quiver with potential described by the height matrix hMat up to the given order, where potential describes either the full superpotential, a monomial of the potential or the degree of the potential, eta describes the stability parameters, framingArrows lists the framing arrows, simplify optionally simplifies the coefficients, and hrule optionally gives custom variables for the chi_y genus. ";
 
@@ -2098,7 +2098,7 @@ JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Su
    facs = Reap[
       Switch[mode, "Euler",
        const = d^(1-Total[Nvec]);
-       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d + u[nn, i] - u[nn, j], -1}]],
+       Do[If[i != j, Sow[{u[nn, i] - u[nn, j], 1}]; Sow[{u[nn, j] - u[nn, i] - d, -1}]],
         {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
        Do[With[{hh = hMat[[a, b, nn]]},
          Sow[{d - hh + u[a, ttt] - u[b, hhh], 1}]; Sow[{hh + u[b, hhh] - u[a, ttt], -1}]],
@@ -2106,14 +2106,14 @@ JKLinearIntegrandData[hMat_, Potential_, Nvec_, mode_: "Euler", hrule_: {h1-> Su
        "ChiY",
        d = LinearToMultiplicativeWeight[d, hrule]; heights = LinearToMultiplicativeWeight[hMat, hrule];
        const = (d - d^(-1))^(1-Total[Nvec]);
-       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d u[nn, i] - d^(-1) u[nn, j], -1}]],
+       Do[If[i != j, Sow[{u[nn, i] - u[nn, j], 1}]; Sow[{d^(-1) u[nn, j] - d u[nn, i], -1}]],
         {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
        Do[With[{hh = heights[[a, b, nn]]},
          Sow[{d hh^(-2) u[a, ttt] - u[b, hhh] d^(-1), 1}]; Sow[{u[b, hhh] - u[a, ttt] hh^(-2), -1}]],
         {a, Length[hMat]}, {b, Length[hMat]}, {nn, Length[hMat[[a, b]]]}, {ttt, Nvec[[a]]}, {hhh, Nvec[[b]]}],
         "Elliptic",
         const = (2 Pi Eta^3 z/Theta[d z])^(Total[Nvec] - 1);
-       Do[If[i != j, Sow[{u[nn, j] - u[nn, i], 1}]; Sow[{d + u[nn, i] - u[nn, j], -1}]],
+       Do[If[i != j, Sow[{u[nn, i] - u[nn, j], 1}]; Sow[{u[nn, j] - u[nn, i] - d, -1}]],
         {nn, Length[Nvec]}, {i, Nvec[[nn]]}, {j, Nvec[[nn]]}];
        Do[With[{hh = hMat[[a, b, nn]]},
          Sow[{d - hh + u[a, ttt] - u[b, hhh], 1}]; Sow[{hh + u[b, hhh] - u[a, ttt], -1}]],
@@ -2717,15 +2717,14 @@ JKResidueFromBlocks[data_, positions_, flag_, root_, jacobian_: False] :=
 ]];
 
 JKEllipticResidueFromBlocks[data_, positions_, flag_, root_] :=
-  With[{dim = Length[data[[2]]]},
-  Module[{s, a, beta, repOf, terms, newTerms, add, col, vanish, nonv, inv, entries},
-   s = data[[5]];
-   a = Expand[data[[3]] + data[[4]] . positions]; beta = data[[4]];
+  With[{dim = Length[data[[2]]],
+  a = Expand[data[[3]] + data[[4]] . positions]},
+  Module[{repOf, beta, terms, newTerms, add, col, vanish, nonv, inv, entries},
+   beta = data[[4]];
   (* the root column: its variable is frozen to z0 *)
    beta[[All, root]] = 0;
-   (* all atoms of a block share one variable, stored in the column repOf[atom] *)
    repOf = Range[dim];
-   terms = <|{s} -> data[[1]]|>;
+   terms = <|{data[[5]]} -> data[[1]]|>;
    (* exponent matrices are stored without trailing zero rows, so that equal terms share one key *)
    add[e_, v_] := Module[{ee = e},
      While[Length[ee] > 1 && FreeQ[Last[ee], Except[0], {1}, Heads -> False], ee = Most[ee]];
@@ -2763,7 +2762,7 @@ JKEllipticResidueFromBlocks[data_, positions_, flag_, root_] :=
             Do[If[mon =!= 0,
               Module[{e3 = e2},
                Do[With[{k = v[[1]], f = v[[2]]},
-                  If[k >= Length[e3], e3 = PadRight[e3, {k + 1, nf}]];
+                  If[k >= Length[e3], e3 = PadRight[e3, {k + 1, Length[data[[5]]]}]];
                   e3[[k + 1, f]] += Together[v D[mon, v]/mon]],
                  {v, Union[Cases[{mon}, _JKThetaD, Infinity]]}];
                add[e3, base (mon /. _JKThetaD -> 1)]]],
@@ -2817,8 +2816,10 @@ JKInvariantsFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", pr
   With[{e = Expand[h]}, 
    Append[Coefficient[e, #] & /@ hs, e /. Thread[hs -> 0]]], 
  Map[DeleteDuplicates, hMat, {2}], {3}],
-    etas = (val |-> Table[val, order]) /@ eta + 
-      Partition[RandomSample[Range[10^4], Length[eta] order], order]/10^6},
+    (* eta is either a list (one value per node) or a function of the dimension vector returning such a list,
+       e.g. for framed quivers whose framing node must get -eta.n; the perturbation is drawn once *)
+    pert = Partition[RandomSample[Range[10^4], Length[hMat] order], order]/10^6},
+   {etasOf = If[ListQ[eta], Function[nv, (val |-> Table[val, order]) /@ eta + pert], Function[nv, (val |-> Table[val, order]) /@ eta[nv] + pert]]},
       {moves = Table[Join[
         Flatten[Table[If[MemberQ[prohibitedNodes, tt], {}, {tt, -#} & /@ encodedHMat[[nn, tt]]], {tt, Length[encodedHMat]}], 1],
         Flatten[Table[If[MemberQ[prohibitedNodes, tt], {}, {tt, #} & /@ encodedHMat[[tt, nn]]], {tt, Length[encodedHMat]}], 1]],
@@ -2830,16 +2831,17 @@ JKInvariantsFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", pr
      Do[
       level = DeleteDuplicates[Join @@ ((crys |-> Flatten[Table[
         With[{new = Prepend[atom[[2 ;;]] + mv[[2]], mv[[1]]]},
-         If[(new[[1]] == node && Order[new, root] === 1) || MemberQ[crys, new],
+         If[new[[1]] == node && Order[new, root] === 1,
           Nothing, Sort[Append[crys, new]]]],
-        {atom, crys}, {mv, moves[[atom[[1]]]]}], 1]) /@ level)]; 
+        {atom, crys}, {mv, moves[[atom[[1]]]]}], 1]) /@ level)];
         crystals = Join[crystals, level], {order - 1}];
      (* a crystal is passed on as {atoms, root}: the atoms {node, height} and the position of the root atom *)
-     crystals = (crys |-> {{#[[1]], #[[2 ;; 4]] . hs + #[[5]]} & /@ crys, First[FirstPosition[crys, root, {1}, {1}, Heads -> False]]}) /@ crystals;
+     crystals = (crys |-> {{{#[[1]], #[[2 ;; 4]] . hs + #[[5]]} & /@ crys, First[FirstPosition[crys, root, {1}, {1}, Heads -> False]]},
+          1/(Times @@ (Factorial /@ Values[Counts[crys]]))}) /@ crystals;
     PrintTemporary["Now computing the JK contribution of the ", Length[crystals], " possible crystals"];
     (* contributions are summed per dimension vector directly, instead of extracting coefficients from the full sum *)
-    Merge[Join[{<||>}, (crys |-> <|Lookup[Counts[First /@ crys[[1]]], Range[Length[hMat]], 0] ->
-          (JKResidueAtSingularity[crys, hMat, potential, etas, mode, hrule] /. Subscript[x, _] -> 1)|>) /@ crystals], Total]
+    Merge[Join[{<||>}, (cw |-> With[{nv = Lookup[Counts[First /@ cw[[1, 1]]], Range[Length[hMat]], 0]}, <|nv ->
+          (cw[[2]] JKResidueAtSingularity[cw[[1]], hMat, potential, etasOf[nv], mode, hrule] /. Subscript[x, _] -> 1)|>]) /@ crystals], Total]
 ]];
 
 JKResidueFromNode[hMat_, potential_, eta_, order_, node_, mode_ : "Euler", simplify_: True, prohibitedNodes_ : {}, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] :=
@@ -2853,7 +2855,9 @@ JKResidueFromCrystals[hMat_, potential_, eta_, order_, mode_ : "Euler", simplify
 FramedJKResidue[hMat_, potential_, eta_, order_, framingArrows_, mode_ : "Euler", simplify_: True, hrule_ : {h1-> Subscript[t,1], h2 -> Subscript[t,2], h3 -> y}] := 
   With[{fpotential=Replace[potential, Phi[abc_, abd_, abe_] -> Phi[abc + 1, abd + 1, abe], 
            All],
-        feta= Join[{-Total[eta]},eta], 
+        (* the framing node (dimension 1) gets -eta.n for the dimension vector n of the unframed nodes, so that the
+           stability of the framed representation is (-eta.n, eta) (King stability with zero total) *)
+        feta = Function[nv, Join[{-eta . Rest[nv]}, eta]],
         fMat = FramedHeightMatrix[hMat, framingArrows]},
     1 + SeriesFromInvariants[
       Association[(First[#][[2 ;;]] -> Last[#]) & /@ Normal[
